@@ -1,4 +1,4 @@
-package com.nogiax.security.oauth2openid.token;
+package com.nogiax.security.oauth2openid.permissions;
 
 import java.util.HashMap;
 import java.util.HashSet;
