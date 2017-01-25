@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 
 /**
- * Created by Xorpherion on 17.08.2016.
+ * Created by Xorpherion on 25.01.2017.
  */
 public class Request extends Message {
 

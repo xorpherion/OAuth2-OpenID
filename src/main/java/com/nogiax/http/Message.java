@@ -4,7 +4,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 /**
- * Created by Xorpherion on 17.08.2016.
+ * Created by Xorpherion on 25.01.2017.
  */
 public class Message{
 

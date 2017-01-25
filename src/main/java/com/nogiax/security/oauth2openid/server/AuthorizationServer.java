@@ -1,6 +1,7 @@
-package com.nogiax.security.oauth2openid;
+package com.nogiax.security.oauth2openid.server;
 
 import com.nogiax.http.Exchange;
+import com.nogiax.security.oauth2openid.ServerProvider;
 import com.nogiax.security.oauth2openid.endpoints.AuthorizationEndpoint;
 import com.nogiax.security.oauth2openid.endpoints.Endpoint;
 
@@ -13,10 +14,10 @@ public class AuthorizationServer {
 
     private ArrayList<Endpoint> endpoints;
 
-    public AuthorizationServer(ProvidedFuntionality funtionality){
+    public AuthorizationServer(ServerProvider serverProvider){
         endpoints = new ArrayList<>();
 
-        endpoints.add(new AuthorizationEndpoint(funtionality));
+        endpoints.add(new AuthorizationEndpoint(serverProvider));
     }
 
     public Exchange invokeOn(Exchange exc) {

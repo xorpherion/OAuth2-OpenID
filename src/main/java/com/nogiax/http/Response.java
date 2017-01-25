@@ -3,7 +3,7 @@ package com.nogiax.http;
 import java.io.IOException;
 
 /**
- * Created by Xorpherion on 17.08.2016.
+ * Created by Xorpherion on 25.01.2017.
  */
 public class Response extends Message {
 
