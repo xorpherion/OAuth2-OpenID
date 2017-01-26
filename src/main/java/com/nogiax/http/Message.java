@@ -1,8 +1,5 @@
 package com.nogiax.http;
 
-import java.io.Closeable;
-import java.io.IOException;
-
 /**
  * Created by Xorpherion on 25.01.2017.
  */

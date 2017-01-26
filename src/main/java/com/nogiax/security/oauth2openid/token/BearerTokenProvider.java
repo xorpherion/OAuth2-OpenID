@@ -17,8 +17,12 @@ public class BearerTokenProvider {
 
             @Override
             public String get() {
-                synchronized (random){
-                    return new BigInteger(130, random).toString(32);
+                return getRandomBits().toString(32);
+            }
+
+            private BigInteger getRandomBits(){
+                synchronized (random) {
+                    return new BigInteger(130, random);
                 }
             }
         };

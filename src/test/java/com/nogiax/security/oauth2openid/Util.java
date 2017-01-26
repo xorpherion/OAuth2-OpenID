@@ -3,6 +3,8 @@ package com.nogiax.security.oauth2openid;
 import com.nogiax.http.Method;
 import com.nogiax.http.Request;
 import com.nogiax.http.Response;
+import com.nogiax.security.oauth2openid.client.OAuth2AuthorizationServerData;
+import com.nogiax.security.oauth2openid.client.OAuth2ClientData;
 import com.predic8.membrane.core.HttpRouter;
 import com.predic8.membrane.core.Router;
 import com.predic8.membrane.core.exchange.Exchange;
@@ -12,8 +14,8 @@ import com.predic8.membrane.core.rules.AbstractServiceProxy;
 import com.predic8.membrane.core.rules.ServiceProxy;
 import com.predic8.membrane.core.rules.ServiceProxyKey;
 
-import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 
 /**
@@ -105,10 +107,26 @@ public class Util {
     }
 
     public static ServiceProxy createAuthorizationServerProxy(){
-        return createServiceProxy(Constants.PORT_AUTHORIZATION_SERVER, null, new AuthorizationServerInterceptor());
+        return createServiceProxy(ConstantsTest.PORT_AUTHORIZATION_SERVER, null, new AuthorizationServerInterceptor());
     }
 
     public static ServiceProxy createWebApplicationClientProxy(AbstractServiceProxy.Target protectedResource) {
-        return createServiceProxy(Constants.PORT_CLIENT,protectedResource,new WebApplicationClientInterceptor());
+        return createServiceProxy(ConstantsTest.PORT_CLIENT,protectedResource,new WebApplicationClientInterceptor());
+    }
+
+    public static OAuth2ClientData getDefaultCodeGrantClientData(){
+        return new OAuth2ClientData(ConstantsTest.CLIENT_DEFAULT_ID,ConstantsTest.CLIENT_DEFAULT_SECRET, Constants.OAUTH2_GRANT_CODE, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE);
+    }
+
+    public static OAuth2AuthorizationServerData getDefaultAuthorizationServerData() {
+        return new OAuth2AuthorizationServerData(ConstantsTest.SERVER_AUTHORIZATION_ENDPOINT, ConstantsTest.SERVER_TOKEN_ENDPOINT, ConstantsTest.SERVER_USERINFO_ENDPOINT);
+    }
+
+    public static Exchange followRedirect(Exchange responseProtectedResource) throws URISyntaxException {
+        return new com.predic8.membrane.core.http.Request.Builder().get(responseProtectedResource.getResponse().getHeader().getFirstValue("Location")).buildExchange();
+    }
+
+    public static Client createDefaultClient() {
+       return new Client(ConstantsTest.CLIENT_DEFAULT_ID,ConstantsTest.CLIENT_DEFAULT_SECRET);
     }
 }

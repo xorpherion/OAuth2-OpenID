@@ -1,10 +1,7 @@
 package com.nogiax.security.oauth2openid.token;
 
-import com.nogiax.security.oauth2openid.User;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Period;
 
 /**
  * Created by Xorpherion on 25.01.2017.
@@ -35,9 +32,9 @@ public class Token {
         this(token,recipient,defaultValidFor);
     }
 
-    public boolean isRecipientValid(String username, String secret){
+    /*public boolean isRecipientValid(String username, String secret){
         return username.equals(recipient.getName()) && secret.equals(recipient.getSecret());
-    }
+    }*/
 
     public boolean isExpired(){
         return LocalDateTime.now().isAfter(expires);

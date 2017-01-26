@@ -1,7 +1,7 @@
 package com.nogiax.security.oauth2openid.providers;
 
 import com.nogiax.http.Exchange;
-import com.nogiax.http.Session;
+import com.nogiax.security.oauth2openid.Session;
 
 /**
  * Created by Xorpherion on 25.01.2017.

@@ -7,5 +7,5 @@ import com.nogiax.http.Exchange;
  */
 public interface HttpClientProvider {
 
-    boolean sendExchange(Exchange exc);
+    Exchange sendExchange(Exchange exc);
 }
