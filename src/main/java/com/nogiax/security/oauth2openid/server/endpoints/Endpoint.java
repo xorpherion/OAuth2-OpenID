@@ -9,9 +9,11 @@ import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ServerProvider;
 import com.nogiax.security.oauth2openid.Session;
+import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,8 +84,13 @@ public abstract class Endpoint {
         return new ResponseBuilder().redirectTemp(newCallbackUrl).build();
     }
 
-    protected Response redirectToLogin(Map<String,String> params) {
-        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_LOGIN +"#" + UriUtil.parametersToQuery(params)).build();
+    protected Response redirectToLogin(Map<String,String> params) throws UnsupportedEncodingException, JsonProcessingException {
+        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_LOGIN +"#params=" + prepareJSParams(params)).build();
+    }
+
+    protected String prepareJSParams(Map<String,String> params) throws JsonProcessingException, UnsupportedEncodingException {
+        String json = new ObjectMapper().writeValueAsString(params);
+        return UriUtil.encode(Base64.encode(json.getBytes()));
     }
 
     protected boolean isLoggedIn(Exchange exc) throws Exception {
@@ -102,7 +109,7 @@ public abstract class Endpoint {
         return isLoggedIn(exc) && hasGivenConsent(exc);
     }
 
-    protected Response redirectToConsent(Map<String,String> params) {
-        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_CONSENT +"#" + UriUtil.parametersToQuery(params)).build();
+    protected Response redirectToConsent(Map<String,String> params) throws UnsupportedEncodingException, JsonProcessingException {
+        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_CONSENT +"#params=" + prepareJSParams(params)).build();
     }
 }
