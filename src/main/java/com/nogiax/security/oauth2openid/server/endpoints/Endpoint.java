@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nogiax.http.Exchange;
 import com.nogiax.http.Response;
 import com.nogiax.http.ResponseBuilder;
+import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ServerProvider;
 import com.nogiax.security.oauth2openid.Session;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Xorpherion on 25.01.2017.
@@ -80,8 +82,8 @@ public abstract class Endpoint {
         return new ResponseBuilder().redirectTemp(newCallbackUrl).build();
     }
 
-    protected Response redirectToLogin() {
-        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_LOGIN).build();
+    protected Response redirectToLogin(Map<String,String> params) {
+        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_LOGIN +"#" + UriUtil.parametersToQuery(params)).build();
     }
 
     protected boolean isLoggedIn(Exchange exc) throws Exception {
@@ -100,7 +102,7 @@ public abstract class Endpoint {
         return isLoggedIn(exc) && hasGivenConsent(exc);
     }
 
-    protected Response redirectToConsent() {
-        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_CONSENT).build();
+    protected Response redirectToConsent(Map<String,String> params) {
+        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_CONSENT +"#" + UriUtil.parametersToQuery(params)).build();
     }
 }

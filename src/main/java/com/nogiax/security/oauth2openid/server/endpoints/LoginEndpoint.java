@@ -13,6 +13,7 @@ import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -33,21 +34,25 @@ public class LoginEndpoint extends Endpoint {
     public boolean invokeOnOAuth2(Exchange exc) throws Exception {
         log.info("Login endpoint");
         if(exc.getRequest().getUri().getPath().endsWith(Constants.ENDPOINT_LOGIN)) {
-            if (hasSentLoginData(exc)){
+            if (!wasRedirectFromError(exc) && hasSentLoginData(exc)){
                 Map<String,String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
                 if(!params.containsKey(Constants.LOGIN_USERNAME) && !params.containsKey(Constants.LOGIN_PASSWORD)) {
-                    exc.setResponse(sendLoginpage());
-                    return true;
+                    Session session = serverProvider.getSessionProvider().getSession(exc);
+                    session.putValue(Constants.SESSION_REDIRECT_FROM_ERROR,Constants.VALUE_YES);
+                    exc.setResponse(redirectToLogin(couldNotVerifyUserError()));
+                    return false;
                 }
                 String username = params.get(Constants.LOGIN_USERNAME);
                 String password = params.get(Constants.LOGIN_PASSWORD);
                 if(!serverProvider.getUserDataProvider().verifyUser(username,password)){
-                    exc.setResponse(sendLoginpage());
-                    return true;
+                    Session session = serverProvider.getSessionProvider().getSession(exc);
+                    session.putValue(Constants.SESSION_REDIRECT_FROM_ERROR,Constants.VALUE_YES);
+                    exc.setResponse(redirectToLogin(couldNotVerifyUserError()));
+                    return false;
                 }
                 Session session = serverProvider.getSessionProvider().getSession(exc);
                 session.putValue(Constants.SESSION_LOGGED_IN,Constants.VALUE_YES);
-                exc.setResponse(redirectToConsent());
+                exc.setResponse(redirectToConsent(getConsentPageParams()));
                 return true;
             }
             else
@@ -64,7 +69,25 @@ public class LoginEndpoint extends Endpoint {
         return true;
     }
 
+    private boolean wasRedirectFromError(Exchange exc) throws Exception {
+        Session session = serverProvider.getSessionProvider().getSession(exc);
+        String val = session.getValue(Constants.SESSION_REDIRECT_FROM_ERROR);
+        if(val != null && val.equals(Constants.VALUE_YES)){
+            session.removeValue(Constants.SESSION_REDIRECT_FROM_ERROR);
+            return true;
+        }
+        return false;
+    }
 
+    private Map<String,String> couldNotVerifyUserError(){
+        HashMap<String,String> result = new HashMap<>();
+        result.put(Constants.PARAMETER_ERROR, Constants.ERROR_COULD_NOT_VALIDATE_USER);
+        return result;
+    }
+
+    private Map<String,String> getConsentPageParams(){
+        return new HashMap<>();
+    }
 
     private Response sendLoginpage() throws IOException {
         return new ResponseBuilder().statuscode(200).body(loadLoginpage()).build();

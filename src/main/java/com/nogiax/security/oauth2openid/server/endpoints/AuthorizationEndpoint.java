@@ -8,6 +8,7 @@ import com.nogiax.security.oauth2openid.ServerProvider;
 import com.nogiax.security.oauth2openid.Session;
 import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -65,7 +66,7 @@ public class AuthorizationEndpoint extends Endpoint{
             for (String param : params.keySet())
                 session.putValue(param, params.get(param));
 
-            exc.setResponse(redirectToLogin());
+            exc.setResponse(redirectToLogin(new HashMap<>()));
 
             return true;
         }

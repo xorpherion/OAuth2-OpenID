@@ -7,4 +7,5 @@ public interface Session {
 
     String getValue(String key) throws Exception;
     void putValue(String key, String value) throws Exception;
+    void removeValue(String sessionRedirectFromError) throws Exception;
 }

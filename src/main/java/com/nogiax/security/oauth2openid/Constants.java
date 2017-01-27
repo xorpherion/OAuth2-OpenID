@@ -32,6 +32,7 @@ public class Constants {
 
     //Error values
     public static final String ERROR_INVALID_REQUEST = "invalid_request";
+    public static final String ERROR_COULD_NOT_VALIDATE_USER = "Could not verify user. Please try again.";
 
     //Session names
     public static final String SESSION_LOGGED_IN = "logged_in";
@@ -44,4 +45,6 @@ public class Constants {
     //Login names
     public static final String LOGIN_USERNAME = "username";
     public static final String LOGIN_PASSWORD = "password";
+
+    public static final String SESSION_REDIRECT_FROM_ERROR = "redirect_from_error";
 }

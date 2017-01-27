@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+        alert("Fragment: " + window.location.hash);
+    </script>
 </head>
 <body>
-<div class="container">
+<div id="loginpage" class="container">
     <form name="login" action="/login/login" method="post" accept-charset="utf-8">
         <ul>
             <li><label for="username">Username</label>
