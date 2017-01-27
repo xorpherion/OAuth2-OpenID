@@ -3,7 +3,7 @@ package com.nogiax.http;
 /**
  * Created by Xorpherion on 25.01.2017.
  */
-public class Message{
+public class Message {
 
     private Header header = new Header();
     private String body = "";

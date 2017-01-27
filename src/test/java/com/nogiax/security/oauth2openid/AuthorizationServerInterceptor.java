@@ -28,7 +28,7 @@ public class AuthorizationServerInterceptor extends AbstractInterceptor {
         com.nogiax.http.Exchange newExc = new com.nogiax.http.Exchange(Util.convertFromMembraneRequest(exc.getRequest()));
         newExc = server.invokeOn(newExc);
         exc.setResponse(Util.convertToMembraneResponse(newExc.getResponse()));
-        ((MembraneSessionProvider)serverProvider.getSessionProvider()).postProcessSession(newExc,exc);
+        ((MembraneSessionProvider) serverProvider.getSessionProvider()).postProcessSession(newExc, exc);
         return Outcome.RETURN;
     }
 }

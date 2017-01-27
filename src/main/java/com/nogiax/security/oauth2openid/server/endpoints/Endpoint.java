@@ -9,6 +9,7 @@ import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ServerProvider;
 import com.nogiax.security.oauth2openid.Session;
+import com.nogiax.security.oauth2openid.token.BearerTokenProvider;
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,41 +28,41 @@ public abstract class Endpoint {
 
     protected final ServerProvider serverProvider;
     String[] paths;
+    BearerTokenProvider loginStateProvider;
 
-    public Endpoint(ServerProvider serverProvider, String... paths){
+    public Endpoint(ServerProvider serverProvider, String... paths) {
         this.serverProvider = serverProvider;
         this.paths = paths;
+        loginStateProvider = new BearerTokenProvider();
     }
 
     public Exchange useIfResponsible(Exchange exc) throws Exception {
-        if(isResponsible(exc))
+        if (isResponsible(exc))
             return invokeOn(exc);
         return exc;
     }
 
     public boolean isResponsible(Exchange exc) {
-        for(String path : paths)
-            if(exc.getRequest().getUri().getPath().endsWith(path))
+        for (String path : paths)
+            if (exc.getRequest().getUri().getPath().endsWith(path))
                 return true;
         return false;
     }
 
     public Exchange invokeOn(Exchange exc) throws Exception {
-        if(checkParametersOAuth2(exc))
-            if(invokeOnOAuth2(exc))
-                if(hasOpenIdScope(getScope(exc)))
-                    if(checkParametersOpenID(exc))
-                        invokeOnOpenId(exc);
+        invokeOnOAuth2(exc);
         return exc;
     }
 
-    public abstract boolean checkParametersOAuth2(Exchange exc) throws Exception;
+    //public abstract boolean checkParametersOAuth2(Exchange exc) throws Exception;
     public abstract boolean invokeOnOAuth2(Exchange exc) throws Exception;
-    public abstract boolean checkParametersOpenID(Exchange exc) throws Exception;
-    public abstract boolean invokeOnOpenId(Exchange exc) throws Exception;
+
+    //public abstract boolean checkParametersOpenID(Exchange exc) throws Exception;
+    //public abstract boolean invokeOnOpenId(Exchange exc) throws Exception;
+
     public abstract String getScope(Exchange exc) throws Exception;
 
-    private boolean hasOpenIdScope(String scope){
+    private boolean hasOpenIdScope(String scope) {
         return scope != null && scope.contains(Constants.SCOPE_OPENID);
     }
 
@@ -70,8 +71,8 @@ public abstract class Endpoint {
     }
 
     private String getErrorBody(String error) throws JsonProcessingException {
-        HashMap<String,String> result = new HashMap<>();
-        result.put(Constants.PARAMETER_ERROR,error);
+        HashMap<String, String> result = new HashMap<>();
+        result.put(Constants.PARAMETER_ERROR, error);
         return new ObjectMapper().writeValueAsString(result);
     }
 
@@ -80,15 +81,15 @@ public abstract class Endpoint {
     }
 
     protected Response redirectToCallbackWithError(String callbackUrl, String error) {
-        String newCallbackUrl = callbackUrl + "?" + Constants.PARAMETER_ERROR +"="+error;
+        String newCallbackUrl = callbackUrl + "?" + Constants.PARAMETER_ERROR + "=" + error;
         return new ResponseBuilder().redirectTemp(newCallbackUrl).build();
     }
 
-    protected Response redirectToLogin(Map<String,String> params) throws UnsupportedEncodingException, JsonProcessingException {
-        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_LOGIN +"#params=" + prepareJSParams(params)).build();
+    protected Response redirectToLogin(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {
+        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_LOGIN + "#params=" + prepareJSParams(params)).build();
     }
 
-    protected String prepareJSParams(Map<String,String> params) throws JsonProcessingException, UnsupportedEncodingException {
+    protected String prepareJSParams(Map<String, String> params) throws JsonProcessingException, UnsupportedEncodingException {
         String json = new ObjectMapper().writeValueAsString(params);
         return UriUtil.encode(Base64.encode(json.getBytes()));
     }
@@ -109,7 +110,15 @@ public abstract class Endpoint {
         return isLoggedIn(exc) && hasGivenConsent(exc);
     }
 
-    protected Response redirectToConsent(Map<String,String> params) throws UnsupportedEncodingException, JsonProcessingException {
-        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_CONSENT +"#params=" + prepareJSParams(params)).build();
+    protected Response redirectToConsent(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {
+        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_CONSENT + "#params=" + prepareJSParams(params)).build();
+    }
+
+    protected HashMap<String, String> prepareJsStateParameter(Session session) throws Exception {
+        String stateToken = loginStateProvider.get();
+        session.putValue(Constants.SESSION_LOGIN_STATE, stateToken);
+        HashMap<String, String> jsParams = new HashMap<>();
+        jsParams.put(Constants.PARAMETER_STATE, stateToken);
+        return jsParams;
     }
 }

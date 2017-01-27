@@ -25,7 +25,7 @@ public class UriUtil {
         return URLDecoder.decode(str, Constants.ENCODING_DEFAULT);
     }
 
-    public static String parametersToQuery(Map<String, String> parameters){
+    public static String parametersToQuery(Map<String, String> parameters) {
         StringBuilder result = new StringBuilder();
 
         if (parameters == null || parameters.isEmpty())

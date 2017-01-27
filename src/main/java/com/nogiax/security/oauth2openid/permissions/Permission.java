@@ -8,5 +8,5 @@ import java.util.HashSet;
  */
 public class Permission {
     HashSet<String> scopes;
-    HashMap<String,Claim> claims;
+    HashMap<String, Claim> claims;
 }

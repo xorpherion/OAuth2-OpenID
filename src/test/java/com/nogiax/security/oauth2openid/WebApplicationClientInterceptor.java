@@ -19,7 +19,7 @@ public class WebApplicationClientInterceptor extends AbstractInterceptor {
     public void init(Router router) throws Exception {
         super.init(router);
         clientProvider = new MembraneClientFunctionality();
-        client = new WebApplicationClient(clientProvider, Util.getDefaultCodeGrantClientData(),Util.getDefaultAuthorizationServerData());
+        client = new WebApplicationClient(clientProvider, Util.getDefaultCodeGrantClientData(), Util.getDefaultAuthorizationServerData());
     }
 
     @Override
@@ -27,8 +27,8 @@ public class WebApplicationClientInterceptor extends AbstractInterceptor {
         com.nogiax.http.Exchange newExc = new com.nogiax.http.Exchange(Util.convertFromMembraneRequest(exc.getRequest()));
         newExc = client.invokeOn(newExc);
         exc.setResponse(Util.convertToMembraneResponse(newExc.getResponse()));
-        if(exc.getResponse() == null || exc.getResponse().isRedirect() || exc.getResponse().isUserError() || exc.getResponse().isServerError()){
-            ((MembraneSessionProvider)clientProvider.getSessionProvider()).postProcessSession(newExc,exc);
+        if (exc.getResponse() == null || exc.getResponse().isRedirect() || exc.getResponse().isUserError() || exc.getResponse().isServerError()) {
+            ((MembraneSessionProvider) clientProvider.getSessionProvider()).postProcessSession(newExc, exc);
             return Outcome.RETURN;
         }
         return Outcome.CONTINUE;

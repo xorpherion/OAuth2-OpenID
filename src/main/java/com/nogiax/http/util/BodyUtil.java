@@ -3,7 +3,6 @@ package com.nogiax.http.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -15,7 +14,7 @@ public class BodyUtil {
 
     static Logger log = LoggerFactory.getLogger(BodyUtil.class);
 
-    public static String paramsToBody(Map<String,String> parameters){
+    public static String paramsToBody(Map<String, String> parameters) {
         StringBuilder result = new StringBuilder();
 
         if (parameters == null || parameters.isEmpty())
@@ -29,7 +28,7 @@ public class BodyUtil {
         return result.toString();
     }
 
-    public static Map<String,String> bodyToParams(String body){
+    public static Map<String, String> bodyToParams(String body) {
         HashMap<String, String> result = new HashMap<>();
 
         if (body == null || body.isEmpty())

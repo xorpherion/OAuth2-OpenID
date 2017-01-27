@@ -21,16 +21,22 @@
                 var params = getSingleEncodedFragmentAsJson(window.location.hash.split('=')[1]);
                 if(params.error)
                     document.getElementById("error").appendChild(document.createTextNode(params.error));
+                if(params.state)
+                    document.getElementById("state").value = params.state;
+
             }
         });
+
+
 
     </script>
 </head>
 <body>
 <div id="loginpage" class="container">
+    <p>Login page</p>
     <form name="login" action="/login/login" method="post" accept-charset="utf-8">
         <ul>
-            <li >
+            <li>
                 <p id="error"></p>
             </li>
             <li><label for="username">Username</label>
@@ -40,6 +46,7 @@
             <li>
                 <input type="submit" value="Login"></li>
         </ul>
+        <input id="state" type="hidden" name="login_state">
     </form>
 </div>
 </body>

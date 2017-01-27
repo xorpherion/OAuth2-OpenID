@@ -13,9 +13,9 @@ import java.util.Map;
  */
 public class MembraneClientDataProvider implements ClientDataProvider {
 
-    Map<String,Client> clients;
+    Map<String, Client> clients;
 
-    public MembraneClientDataProvider(){
+    public MembraneClientDataProvider() {
         clients = new HashMap<>();
         clients.put(ConstantsTest.CLIENT_DEFAULT_ID, Util.createDefaultClient());
     }

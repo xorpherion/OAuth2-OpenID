@@ -18,8 +18,8 @@ public class ResponseBuilder extends MessageBuilder<Response, ResponseBuilder> {
         return this;
     }
 
-    public ResponseBuilder redirectTemp(String uri){
-        return statuscode(307).header("Location",uri);
+    public ResponseBuilder redirectTemp(String uri) {
+        return statuscode(307).header("Location", uri);
     }
 
     public Exchange buildExchange() {

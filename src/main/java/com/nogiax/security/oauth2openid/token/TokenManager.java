@@ -8,13 +8,12 @@ import java.util.HashMap;
 public class TokenManager {
 
     private final BearerTokenProvider tokenProvider;
-    private final HashMap<String,Token> activeTokens;
+    private final HashMap<String, Token> activeTokens;
 
-    public TokenManager(){
+    public TokenManager() {
         tokenProvider = new BearerTokenProvider();
         activeTokens = new HashMap<>();
     }
-
 
 
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 public class Exchange {
     private Request request;
     private Response response;
-    private Map<String,Object> properties;
+    private Map<String, Object> properties;
 
 
     public Exchange() {

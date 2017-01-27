@@ -1,12 +1,10 @@
 package com.nogiax.security.oauth2openid.server.endpoints;
 
 import com.nogiax.http.Exchange;
-import com.nogiax.http.Response;
 import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ServerProvider;
 import com.nogiax.security.oauth2openid.Session;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,15 +12,16 @@ import java.util.Map;
 /**
  * Created by Xorpherion on 25.01.2017.
  */
-public class AuthorizationEndpoint extends Endpoint{
+public class AuthorizationEndpoint extends Endpoint {
+
 
     public AuthorizationEndpoint(ServerProvider serverProvider) {
         super(serverProvider, Constants.ENDPOINT_AUTHORIZATION);
+
     }
 
-    @Override
     public boolean checkParametersOAuth2(Exchange exc) throws Exception {
-        if(!isLoggedInAndHasGivenConsent(exc)) {
+        if (!isLoggedInAndHasGivenConsent(exc)) {
             Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
             params = Parameters.stripEmptyParams(params);
 
@@ -42,8 +41,6 @@ public class AuthorizationEndpoint extends Endpoint{
     }
 
 
-
-
     private boolean redirectUriOrClientIdProblem(Map<String, String> params) {
         return params.get(Constants.PARAMETER_REDIRECT_URI) == null
                 || !Parameters.redirectUriIsAbsolute(params.get(Constants.PARAMETER_REDIRECT_URI))
@@ -52,12 +49,12 @@ public class AuthorizationEndpoint extends Endpoint{
     }
 
 
-
-
     @Override
     public boolean invokeOnOAuth2(Exchange exc) throws Exception {
         log.info("Authorization endpoint oauth2");
-        if(!isLoggedInAndHasGivenConsent(exc)) {
+        if (!isLoggedInAndHasGivenConsent(exc)) {
+
+            checkParametersOAuth2(exc);
 
             Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
             params = Parameters.stripEmptyParams(params);
@@ -66,29 +63,14 @@ public class AuthorizationEndpoint extends Endpoint{
             for (String param : params.keySet())
                 session.putValue(param, params.get(param));
 
-            exc.setResponse(redirectToLogin(new HashMap<>()));
+            HashMap<String, String> jsParams = prepareJsStateParameter(session);
+            exc.setResponse(redirectToLogin(jsParams));
 
             return true;
         }
         return true;
     }
 
-    @Override
-    public boolean checkParametersOpenID(Exchange exc) throws Exception {
-        if(!isLoggedInAndHasGivenConsent(exc)) {
-            return true;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean invokeOnOpenId(Exchange exc) throws Exception {
-        log.info("Authorization endpoint openid");
-        if(!isLoggedInAndHasGivenConsent(exc)) {
-            return true;
-        }
-        return true;
-    }
 
     @Override
     public String getScope(Exchange exc) throws Exception {

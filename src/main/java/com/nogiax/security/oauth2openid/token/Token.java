@@ -25,18 +25,18 @@ public class Token {
     }
 
     public Token(String token, User recipient, Duration validFor) {
-        this(token,recipient,LocalDateTime.now(),validFor);
+        this(token, recipient, LocalDateTime.now(), validFor);
     }
 
-    public Token(String token, User recipient){
-        this(token,recipient,defaultValidFor);
+    public Token(String token, User recipient) {
+        this(token, recipient, defaultValidFor);
     }
 
     /*public boolean isRecipientValid(String username, String secret){
         return username.equals(recipient.getName()) && secret.equals(recipient.getSecret());
     }*/
 
-    public boolean isExpired(){
+    public boolean isExpired() {
         return LocalDateTime.now().isAfter(expires);
     }
 

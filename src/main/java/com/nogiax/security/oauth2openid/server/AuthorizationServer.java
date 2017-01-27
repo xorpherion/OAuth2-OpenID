@@ -18,7 +18,7 @@ public class AuthorizationServer {
 
     private ArrayList<Endpoint> endpoints;
 
-    public AuthorizationServer(ServerProvider serverProvider){
+    public AuthorizationServer(ServerProvider serverProvider) {
         endpoints = new ArrayList<>();
 
         endpoints.add(new AuthorizationEndpoint(serverProvider));
@@ -27,8 +27,8 @@ public class AuthorizationServer {
 
     public Exchange invokeOn(Exchange exc) throws Exception {
         log.info("Authorization server connect");
-        for(Endpoint endpoint : endpoints)
-            if(exc.getResponse() == null)
+        for (Endpoint endpoint : endpoints)
+            if (exc.getResponse() == null)
                 exc = endpoint.useIfResponsible(exc);
         return exc;
     }

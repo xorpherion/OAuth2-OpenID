@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class MembraneUserDataProvider implements UserDataProvider {
 
-    Map<String,User> users;
+    Map<String, User> users;
 
     public MembraneUserDataProvider() {
         this.users = new HashMap<>();
@@ -22,10 +22,10 @@ public class MembraneUserDataProvider implements UserDataProvider {
 
     @Override
     public boolean verifyUser(String username, String secret) {
-        if(!users.containsKey(username))
+        if (!users.containsKey(username))
             return false;
         User user = users.get(username);
-        if(!secret.equals(user.getPassword()))
+        if (!secret.equals(user.getPassword()))
             return false;
         return true;
     }

@@ -34,50 +34,50 @@ public class Util {
 //    }
 
     public static Response convertFromMembraneResponse(com.predic8.membrane.core.http.Response membraneResponse) {
-        if(membraneResponse != null){
+        if (membraneResponse != null) {
             Response result = new Response();
             result.setStatuscode(membraneResponse.getStatusCode());
             result.setBody(membraneResponse.getBodyAsStringDecoded());
-            for(HeaderField header : membraneResponse.getHeader().getAllHeaderFields())
-                result.getHeader().append(header.getHeaderName().toString(),header.getValue());
+            for (HeaderField header : membraneResponse.getHeader().getAllHeaderFields())
+                result.getHeader().append(header.getHeaderName().toString(), header.getValue());
             return result;
         }
         return null;
     }
 
     public static Request convertFromMembraneRequest(com.predic8.membrane.core.http.Request membraneRequest) {
-        if(membraneRequest != null){
+        if (membraneRequest != null) {
             Request result = new Request();
             result.setUri(URI.create(membraneRequest.getUri()));
             result.setMethod(Method.fromString(membraneRequest.getMethod()));
             result.setBody(membraneRequest.getBodyAsStringDecoded());
-            for(HeaderField header : membraneRequest.getHeader().getAllHeaderFields())
-                result.getHeader().append(header.getHeaderName().toString(),header.getValue());
+            for (HeaderField header : membraneRequest.getHeader().getAllHeaderFields())
+                result.getHeader().append(header.getHeaderName().toString(), header.getValue());
             return result;
         }
         return null;
     }
 
-    public static com.predic8.membrane.core.http.Request convertToMembraneRequest(Request request){
-        if(request != null){
+    public static com.predic8.membrane.core.http.Request convertToMembraneRequest(Request request) {
+        if (request != null) {
             com.predic8.membrane.core.http.Request result = new com.predic8.membrane.core.http.Request();
             result.setUri(request.getUri().toString());
             result.setMethod(request.getMethod().toString());
             result.setBodyContent(request.getBody().getBytes(Charset.defaultCharset()));
-            for(String headername : request.getHeader().getHeaderNames())
-                result.getHeader().add(headername,request.getHeader().getValue(headername));
+            for (String headername : request.getHeader().getHeaderNames())
+                result.getHeader().add(headername, request.getHeader().getValue(headername));
             return result;
         }
         return null;
     }
 
-    public static com.predic8.membrane.core.http.Response convertToMembraneResponse(Response response){
-        if(response != null){
+    public static com.predic8.membrane.core.http.Response convertToMembraneResponse(Response response) {
+        if (response != null) {
             com.predic8.membrane.core.http.Response result = new com.predic8.membrane.core.http.Response();
             result.setStatusCode(response.getStatuscode());
             result.setBodyContent(response.getBody().getBytes(Charset.defaultCharset()));
-            for(String headername : response.getHeader().getHeaderNames())
-                result.getHeader().add(headername,response.getHeader().getValue(headername));
+            for (String headername : response.getHeader().getHeaderNames())
+                result.getHeader().add(headername, response.getHeader().getValue(headername));
             return result;
         }
         return null;
@@ -87,35 +87,35 @@ public class Util {
         HttpRouter router = new HttpRouter();
         router.setHotDeploy(false);
 
-        for(ServiceProxy sp : sps)
+        for (ServiceProxy sp : sps)
             router.add(sp);
 
         router.start();
         return router;
     }
 
-    private static ServiceProxy createServiceProxy(int spPort, AbstractServiceProxy.Target target, AbstractInterceptor... interceptors){
-        if(target == null)
-            target = new AbstractServiceProxy.Target(null,-1);
+    private static ServiceProxy createServiceProxy(int spPort, AbstractServiceProxy.Target target, AbstractInterceptor... interceptors) {
+        if (target == null)
+            target = new AbstractServiceProxy.Target(null, -1);
 
-        ServiceProxy sp = new ServiceProxy(new ServiceProxyKey(spPort),target.getHost(),target.getPort());
+        ServiceProxy sp = new ServiceProxy(new ServiceProxyKey(spPort), target.getHost(), target.getPort());
 
-        for(AbstractInterceptor interceptor : interceptors)
+        for (AbstractInterceptor interceptor : interceptors)
             sp.getInterceptors().add(interceptor);
 
         return sp;
     }
 
-    public static ServiceProxy createAuthorizationServerProxy(){
+    public static ServiceProxy createAuthorizationServerProxy() {
         return createServiceProxy(ConstantsTest.PORT_AUTHORIZATION_SERVER, null, new AuthorizationServerInterceptor());
     }
 
     public static ServiceProxy createWebApplicationClientProxy(AbstractServiceProxy.Target protectedResource) {
-        return createServiceProxy(ConstantsTest.PORT_CLIENT,protectedResource,new WebApplicationClientInterceptor());
+        return createServiceProxy(ConstantsTest.PORT_CLIENT, protectedResource, new WebApplicationClientInterceptor());
     }
 
-    public static OAuth2ClientData getDefaultCodeGrantClientData(){
-        return new OAuth2ClientData(ConstantsTest.CLIENT_DEFAULT_ID,ConstantsTest.CLIENT_DEFAULT_SECRET, Constants.OAUTH2_GRANT_CODE, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE);
+    public static OAuth2ClientData getDefaultCodeGrantClientData() {
+        return new OAuth2ClientData(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET, Constants.OAUTH2_GRANT_CODE, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE);
     }
 
     public static OAuth2AuthorizationServerData getDefaultAuthorizationServerData() {
@@ -127,7 +127,7 @@ public class Util {
     }
 
     public static Client createDefaultClient() {
-       return new Client(ConstantsTest.CLIENT_DEFAULT_ID,ConstantsTest.CLIENT_DEFAULT_SECRET);
+        return new Client(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
     }
 
 

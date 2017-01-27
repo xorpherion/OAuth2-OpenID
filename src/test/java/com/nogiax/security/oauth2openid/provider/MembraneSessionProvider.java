@@ -21,7 +21,7 @@ public class MembraneSessionProvider implements SessionProvider {
 
     SessionManager sessionManager;
 
-    public MembraneSessionProvider(String sessionName){
+    public MembraneSessionProvider(String sessionName) {
         sessionManager = new SessionManager();
         sessionManager.setCookieName(sessionName);
     }
@@ -32,19 +32,20 @@ public class MembraneSessionProvider implements SessionProvider {
         memExc.setRequest(Util.convertToMembraneRequest(exc.getRequest()));
         memExc.setRule(new NullRule());
 
-        if(exc.getProperties().containsKey(excSessionPropertyName))
-            memExc.setProperty(excMembraneSessionPropertyName,exc.getProperties().get(excSessionPropertyName));
+        if (exc.getProperties().containsKey(excSessionPropertyName))
+            memExc.setProperty(excMembraneSessionPropertyName, exc.getProperties().get(excSessionPropertyName));
 
         SessionManager.Session memSession = sessionManager.getOrCreateSession(memExc);
 
-        if(memExc.getProperty(excMembraneSessionPropertyName) != null)
-            exc.getProperties().put(excSessionPropertyName,memExc.getProperty(excMembraneSessionPropertyName));
-        if(memExc.getProperty(excMembraneSessionIdPropertyName) != null)
-            exc.getProperties().put(excSessionIdPropertyName,memExc.getProperty(excMembraneSessionIdPropertyName));
+        if (memExc.getProperty(excMembraneSessionPropertyName) != null)
+            exc.getProperties().put(excSessionPropertyName, memExc.getProperty(excMembraneSessionPropertyName));
+        if (memExc.getProperty(excMembraneSessionIdPropertyName) != null)
+            exc.getProperties().put(excSessionIdPropertyName, memExc.getProperty(excMembraneSessionIdPropertyName));
 
         return new Session() {
 
             SessionManager.Session session = memSession;
+
             @Override
             public String getValue(String key) {
                 return session.getUserAttributes().get(prefixKey(key));
@@ -52,7 +53,7 @@ public class MembraneSessionProvider implements SessionProvider {
 
             @Override
             public void putValue(String key, String value) throws JsonProcessingException {
-                session.getUserAttributes().put(prefixKey(key),value);
+                session.getUserAttributes().put(prefixKey(key), value);
             }
 
             @Override
@@ -60,17 +61,17 @@ public class MembraneSessionProvider implements SessionProvider {
                 session.getUserAttributes().remove(prefixKey(key));
             }
 
-            private String prefixKey(String key){
+            private String prefixKey(String key) {
                 return sessionKeyPrefix + "_" + key;
             }
-        } ;
+        };
     }
 
-    public void postProcessSession(Exchange exc, com.predic8.membrane.core.exchange.Exchange memExc){
+    public void postProcessSession(Exchange exc, com.predic8.membrane.core.exchange.Exchange memExc) {
         Object sessionId = exc.getProperties().get(excSessionIdPropertyName);
 
-        if(sessionId != null && exc.getResponse() != null){
-            memExc.setProperty(excMembraneSessionIdPropertyName,sessionId);
+        if (sessionId != null && exc.getResponse() != null) {
+            memExc.setProperty(excMembraneSessionIdPropertyName, sessionId);
             sessionManager.postProcess(memExc);
         }
 

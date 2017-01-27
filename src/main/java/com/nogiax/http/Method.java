@@ -38,7 +38,7 @@ public enum Method {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return toString(this);
     }
 }

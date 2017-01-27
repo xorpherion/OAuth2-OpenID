@@ -37,7 +37,7 @@ public class OAuth2 {
 
         ServiceProxyKey authorizationServerKey = new ServiceProxyKey(listenPort);
 
-        ServiceProxy authorizationServerProxy = new ServiceProxy(authorizationServerKey,protectedTargetHost,protectedTargetPort);
+        ServiceProxy authorizationServerProxy = new ServiceProxy(authorizationServerKey, protectedTargetHost, protectedTargetPort);
         router.add(authorizationServerProxy);
 
         router.start();
@@ -49,11 +49,11 @@ public class OAuth2 {
     }
 
     @Test
-    void testStartAuthServerAndClient() throws Exception{
+    void testStartAuthServerAndClient() throws Exception {
         Router authorizationServer = Util.startMembraneWithProxies(Util.createAuthorizationServerProxy());
         Router webApplicationClient = Util.startMembraneWithProxies(Util.createWebApplicationClientProxy(new AbstractServiceProxy.Target("www.google.de", 80)));
         boolean running = true;
-        while(running)
+        while (running)
             Thread.sleep(1000);
         webApplicationClient.stop();
         authorizationServer.stop();

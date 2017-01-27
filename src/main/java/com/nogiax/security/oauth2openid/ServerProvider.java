@@ -10,6 +10,8 @@ import com.nogiax.security.oauth2openid.providers.UserDataProvider;
 public interface ServerProvider {
 
     SessionProvider getSessionProvider();
+
     ClientDataProvider getClientDataProvider();
+
     UserDataProvider getUserDataProvider();
 }

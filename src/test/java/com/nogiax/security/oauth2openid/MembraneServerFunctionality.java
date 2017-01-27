@@ -16,7 +16,7 @@ public class MembraneServerFunctionality implements ServerProvider {
     MembraneClientDataProvider clientDataProvider;
     MembraneUserDataProvider userDataProvider;
 
-    public MembraneServerFunctionality(){
+    public MembraneServerFunctionality() {
         sessionProvider = new MembraneSessionProvider("SC_ID");
         clientDataProvider = new MembraneClientDataProvider();
         userDataProvider = new MembraneUserDataProvider();

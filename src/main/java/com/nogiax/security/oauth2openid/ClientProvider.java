@@ -9,5 +9,6 @@ import com.nogiax.security.oauth2openid.providers.SessionProvider;
 public interface ClientProvider {
 
     HttpClientProvider getHttpClient();
+
     SessionProvider getSessionProvider();
 }

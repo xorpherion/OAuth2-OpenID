@@ -24,7 +24,7 @@ public class WebApplicationClient {
     private final OAuth2ClientData clientData;
     private final OAuth2AuthorizationServerData serverData;
 
-    private Cache<String,Exchange> originalRequestsForState;
+    private Cache<String, Exchange> originalRequestsForState;
     private BearerTokenProvider stateTokenProvider;
 
     public WebApplicationClient(ClientProvider clientProvider, OAuth2ClientData clientData, OAuth2AuthorizationServerData serverData) {
@@ -39,7 +39,7 @@ public class WebApplicationClient {
     public Exchange invokeOn(Exchange exc) {
         log.info("Client connect");
         Exchange result = invokeWhenCallback(exc);
-        if(result == null)
+        if (result == null)
             result = invokeAuthRedirect(exc);
         return result;
     }
@@ -50,7 +50,7 @@ public class WebApplicationClient {
     }
 
     private Exchange invokeWhenCallback(Exchange exc) {
-        if(!clientData.getRedirectUri().endsWith(exc.getRequest().getUri().getPath()))
+        if (!clientData.getRedirectUri().endsWith(exc.getRequest().getUri().getPath()))
             return null;
         // callback impl
         log.info("Client callback");
@@ -58,17 +58,17 @@ public class WebApplicationClient {
         return new Exchange();
     }
 
-    public Exchange createAuthorizationEndpointRedirectForResourceOwner(Exchange exc){
+    public Exchange createAuthorizationEndpointRedirectForResourceOwner(Exchange exc) {
         return new ResponseBuilder()
                 .redirectTemp(getAuthorizationEndpointUriWithQuery(exc)).buildExchange();
     }
 
     private String getAuthorizationEndpointUriWithQuery(Exchange exc) {
-        HashMap<String,String> parameters = new HashMap<>();
+        HashMap<String, String> parameters = new HashMap<>();
         parameters.put(Constants.PARAMETER_RESPONSE_TYPE, Constants.OAUTH2_GRANT_CODE);
         parameters.put(Constants.PARAMETER_CLIENT_ID, clientData.getClientId());
-        parameters.put(Constants.PARAMETER_REDIRECT_URI,clientData.getRedirectUri());
-        parameters.put(Constants.PARAMETER_SCOPE,clientData.getScope());
+        parameters.put(Constants.PARAMETER_REDIRECT_URI, clientData.getRedirectUri());
+        parameters.put(Constants.PARAMETER_SCOPE, clientData.getScope());
         parameters.put(Constants.PARAMETER_STATE, createStateAndSaveOriginalRequestToIt(exc));
 
         return serverData.getAuthEndpoint() + "?" + UriUtil.parametersToQuery(parameters);
@@ -76,7 +76,7 @@ public class WebApplicationClient {
 
     private String createStateAndSaveOriginalRequestToIt(Exchange exc) {
         String state = stateTokenProvider.get();
-        originalRequestsForState.put(state,exc);
+        originalRequestsForState.put(state, exc);
         return state;
     }
 }

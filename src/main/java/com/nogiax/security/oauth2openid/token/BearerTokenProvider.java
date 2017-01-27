@@ -11,7 +11,7 @@ public class BearerTokenProvider {
 
     private final Supplier<String> factory;
 
-    public BearerTokenProvider(){
+    public BearerTokenProvider() {
         this.factory = new Supplier<String>() {
             private SecureRandom random = new SecureRandom();
 
@@ -20,7 +20,7 @@ public class BearerTokenProvider {
                 return getRandomBits().toString(32);
             }
 
-            private BigInteger getRandomBits(){
+            private BigInteger getRandomBits() {
                 synchronized (random) {
                     return new BigInteger(130, random);
                 }
@@ -28,7 +28,7 @@ public class BearerTokenProvider {
         };
     }
 
-    public String get(){
+    public String get() {
         return factory.get();
     }
 }
