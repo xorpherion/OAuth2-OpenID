@@ -22,11 +22,11 @@ public abstract class Endpoint {
     Logger log = LoggerFactory.getLogger(this.getClass());
 
     protected final ServerProvider serverProvider;
-    String path;
+    String[] paths;
 
-    public Endpoint(ServerProvider serverProvider, String path){
+    public Endpoint(ServerProvider serverProvider, String... paths){
         this.serverProvider = serverProvider;
-        this.path = path;
+        this.paths = paths;
     }
 
     public Exchange useIfResponsible(Exchange exc) throws Exception {
@@ -35,8 +35,11 @@ public abstract class Endpoint {
         return exc;
     }
 
-    public boolean isResponsible(Exchange exc){
-        return exc.getRequest().getUri().getPath().endsWith(path);
+    public boolean isResponsible(Exchange exc) {
+        for(String path : paths)
+            if(exc.getRequest().getUri().getPath().endsWith(path))
+                return true;
+        return false;
     }
 
     public Exchange invokeOn(Exchange exc) throws Exception {
@@ -95,5 +98,9 @@ public abstract class Endpoint {
 
     protected boolean isLoggedInAndHasGivenConsent(Exchange exc) throws Exception {
         return isLoggedIn(exc) && hasGivenConsent(exc);
+    }
+
+    protected Response redirectToConsent() {
+        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_CONSENT).build();
     }
 }

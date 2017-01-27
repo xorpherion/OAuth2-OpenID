@@ -25,7 +25,8 @@ public class Constants {
     public static final String ENDPOINT_AUTHORIZATION = "/auth";
     public static final String ENDPOINT_TOKEN = "/token";
     public static final String ENDPOINT_USERINFO = "/userinfo";
-    public static final String ENDPOINT_LOGIN = "/login";
+    public static final String ENDPOINT_LOGIN = "/login/login";
+    public static final String ENDPOINT_CONSENT = "/login/consent";
 
     public static final String ENDPOINT_CLIENT_CALLBACK = "/oauth2cb";
 
@@ -39,4 +40,8 @@ public class Constants {
     //Values
     public static final String VALUE_YES = "yes";
     public static final String VALUE_NO = "no";
+
+    //Login names
+    public static final String LOGIN_USERNAME = "username";
+    public static final String LOGIN_PASSWORD = "password";
 }

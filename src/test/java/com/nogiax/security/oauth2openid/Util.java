@@ -129,4 +129,9 @@ public class Util {
     public static Client createDefaultClient() {
        return new Client(ConstantsTest.CLIENT_DEFAULT_ID,ConstantsTest.CLIENT_DEFAULT_SECRET);
     }
+
+
+    public static User createDefaultUser() {
+        return new User(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD);
+    }
 }
