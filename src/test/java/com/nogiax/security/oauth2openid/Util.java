@@ -115,7 +115,7 @@ public class Util {
     }
 
     public static OAuth2ClientData getDefaultCodeGrantClientData() {
-        return new OAuth2ClientData(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET, Constants.OAUTH2_GRANT_CODE, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE);
+        return new OAuth2ClientData(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET, Constants.GRANT_CODE, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE);
     }
 
     public static OAuth2AuthorizationServerData getDefaultAuthorizationServerData() {

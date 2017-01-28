@@ -81,12 +81,24 @@ public abstract class Endpoint {
     }
 
     protected Response redirectToCallbackWithError(String callbackUrl, String error) {
-        String newCallbackUrl = callbackUrl + "?" + Constants.PARAMETER_ERROR + "=" + error;
-        return new ResponseBuilder().redirectTemp(newCallbackUrl).build();
+        HashMap<String, String> params = new HashMap<>();
+        params.put(Constants.PARAMETER_ERROR, error);
+        return redirectToCallbackWithParams(callbackUrl, params);
+    }
+
+    protected Response redirectToCallbackWithParams(String callbackurl, Map<String, String> params) {
+        return redirectToUrl(callbackurl, params);
+    }
+
+    protected Response redirectToUrl(String url, Map<String, String> params) {
+        String newurl = url;
+        if (params != null && !params.isEmpty())
+            newurl += "?" + UriUtil.parametersToQuery(params);
+        return new ResponseBuilder().redirectTemp(newurl).build();
     }
 
     protected Response redirectToLogin(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {
-        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_LOGIN + "#params=" + prepareJSParams(params)).build();
+        return redirectToUrl(Constants.ENDPOINT_LOGIN + "#params=" + prepareJSParams(params), null);
     }
 
     protected String prepareJSParams(Map<String, String> params) throws JsonProcessingException, UnsupportedEncodingException {
@@ -111,7 +123,7 @@ public abstract class Endpoint {
     }
 
     protected Response redirectToConsent(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {
-        return new ResponseBuilder().redirectTemp(Constants.ENDPOINT_CONSENT + "#params=" + prepareJSParams(params)).build();
+        return redirectToUrl(Constants.ENDPOINT_CONSENT + "#params=" + prepareJSParams(params), null);
     }
 
     protected HashMap<String, String> prepareJsStateParameter(Session session) throws Exception {

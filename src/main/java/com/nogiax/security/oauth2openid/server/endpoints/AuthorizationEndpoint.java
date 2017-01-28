@@ -5,6 +5,8 @@ import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ServerProvider;
 import com.nogiax.security.oauth2openid.Session;
+import com.nogiax.security.oauth2openid.flow.AuthorizationEndpointFlowDecider;
+import com.nogiax.security.oauth2openid.flow.FlowDecider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,10 +16,8 @@ import java.util.Map;
  */
 public class AuthorizationEndpoint extends Endpoint {
 
-
     public AuthorizationEndpoint(ServerProvider serverProvider) {
         super(serverProvider, Constants.ENDPOINT_AUTHORIZATION);
-
     }
 
     public boolean checkParametersOAuth2(Exchange exc) throws Exception {
@@ -68,6 +68,9 @@ public class AuthorizationEndpoint extends Endpoint {
 
             return true;
         }
+        System.out.println("logged in and consent");
+        Map<String, String> callbackParams = new AuthorizationEndpointFlowDecider(serverProvider, exc).invokeFlows();
+        exc.setResponse(redirectToCallbackWithParams(serverProvider.getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams));
         return true;
     }
 

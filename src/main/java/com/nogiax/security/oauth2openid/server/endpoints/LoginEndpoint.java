@@ -9,7 +9,6 @@ import com.nogiax.http.util.BodyUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ServerProvider;
 import com.nogiax.security.oauth2openid.Session;
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

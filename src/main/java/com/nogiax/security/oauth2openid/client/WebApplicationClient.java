@@ -55,7 +55,7 @@ public class WebApplicationClient {
         // callback impl
         log.info("Client callback");
 
-        return new Exchange();
+        return new ResponseBuilder().statuscode(200).body("We did it!").buildExchange();
     }
 
     public Exchange createAuthorizationEndpointRedirectForResourceOwner(Exchange exc) {
@@ -65,7 +65,7 @@ public class WebApplicationClient {
 
     private String getAuthorizationEndpointUriWithQuery(Exchange exc) {
         HashMap<String, String> parameters = new HashMap<>();
-        parameters.put(Constants.PARAMETER_RESPONSE_TYPE, Constants.OAUTH2_GRANT_CODE);
+        parameters.put(Constants.PARAMETER_RESPONSE_TYPE, Constants.GRANT_CODE);
         parameters.put(Constants.PARAMETER_CLIENT_ID, clientData.getClientId());
         parameters.put(Constants.PARAMETER_REDIRECT_URI, clientData.getRedirectUri());
         parameters.put(Constants.PARAMETER_SCOPE, clientData.getScope());

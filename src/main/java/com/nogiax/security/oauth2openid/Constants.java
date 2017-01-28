@@ -19,7 +19,11 @@ public class Constants {
     public static final String SCOPE_OPENID = "openid";
 
     //Grant names
-    public static final String OAUTH2_GRANT_CODE = "code";
+    public static final String GRANT_CODE = "code";
+    public static final String GRANT_TOKEN = "token";
+    public static final String GRANT_ID_TOKEN = "id_token";
+    public static final String GRANT_PASSWORD = "password";
+    public static final String GRANT_CLIENT_CREDENTIALS = "client_credentials";
 
     //Endpoint names
     public static final String ENDPOINT_AUTHORIZATION = "/auth";
@@ -41,6 +45,7 @@ public class Constants {
     public static final String SESSION_LOGGED_IN = "logged_in";
     public static final String SESSION_CONSENT_GIVEN = "consent_given";
     public static final String SESSION_LOGIN_STATE = "login_state";
+    public static final String SESSION_REDIRECT_FROM_ERROR = "redirect_from_error";
 
     //Values
     public static final String VALUE_YES = "yes";
@@ -50,9 +55,6 @@ public class Constants {
     public static final String LOGIN_USERNAME = "username";
     public static final String LOGIN_PASSWORD = "password";
     public static final String LOGIN_CONSENT = "consent";
-
-    public static final String SESSION_REDIRECT_FROM_ERROR = "redirect_from_error";
-
 
 
 }

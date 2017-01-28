@@ -29,16 +29,15 @@
 
 
 
+
     </script>
 </head>
 <body>
 <div id="loginpage" class="container">
     <p>Login page</p>
     <form name="login" action="/login/login" method="post" accept-charset="utf-8">
+        <p id="error"></p>
         <ul>
-            <li>
-                <p id="error"></p>
-            </li>
             <li><label for="username">Username</label>
                 <input type="input" name="username" placeholder="username" required></li>
             <li><label for="password">Password</label>
