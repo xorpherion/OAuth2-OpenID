@@ -14,6 +14,8 @@ public class Constants {
     public static final String PARAMETER_SCOPE = "scope";
     public static final String PARAMETER_STATE = "state";
     public static final String PARAMETER_ERROR = "error";
+    public static final String PARAMETER_CLAIMS = "claims";
+    public static final String PARAMETER_AUTHORIZATION_CODE = "code";
 
     //Scope names
     public static final String SCOPE_OPENID = "openid";
@@ -55,6 +57,7 @@ public class Constants {
     public static final String LOGIN_USERNAME = "username";
     public static final String LOGIN_PASSWORD = "password";
     public static final String LOGIN_CONSENT = "consent";
+
 
 
 }

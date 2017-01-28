@@ -94,7 +94,7 @@ public abstract class Endpoint {
         String newurl = url;
         if (params != null && !params.isEmpty())
             newurl += "?" + UriUtil.parametersToQuery(params);
-        return new ResponseBuilder().redirectTemp(newurl).build();
+        return new ResponseBuilder().redirectTempWithGet(newurl).build();
     }
 
     protected Response redirectToLogin(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {

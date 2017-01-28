@@ -35,9 +35,9 @@ public abstract class Flow {
         return false;
     }
 
-    private Session getSession() {
+    protected Session getSession() {
         return serverProvider.getSessionProvider().getSession(exc);
     }
 
-    public abstract Map<String, String> invokeFlow();
+    public abstract Map<String, String> invokeFlow() throws Exception;
 }

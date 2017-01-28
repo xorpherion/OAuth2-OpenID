@@ -18,7 +18,11 @@ public class ResponseBuilder extends MessageBuilder<Response, ResponseBuilder> {
         return this;
     }
 
-    public ResponseBuilder redirectTemp(String uri) {
+    public ResponseBuilder redirectTempWithGet(String uri) {
+        return statuscode(303).header("Location", uri);
+    }
+
+    public ResponseBuilder redirectTempIdentical(String uri) {
         return statuscode(307).header("Location", uri);
     }
 

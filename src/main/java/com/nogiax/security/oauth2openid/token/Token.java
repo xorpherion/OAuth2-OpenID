@@ -2,6 +2,7 @@ package com.nogiax.security.oauth2openid.token;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 /**
  * Created by Xorpherion on 25.01.2017.
@@ -10,65 +11,64 @@ public class Token {
 
     static Duration defaultValidFor = Duration.ofMinutes(10);
 
-    String token;
-    User recipient;
-    LocalDateTime issued;
-    LocalDateTime expires;
-    String scopes;
-    String claims;
+    private final String value;
+    private final String username;
+    private final String clientId;
+    private final LocalDateTime issued;
+    private final Duration validFor;
+    private final String claims;
+    private final Token childOf;
+    private final Token parentOf;
 
-    public Token(String token, User recipient, LocalDateTime issued, Duration validFor) {
-        this.token = token;
-        this.recipient = recipient;
+    public Token(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, Token childOf, Token parentOf) {
+        this.value = value;
+        this.username = username;
+        this.clientId = clientId;
         this.issued = issued;
-        this.expires = issued.plus(validFor);
-    }
+        this.validFor = validFor;
+        this.claims = claims;
+        this.childOf = childOf;
+        this.parentOf = parentOf;
 
-    public Token(String token, User recipient, Duration validFor) {
-        this(token, recipient, LocalDateTime.now(), validFor);
     }
-
-    public Token(String token, User recipient) {
-        this(token, recipient, defaultValidFor);
-    }
-
-    /*public boolean isRecipientValid(String username, String secret){
-        return username.equals(recipient.getName()) && secret.equals(recipient.getSecret());
-    }*/
 
     public boolean isExpired() {
-        return LocalDateTime.now().isAfter(expires);
+        return LocalDateTime.now().isAfter(LocalDateTime.now().plus(validFor));
     }
 
-    public String getToken() {
-        return token;
+    public static Duration getDefaultValidFor() {
+        return defaultValidFor;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public String getValue() {
+        return value;
     }
 
-    public User getRecipient() {
-        return recipient;
+    public String getUsername() {
+        return username;
     }
 
-    public void setRecipient(User recipient) {
-        this.recipient = recipient;
+    public String getClientId() {
+        return clientId;
     }
 
     public LocalDateTime getIssued() {
         return issued;
     }
 
-    public void setIssued(LocalDateTime issued) {
-        this.issued = issued;
+    public Duration getValidFor() {
+        return validFor;
     }
 
-    public LocalDateTime getExpires() {
-        return expires;
+    public String getClaims() {
+        return claims;
     }
 
-    public void setExpires(LocalDateTime expires) {
-        this.expires = expires;
+    public Token getChildOf() {
+        return childOf;
+    }
+
+    public Token getParentOf() {
+        return parentOf;
     }
 }

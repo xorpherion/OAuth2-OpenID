@@ -62,7 +62,7 @@ public class LoginEndpoint extends Endpoint {
 
     private Response redirectToAuthEndpoint() {
         return new ResponseBuilder()
-                .redirectTemp(Constants.ENDPOINT_AUTHORIZATION).build();
+                .redirectTempWithGet(Constants.ENDPOINT_AUTHORIZATION).build();
     }
 
     private boolean checkLogin(Exchange exc) throws Exception {
@@ -87,7 +87,7 @@ public class LoginEndpoint extends Endpoint {
             exc.setResponse(redirectToLogin(possibleCSRFError(session)));
             return false;
         }
-
+        session.putValue(Constants.LOGIN_USERNAME, username);
         session.putValue(Constants.SESSION_LOGGED_IN, Constants.VALUE_YES);
         exc.setResponse(redirectToConsent(getConsentPageParams(session)));
         return true;
