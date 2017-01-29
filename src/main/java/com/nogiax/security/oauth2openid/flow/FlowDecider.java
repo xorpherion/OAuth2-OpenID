@@ -1,7 +1,7 @@
 package com.nogiax.security.oauth2openid.flow;
 
 import com.nogiax.http.Exchange;
-import com.nogiax.security.oauth2openid.ServerProvider;
+import com.nogiax.security.oauth2openid.ServerServices;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,12 +13,12 @@ import java.util.Map;
 public class FlowDecider {
 
     protected final Exchange exc;
-    protected final ServerProvider serverProvider;
+    protected final ServerServices serverServices;
 
     protected ArrayList<Flow> flows;
 
-    public FlowDecider(ServerProvider serverProvider, Exchange exc, Flow... flows) {
-        this.serverProvider = serverProvider;
+    public FlowDecider(ServerServices serverServices, Exchange exc, Flow... flows) {
+        this.serverServices = serverServices;
         this.exc = exc;
 
         this.flows = new ArrayList<>();

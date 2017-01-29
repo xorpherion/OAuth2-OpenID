@@ -2,7 +2,7 @@ package com.nogiax.security.oauth2openid.flow;
 
 import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
-import com.nogiax.security.oauth2openid.ServerProvider;
+import com.nogiax.security.oauth2openid.ServerServices;
 
 import java.util.Map;
 
@@ -10,8 +10,8 @@ import java.util.Map;
  * Created by Xorpherion on 28.01.2017.
  */
 public class PasswordFlow extends Flow {
-    public PasswordFlow(ServerProvider serverProvider, Exchange exc) {
-        super(Constants.GRANT_PASSWORD, serverProvider, exc);
+    public PasswordFlow(ServerServices serverServices, Exchange exc) {
+        super(Constants.GRANT_PASSWORD, serverServices, exc);
     }
 
     @Override

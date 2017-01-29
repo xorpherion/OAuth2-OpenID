@@ -1,7 +1,8 @@
 package com.nogiax.security.oauth2openid.server;
 
 import com.nogiax.http.Exchange;
-import com.nogiax.security.oauth2openid.ServerProvider;
+import com.nogiax.security.oauth2openid.ProvidedServices;
+import com.nogiax.security.oauth2openid.ServerServices;
 import com.nogiax.security.oauth2openid.server.endpoints.AuthorizationEndpoint;
 import com.nogiax.security.oauth2openid.server.endpoints.Endpoint;
 import com.nogiax.security.oauth2openid.server.endpoints.LoginEndpoint;
@@ -17,12 +18,15 @@ public class AuthorizationServer {
     Logger log = LoggerFactory.getLogger(AuthorizationServer.class);
 
     private ArrayList<Endpoint> endpoints;
+    ServerServices serverServices;
 
-    public AuthorizationServer(ServerProvider serverProvider) {
+    public AuthorizationServer(ProvidedServices providedServices) {
+        serverServices = new ServerServices(providedServices);
+
         endpoints = new ArrayList<>();
 
-        endpoints.add(new AuthorizationEndpoint(serverProvider));
-        endpoints.add(new LoginEndpoint(serverProvider));
+        endpoints.add(new AuthorizationEndpoint(serverServices));
+        endpoints.add(new LoginEndpoint(serverServices));
     }
 
     public Exchange invokeOn(Exchange exc) throws Exception {

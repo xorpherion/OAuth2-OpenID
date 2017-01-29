@@ -7,7 +7,7 @@ import com.nogiax.http.Response;
 import com.nogiax.http.ResponseBuilder;
 import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
-import com.nogiax.security.oauth2openid.ServerProvider;
+import com.nogiax.security.oauth2openid.ServerServices;
 import com.nogiax.security.oauth2openid.Session;
 import com.nogiax.security.oauth2openid.token.BearerTokenProvider;
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
@@ -26,12 +26,12 @@ public abstract class Endpoint {
 
     Logger log = LoggerFactory.getLogger(this.getClass());
 
-    protected final ServerProvider serverProvider;
+    protected final ServerServices serverServices;
     String[] paths;
     BearerTokenProvider loginStateProvider;
 
-    public Endpoint(ServerProvider serverProvider, String... paths) {
-        this.serverProvider = serverProvider;
+    public Endpoint(ServerServices serverServices, String... paths) {
+        this.serverServices = serverServices;
         this.paths = paths;
         loginStateProvider = new BearerTokenProvider();
     }
@@ -77,7 +77,7 @@ public abstract class Endpoint {
     }
 
     protected boolean clientExists(String clientId) {
-        return serverProvider.getClientDataProvider().clientExists(clientId);
+        return serverServices.getProvidedServices().getClientDataProvider().clientExists(clientId);
     }
 
     protected Response redirectToCallbackWithError(String callbackUrl, String error) {
@@ -107,13 +107,13 @@ public abstract class Endpoint {
     }
 
     protected boolean isLoggedIn(Exchange exc) throws Exception {
-        Session session = serverProvider.getSessionProvider().getSession(exc);
+        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         String loggedIn = session.getValue(Constants.SESSION_LOGGED_IN);
         return Constants.VALUE_YES.equals(loggedIn);
     }
 
     protected boolean hasGivenConsent(Exchange exc) throws Exception {
-        Session session = serverProvider.getSessionProvider().getSession(exc);
+        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         String consentGiven = session.getValue(Constants.SESSION_CONSENT_GIVEN);
         return Constants.VALUE_YES.equals(consentGiven);
     }

@@ -6,19 +6,22 @@ import java.time.LocalDateTime;
 /**
  * Created by Xorpherion on 25.01.2017.
  */
-public class AuthorizationEndpointTokenManager {
+public class AllTokenManager {
 
     private final BearerTokenProvider tokenProvider;
 
     BearerTokenManager authorizationCodes;
     BearerTokenManager accessTokens;
+    BearerTokenManager refreshTokens;
     JWTTokenManager idTokens;
 
-    public AuthorizationEndpointTokenManager(){
+
+    public AllTokenManager(){
         tokenProvider = new BearerTokenProvider();
 
         authorizationCodes = new BearerTokenManager();
         accessTokens = new BearerTokenManager();
+        refreshTokens = new BearerTokenManager();
         idTokens = new JWTTokenManager();
     }
 

@@ -7,7 +7,7 @@ import com.nogiax.http.Response;
 import com.nogiax.http.ResponseBuilder;
 import com.nogiax.http.util.BodyUtil;
 import com.nogiax.security.oauth2openid.Constants;
-import com.nogiax.security.oauth2openid.ServerProvider;
+import com.nogiax.security.oauth2openid.ServerServices;
 import com.nogiax.security.oauth2openid.Session;
 
 import java.io.IOException;
@@ -20,8 +20,8 @@ import java.util.Map;
  */
 public class LoginEndpoint extends Endpoint {
 
-    public LoginEndpoint(ServerProvider serverProvider) {
-        super(serverProvider, Constants.ENDPOINT_LOGIN, Constants.ENDPOINT_CONSENT);
+    public LoginEndpoint(ServerServices serverServices) {
+        super(serverServices, Constants.ENDPOINT_LOGIN, Constants.ENDPOINT_CONSENT);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class LoginEndpoint extends Endpoint {
 
     private boolean checkConsent(Exchange exc) throws Exception {
         Map<String, String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
-        Session session = serverProvider.getSessionProvider().getSession(exc);
+        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         if (!params.containsKey(Constants.LOGIN_CONSENT) || params.get(Constants.LOGIN_CONSENT).equals(Constants.VALUE_NO)) {
             exc.setResponse(redirectToCallbackWithError(session.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED));
             return false;
@@ -68,20 +68,20 @@ public class LoginEndpoint extends Endpoint {
     private boolean checkLogin(Exchange exc) throws Exception {
         Map<String, String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
         if (!params.containsKey(Constants.LOGIN_USERNAME) && !params.containsKey(Constants.LOGIN_PASSWORD)) {
-            Session session = serverProvider.getSessionProvider().getSession(exc);
+            Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
             session.putValue(Constants.SESSION_REDIRECT_FROM_ERROR, Constants.VALUE_YES);
             exc.setResponse(redirectToLogin(couldNotVerifyUserError(session)));
             return false;
         }
         String username = params.get(Constants.LOGIN_USERNAME);
         String password = params.get(Constants.LOGIN_PASSWORD);
-        if (!serverProvider.getUserDataProvider().verifyUser(username, password)) {
-            Session session = serverProvider.getSessionProvider().getSession(exc);
+        if (!serverServices.getProvidedServices().getUserDataProvider().verifyUser(username, password)) {
+            Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
             session.putValue(Constants.SESSION_REDIRECT_FROM_ERROR, Constants.VALUE_YES);
             exc.setResponse(redirectToLogin(couldNotVerifyUserError(session)));
             return false;
         }
-        Session session = serverProvider.getSessionProvider().getSession(exc);
+        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         if (params.get(Constants.SESSION_LOGIN_STATE) == null || !params.get(Constants.SESSION_LOGIN_STATE).equals(session.getValue(Constants.SESSION_LOGIN_STATE))) {
             session.putValue(Constants.SESSION_REDIRECT_FROM_ERROR, Constants.VALUE_YES);
             exc.setResponse(redirectToLogin(possibleCSRFError(session)));
@@ -100,7 +100,7 @@ public class LoginEndpoint extends Endpoint {
     }
 
     private boolean wasRedirectFromError(Exchange exc) throws Exception {
-        Session session = serverProvider.getSessionProvider().getSession(exc);
+        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         String val = session.getValue(Constants.SESSION_REDIRECT_FROM_ERROR);
         if (val != null && val.equals(Constants.VALUE_YES)) {
             session.removeValue(Constants.SESSION_REDIRECT_FROM_ERROR);

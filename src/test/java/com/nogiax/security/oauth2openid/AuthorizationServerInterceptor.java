@@ -13,14 +13,14 @@ import com.predic8.membrane.core.interceptor.Outcome;
 public class AuthorizationServerInterceptor extends AbstractInterceptor {
 
     AuthorizationServer server;
-    ServerProvider serverProvider;
+    ProvidedServices providedServices;
 
 
     @Override
     public void init(Router router) throws Exception {
         super.init(router);
-        serverProvider = new MembraneServerFunctionality();
-        server = new AuthorizationServer(serverProvider);
+        providedServices = new MembraneServerFunctionality();
+        server = new AuthorizationServer(providedServices);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class AuthorizationServerInterceptor extends AbstractInterceptor {
         com.nogiax.http.Exchange newExc = new com.nogiax.http.Exchange(Util.convertFromMembraneRequest(exc.getRequest()));
         newExc = server.invokeOn(newExc);
         exc.setResponse(Util.convertToMembraneResponse(newExc.getResponse()));
-        ((MembraneSessionProvider) serverProvider.getSessionProvider()).postProcessSession(newExc, exc);
+        ((MembraneSessionProvider) providedServices.getSessionProvider()).postProcessSession(newExc, exc);
         return Outcome.RETURN;
     }
 }

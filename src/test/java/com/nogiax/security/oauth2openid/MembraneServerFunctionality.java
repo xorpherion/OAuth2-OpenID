@@ -10,7 +10,7 @@ import com.nogiax.security.oauth2openid.providers.UserDataProvider;
 /**
  * Created by Xorpherion on 25.01.2017.
  */
-public class MembraneServerFunctionality implements ServerProvider {
+public class MembraneServerFunctionality implements ProvidedServices {
 
     MembraneSessionProvider sessionProvider;
     MembraneClientDataProvider clientDataProvider;

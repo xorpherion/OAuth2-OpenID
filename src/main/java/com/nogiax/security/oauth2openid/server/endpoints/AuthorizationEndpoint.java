@@ -3,11 +3,9 @@ package com.nogiax.security.oauth2openid.server.endpoints;
 import com.nogiax.http.Exchange;
 import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
-import com.nogiax.security.oauth2openid.ServerProvider;
+import com.nogiax.security.oauth2openid.ServerServices;
 import com.nogiax.security.oauth2openid.Session;
 import com.nogiax.security.oauth2openid.flow.AuthorizationEndpointFlowDecider;
-import com.nogiax.security.oauth2openid.flow.FlowDecider;
-import com.nogiax.security.oauth2openid.token.AuthorizationEndpointTokenManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,12 +15,8 @@ import java.util.Map;
  */
 public class AuthorizationEndpoint extends Endpoint {
 
-    AuthorizationEndpointTokenManager tokenManager;
-
-    public AuthorizationEndpoint(ServerProvider serverProvider) {
-        super(serverProvider, Constants.ENDPOINT_AUTHORIZATION);
-
-        tokenManager = new AuthorizationEndpointTokenManager();
+    public AuthorizationEndpoint(ServerServices serverServices) {
+        super(serverServices, Constants.ENDPOINT_AUTHORIZATION);
     }
 
     public boolean checkParametersOAuth2(Exchange exc) throws Exception {
@@ -64,7 +58,7 @@ public class AuthorizationEndpoint extends Endpoint {
             Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
             params = Parameters.stripEmptyParams(params);
 
-            Session session = serverProvider.getSessionProvider().getSession(exc);
+            Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
             for (String param : params.keySet())
                 session.putValue(param, params.get(param));
 
@@ -75,8 +69,8 @@ public class AuthorizationEndpoint extends Endpoint {
         }
 
         System.out.println("logged in and consent");
-        Map<String, String> callbackParams = new AuthorizationEndpointFlowDecider(tokenManager, serverProvider, exc).invokeFlows();
-        exc.setResponse(redirectToCallbackWithParams(serverProvider.getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams));
+        Map<String, String> callbackParams = new AuthorizationEndpointFlowDecider(serverServices, exc).invokeFlows();
+        exc.setResponse(redirectToCallbackWithParams(serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams));
         return true;
     }
 

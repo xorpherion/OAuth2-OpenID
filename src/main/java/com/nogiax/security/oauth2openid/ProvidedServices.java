@@ -7,7 +7,7 @@ import com.nogiax.security.oauth2openid.providers.UserDataProvider;
 /**
  * Created by Xorpherion on 25.01.2017.
  */
-public interface ServerProvider {
+public interface ProvidedServices {
 
     SessionProvider getSessionProvider();
 
