@@ -23,7 +23,7 @@ public class AuthorizationEndpointTokenManager {
     }
 
     public Token createAuthorizationCode(String user, String clientId, Duration validFor, String claims){
-        Token authorizationCode = new Token(tokenProvider.get(),user,clientId, LocalDateTime.now(), validFor,claims,null, null);
+        Token authorizationCode = new Token(tokenProvider.get(),user,clientId, LocalDateTime.now(), validFor,claims);
         authorizationCodes.addToken(authorizationCode);
         return authorizationCode;
     }

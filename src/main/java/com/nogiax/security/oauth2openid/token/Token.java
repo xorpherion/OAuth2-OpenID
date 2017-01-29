@@ -17,19 +17,22 @@ public class Token {
     private final LocalDateTime issued;
     private final Duration validFor;
     private final String claims;
-    private final Token childOf;
-    private final Token parentOf;
+    private final Token[] children;
+    private int usages;
 
-    public Token(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, Token childOf, Token parentOf) {
+    public Token(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, Token... children) {
         this.value = value;
         this.username = username;
         this.clientId = clientId;
         this.issued = issued;
         this.validFor = validFor;
         this.claims = claims;
-        this.childOf = childOf;
-        this.parentOf = parentOf;
+        this.children = children;
+        usages = 0;
+    }
 
+    public void incrementUsage(){
+        usages++;
     }
 
     public boolean isExpired() {
@@ -64,11 +67,11 @@ public class Token {
         return claims;
     }
 
-    public Token getChildOf() {
-        return childOf;
+    public Token[] getChildren() {
+        return children;
     }
 
-    public Token getParentOf() {
-        return parentOf;
+    public int getUsages() {
+        return usages;
     }
 }
