@@ -33,7 +33,7 @@ public class WebApplicationClientInterceptor extends AbstractInterceptor {
         exc.setResponse(UtilMembrane.convertToMembraneResponse(newExc.getResponse()));
         fixMembraneExchange(exc);
         ((MembraneSessionProvider) clientProvider.getSessionProvider()).postProcessSession(newExc, exc);
-        if (exc.getResponse() == null || exc.getResponse().isRedirect() || exc.getResponse().isUserError() || exc.getResponse().isServerError())
+        if (exc.getResponse() != null)
             return Outcome.RETURN;
         return Outcome.CONTINUE;
     }

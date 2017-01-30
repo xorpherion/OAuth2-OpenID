@@ -1,5 +1,6 @@
 package com.nogiax.security.oauth2openid.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.nogiax.http.*;
@@ -43,6 +44,12 @@ public class WebApplicationClient {
     public Exchange invokeOn(Exchange exc) throws Exception {
         log.info("Client connect");
         Exchange result;
+        Session session = clientProvider.getSessionProvider().getSession(exc);
+        if( session != null && session.getValue(Constants.SESSION_LOGGED_IN) != null && session.getValue(Constants.SESSION_LOGGED_IN).equals(Constants.VALUE_YES)){
+            exc.getRequest().getHeader().append(Constants.HEADER_AUTHORIZATION,session.getValue(Constants.PARAMETER_TOKEN_TYPE) + " " + session.getValue(Constants.PARAMETER_ACCESS_TOKEN));
+            return exc;
+        }
+
         if(isCallbackCall(exc))
             result = invokeWhenCallback(exc);
         else
@@ -73,20 +80,19 @@ public class WebApplicationClient {
             return new ResponseBuilder().statuscode(400).body(Constants.ERROR_POSSIBLE_CSRF).buildExchange();
         }
 
-        log.info("State: " + params.get(Constants.PARAMETER_STATE));
-        log.info("Code: " + params.get(Constants.PARAMETER_CODE));
-
 
         Exchange accessTokenRequest = createAccessTokenRequest(exc, params.get(Constants.PARAMETER_CODE));
         Exchange accessTokenResponse = clientProvider.getHttpClient().sendExchange(accessTokenRequest);
 
-        log.info(accessTokenResponse.toString());
+        Map<String,Object> json = new ObjectMapper().readValue(accessTokenResponse.getResponse().getBody(),Map.class);
+
+        for(String s : json.keySet())
+            session.putValue(s,json.get(s).toString());
+        session.putValue(Constants.SESSION_LOGGED_IN,Constants.VALUE_YES);
 
         Exchange origExc = originalRequestsForState.getIfPresent(params.get(Constants.PARAMETER_STATE));
         exc.setRequest(origExc.getRequest());
-        // put access token here
-
-        exc.setResponse(new Response());
+        exc.getRequest().getHeader().append(Constants.HEADER_AUTHORIZATION,session.getValue(Constants.PARAMETER_TOKEN_TYPE) + " " + session.getValue(Constants.PARAMETER_ACCESS_TOKEN));
         return exc;
     }
 

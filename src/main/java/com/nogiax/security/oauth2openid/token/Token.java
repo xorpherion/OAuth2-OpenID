@@ -19,16 +19,18 @@ public class Token {
     private final LocalDateTime issued;
     private final Duration validFor;
     private final String claims;
+    private final String scope;
     private final ArrayList<Token> children;
     private int usages;
 
-    public Token(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, Token... children) {
+    public Token(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, String scope, Token... children) {
         this.value = value;
         this.username = username;
         this.clientId = clientId;
         this.issued = issued;
         this.validFor = validFor;
         this.claims = claims;
+        this.scope = scope;
         this.children = new ArrayList<>();
         Collections.addAll(this.children, children);
         usages = 0;
@@ -84,5 +86,9 @@ public class Token {
 
     public static Duration getDefaultValidForLong() {
         return defaultValidForLong;
+    }
+
+    public String getScope() {
+        return scope;
     }
 }

@@ -32,7 +32,8 @@ public class AuthorizationEndpoint extends Endpoint {
     public void invokeOn(Exchange exc) throws Exception {
         log.info("Authorization endpoint oauth2");
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
-        if(exc.getRequest().getUri().getPath().endsWith(Constants.ENDPOINT_AUTHORIZATION)) {
+
+        if (exc.getRequest().getUri().getPath().endsWith(Constants.ENDPOINT_AUTHORIZATION)) {
             Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
             params = Parameters.stripEmptyParams(params);
 
@@ -46,22 +47,34 @@ public class AuthorizationEndpoint extends Endpoint {
                 return;
             }
 
-            for (String param : params.keySet())
-                session.putValue(param, params.get(param));
-            if(!isLoggedInAndHasGivenConsent(exc)){
+            copyParametersInSession(session, params);
+            if (!isLoggedInAndHasGivenConsent(exc)) {
                 HashMap<String, String> jsParams = prepareJsStateParameter(session);
                 exc.setResponse(redirectToLogin(jsParams));
+                return;
             }
+            anserWithAuthorizationCode(exc, session);
+        } else {
+            // this is ENDPOINT_AFTER_LOGIN
+            if (isLoggedInAndHasGivenConsent(exc)) {
+                anserWithAuthorizationCode(exc, session);
+            } else
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
         }
-        if (isLoggedInAndHasGivenConsent(exc)) {
-            System.out.println("logged in and consent");
-            String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
 
-            Map<String, String> callbackParams = new CombinedResponseGenerator(serverServices, exc).invokeResponse(responseTypeToResponseGeneratorValue(responseType));
-            exc.setResponse(redirectToCallbackWithParams(serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams));
-        }else{
-            exc.setResponse(answerWithError(400,Constants.ERROR_INVALID_REQUEST));
-        }
+    }
+
+    private void copyParametersInSession(Session session, Map<String, String> params) throws Exception {
+        for (String param : params.keySet())
+            session.putValue(param, params.get(param));
+    }
+
+    private void anserWithAuthorizationCode(Exchange exc, Session session) throws Exception {
+        System.out.println("logged in and consent");
+        String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
+
+        Map<String, String> callbackParams = new CombinedResponseGenerator(serverServices, exc).invokeResponse(responseTypeToResponseGeneratorValue(responseType));
+        exc.setResponse(redirectToCallbackWithParams(serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams));
     }
 
     private String responseTypeToResponseGeneratorValue(String responseType) {

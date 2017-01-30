@@ -22,8 +22,9 @@ public class CodeResponseGenerator extends ResponseGenerator {
         String username = getSession().getValue(Constants.LOGIN_USERNAME);
         String clientId = getSession().getValue(Constants.PARAMETER_CLIENT_ID);
         String claims = getSession().getValue(Constants.PARAMETER_CLAIMS);
+        String scope = getSession().getValue(Constants.PARAMETER_SCOPE);
         String state = getSession().getValue(Constants.PARAMETER_STATE);
-        Token authCode = getTokenManager().addTokenToManager(getTokenManager().getAuthorizationCodes(),getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, claims));
+        Token authCode = getTokenManager().addTokenToManager(getTokenManager().getAuthorizationCodes(),getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, claims,scope));
 
         Map<String,String> result = new HashMap<>();
         result.put(Constants.PARAMETER_CODE, authCode.getValue());

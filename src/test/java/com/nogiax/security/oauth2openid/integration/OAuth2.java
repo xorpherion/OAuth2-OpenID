@@ -1,6 +1,10 @@
 package com.nogiax.security.oauth2openid.integration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nogiax.http.util.UriUtil;
+import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
+import com.nogiax.security.oauth2openid.ExtendedHttpClient;
 import com.nogiax.security.oauth2openid.UtilMembrane;
 import com.predic8.membrane.core.HttpRouter;
 import com.predic8.membrane.core.Router;
@@ -13,6 +17,11 @@ import com.predic8.membrane.core.transport.http.HttpClient;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Base64;
+
+import java.net.URI;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -64,24 +73,35 @@ public class OAuth2 {
         Router authorizationServer = UtilMembrane.startMembraneWithProxies(UtilMembrane.createAuthorizationServerProxy());
         Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target("www.google.de", 80)));
 
-        HttpClient httpClient = new HttpClient();
+        ExtendedHttpClient client = new ExtendedHttpClient();
 
         Exchange requestProtectedResource = new Request.Builder().get(ConstantsTest.URL_CLIENT).buildExchange();
+        Exchange responseProtectedResource = client.call(requestProtectedResource);
 
-        Exchange responseProtectedResource = httpClient.call(requestProtectedResource);
-
-        assertAll("Redirect to authorization server",
-                () -> assertEquals(307, responseProtectedResource.getResponse().getStatusCode(), "Statuscode was not redirect")
+        assertAll("Login page",
+                () -> assertEquals(200, responseProtectedResource.getResponse().getStatusCode(), "Statuscode was not OK")
         );
 
-        Exchange requestFollowRedirectToAuthorizationServer = UtilMembrane.followRedirect(responseProtectedResource);
+        URI uri = new URI(responseProtectedResource.getDestinations().get(0));
+        String params = new String(Base64.getDecoder().decode(uri.getFragment().split(Pattern.quote("="))[1]));
+        Map<String,String> paramsAsMap = new ObjectMapper().readValue(params,Map.class);
 
-        Exchange responseFollowRedirectToAuthorzationServer = httpClient.call(requestFollowRedirectToAuthorizationServer);
+        Exchange requestLogin = new Request.Builder().post(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_LOGIN).body("username="+ ConstantsTest.USER_DEFAULT_NAME+"&password=" + ConstantsTest.USER_DEFAULT_PASSWORD + "&login_state=" + paramsAsMap.get("state")).buildExchange();
+        Exchange responseLogin = client.call(requestLogin);
 
-        assertAll("Redirect to login page",
-                () -> assertEquals(307, responseFollowRedirectToAuthorzationServer.getResponse().getStatusCode(), "Statuscode was not redirect")
+        assertAll("Consent page",
+                () -> assertEquals(200, responseProtectedResource.getResponse().getStatusCode(), "Statuscode was not OK")
         );
 
-        Exchange requestLoginPage = UtilMembrane.followRedirect(responseFollowRedirectToAuthorzationServer);
+        uri = new URI(responseLogin.getDestinations().get(0));
+        params = new String(Base64.getDecoder().decode(uri.getFragment().split(Pattern.quote("="))[1]));
+        paramsAsMap = new ObjectMapper().readValue(params,Map.class);
+
+        Exchange requestConsent = new Request.Builder().post(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_CONSENT).body("consent=yes&login_state=" + paramsAsMap.get("state")).buildExchange();
+        Exchange responseConsent = client.call(requestConsent);
+
+        assertAll("Protected resource",
+                () -> assertEquals(200, responseProtectedResource.getResponse().getStatusCode(), "Statuscode was not OK")
+        );
     }
 }
