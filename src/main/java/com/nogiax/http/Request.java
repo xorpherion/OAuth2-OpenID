@@ -1,5 +1,8 @@
 package com.nogiax.http;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.net.URI;
 
 /**
@@ -24,5 +27,14 @@ public class Request extends Message {
 
     public void setUri(URI uri) {
         this.uri = uri;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return this.getClass().getName();
+        }
     }
 }

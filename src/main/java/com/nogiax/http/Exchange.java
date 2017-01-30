@@ -1,5 +1,10 @@
 package com.nogiax.http;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,6 +12,7 @@ import java.util.Map;
  * Created by Xorpherion on 25.01.2017.
  */
 public class Exchange {
+
     private Request request;
     private Response response;
     private Map<String, Object> properties;
@@ -53,5 +59,14 @@ public class Exchange {
 
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            return this.getClass().getName();
+        }
     }
 }

@@ -80,6 +80,7 @@ public class WebApplicationClient {
         Exchange accessTokenRequest = createAccessTokenRequest(exc, params.get(Constants.PARAMETER_CODE));
         Exchange accessTokenResponse = clientProvider.getHttpClient().sendExchange(accessTokenRequest);
 
+        log.info(accessTokenResponse.toString());
 
         Exchange origExc = originalRequestsForState.getIfPresent(params.get(Constants.PARAMETER_STATE));
         exc.setRequest(origExc.getRequest());
