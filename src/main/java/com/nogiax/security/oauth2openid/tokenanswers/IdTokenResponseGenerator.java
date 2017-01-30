@@ -1,4 +1,4 @@
-package com.nogiax.security.oauth2openid.flow;
+package com.nogiax.security.oauth2openid.tokenanswers;
 
 import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
@@ -11,13 +11,13 @@ import java.util.Map;
 /**
  * Created by Xorpherion on 28.01.2017.
  */
-public class IdTokenFlow extends Flow {
-    public IdTokenFlow(ServerServices serverServices, Exchange exc) {
-        super(Constants.GRANT_ID_TOKEN, serverServices, exc);
+public class IdTokenResponseGenerator extends ResponseGenerator {
+    public IdTokenResponseGenerator(ServerServices serverServices, Exchange exc) {
+        super(Constants.TOKEN_TYPE_ID_TOKEN, serverServices, exc);
     }
 
     @Override
-    public Map<String, String> invokeFlow() throws Exception {
+    public Map<String, String> invokeResponse() throws Exception {
         HashMap<String,String> result = new HashMap<>();
         if(isOpenIdScope()){
 

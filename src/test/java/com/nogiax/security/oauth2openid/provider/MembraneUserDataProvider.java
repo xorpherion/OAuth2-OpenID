@@ -2,7 +2,7 @@ package com.nogiax.security.oauth2openid.provider;
 
 import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.User;
-import com.nogiax.security.oauth2openid.Util;
+import com.nogiax.security.oauth2openid.UtilMembrane;
 import com.nogiax.security.oauth2openid.providers.UserDataProvider;
 
 import java.util.HashMap;
@@ -17,7 +17,7 @@ public class MembraneUserDataProvider implements UserDataProvider {
 
     public MembraneUserDataProvider() {
         this.users = new HashMap<>();
-        users.put(ConstantsTest.USER_DEFAULT_NAME, Util.createDefaultUser());
+        users.put(ConstantsTest.USER_DEFAULT_NAME, UtilMembrane.createDefaultUser());
     }
 
     @Override
@@ -25,8 +25,7 @@ public class MembraneUserDataProvider implements UserDataProvider {
         if (!users.containsKey(username))
             return false;
         User user = users.get(username);
-        if (!secret.equals(user.getPassword()))
-            return false;
-        return true;
+        return secret.equals(user.getPassword());
+
     }
 }

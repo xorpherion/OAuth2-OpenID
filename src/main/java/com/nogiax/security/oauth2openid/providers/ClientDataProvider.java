@@ -5,4 +5,7 @@ package com.nogiax.security.oauth2openid.providers;
  */
 public interface ClientDataProvider {
     boolean clientExists(String clientId);
+
+    boolean verify(String clientId, String secret);
+    String getRedirectUri(String clientId);
 }

@@ -3,6 +3,7 @@ package com.nogiax.security.oauth2openid.token;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by Xorpherion on 25.01.2017.
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 public class Token {
 
     static Duration defaultValidFor = Duration.ofMinutes(10);
+    static Duration defaultValidForLong = Duration.ofDays(1);
 
     private final String value;
     private final String username;
@@ -17,7 +19,7 @@ public class Token {
     private final LocalDateTime issued;
     private final Duration validFor;
     private final String claims;
-    private final Token[] children;
+    private final ArrayList<Token> children;
     private int usages;
 
     public Token(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, Token... children) {
@@ -27,8 +29,13 @@ public class Token {
         this.issued = issued;
         this.validFor = validFor;
         this.claims = claims;
-        this.children = children;
+        this.children = new ArrayList<>();
+        Collections.addAll(this.children, children);
         usages = 0;
+    }
+
+    public void addChild(Token child){
+        children.add(child);
     }
 
     public void incrementUsage(){
@@ -67,11 +74,15 @@ public class Token {
         return claims;
     }
 
-    public Token[] getChildren() {
+    public ArrayList getChildren() {
         return children;
     }
 
     public int getUsages() {
         return usages;
+    }
+
+    public static Duration getDefaultValidForLong() {
+        return defaultValidForLong;
     }
 }

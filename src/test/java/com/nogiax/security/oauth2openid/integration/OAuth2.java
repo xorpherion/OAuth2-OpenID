@@ -1,7 +1,7 @@
 package com.nogiax.security.oauth2openid.integration;
 
 import com.nogiax.security.oauth2openid.ConstantsTest;
-import com.nogiax.security.oauth2openid.Util;
+import com.nogiax.security.oauth2openid.UtilMembrane;
 import com.predic8.membrane.core.HttpRouter;
 import com.predic8.membrane.core.Router;
 import com.predic8.membrane.core.exchange.Exchange;
@@ -50,8 +50,8 @@ public class OAuth2 {
 
     @Test
     void testStartAuthServerAndClient() throws Exception {
-        Router authorizationServer = Util.startMembraneWithProxies(Util.createAuthorizationServerProxy());
-        Router webApplicationClient = Util.startMembraneWithProxies(Util.createWebApplicationClientProxy(new AbstractServiceProxy.Target("www.google.de", 80)));
+        Router authorizationServer = UtilMembrane.startMembraneWithProxies(UtilMembrane.createAuthorizationServerProxy());
+        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target("www.google.de", 80)));
         boolean running = true;
         while (running)
             Thread.sleep(1000);
@@ -61,8 +61,8 @@ public class OAuth2 {
 
     @Test
     void testSuccessfulAuthorizationFlow() throws Exception {
-        Router authorizationServer = Util.startMembraneWithProxies(Util.createAuthorizationServerProxy());
-        Router webApplicationClient = Util.startMembraneWithProxies(Util.createWebApplicationClientProxy(new AbstractServiceProxy.Target("www.google.de", 80)));
+        Router authorizationServer = UtilMembrane.startMembraneWithProxies(UtilMembrane.createAuthorizationServerProxy());
+        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target("www.google.de", 80)));
 
         HttpClient httpClient = new HttpClient();
 
@@ -74,7 +74,7 @@ public class OAuth2 {
                 () -> assertEquals(307, responseProtectedResource.getResponse().getStatusCode(), "Statuscode was not redirect")
         );
 
-        Exchange requestFollowRedirectToAuthorizationServer = Util.followRedirect(responseProtectedResource);
+        Exchange requestFollowRedirectToAuthorizationServer = UtilMembrane.followRedirect(responseProtectedResource);
 
         Exchange responseFollowRedirectToAuthorzationServer = httpClient.call(requestFollowRedirectToAuthorizationServer);
 
@@ -82,6 +82,6 @@ public class OAuth2 {
                 () -> assertEquals(307, responseFollowRedirectToAuthorzationServer.getResponse().getStatusCode(), "Statuscode was not redirect")
         );
 
-        Exchange requestLoginPage = Util.followRedirect(responseFollowRedirectToAuthorzationServer);
+        Exchange requestLoginPage = UtilMembrane.followRedirect(responseFollowRedirectToAuthorzationServer);
     }
 }

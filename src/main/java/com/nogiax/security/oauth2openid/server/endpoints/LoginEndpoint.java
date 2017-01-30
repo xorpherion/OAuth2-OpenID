@@ -25,39 +25,36 @@ public class LoginEndpoint extends Endpoint {
     }
 
     @Override
-    public boolean invokeOnOAuth2(Exchange exc) throws Exception {
+    public void invokeOnOAuth2(Exchange exc) throws Exception {
         log.info("Login endpoint");
         if (exc.getRequest().getUri().getPath().endsWith(Constants.ENDPOINT_LOGIN)) {
             if (!wasRedirectFromError(exc) && hasSentLoginData(exc))
-                return checkLogin(exc);
+                checkLogin(exc);
             else
                 exc.setResponse(sendLoginpage());
         } else if (exc.getRequest().getUri().getPath().endsWith(Constants.ENDPOINT_CONSENT)) {
             if (!wasRedirectFromError(exc) && hasSentConsent(exc)) {
-                return checkConsent(exc);
+                checkConsent(exc);
             } else
                 exc.setResponse(sendConsentpage());
         }
-
-        return true;
     }
 
-    private boolean checkConsent(Exchange exc) throws Exception {
+    private void checkConsent(Exchange exc) throws Exception {
         Map<String, String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         if (!params.containsKey(Constants.LOGIN_CONSENT) || params.get(Constants.LOGIN_CONSENT).equals(Constants.VALUE_NO)) {
             exc.setResponse(redirectToCallbackWithError(session.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED));
-            return false;
+            return;
         }
 
         if (params.get(Constants.SESSION_LOGIN_STATE) == null || !params.get(Constants.SESSION_LOGIN_STATE).equals(session.getValue(Constants.SESSION_LOGIN_STATE))) {
             session.putValue(Constants.SESSION_REDIRECT_FROM_ERROR, Constants.VALUE_YES);
             exc.setResponse(redirectToLogin(possibleCSRFError(session)));
-            return false;
+            return;
         }
         session.putValue(Constants.SESSION_CONSENT_GIVEN, Constants.VALUE_YES);
         exc.setResponse(redirectToAuthEndpoint());
-        return true;
     }
 
     private Response redirectToAuthEndpoint() {
@@ -65,13 +62,13 @@ public class LoginEndpoint extends Endpoint {
                 .redirectTempWithGet(Constants.ENDPOINT_AUTHORIZATION).build();
     }
 
-    private boolean checkLogin(Exchange exc) throws Exception {
+    private void checkLogin(Exchange exc) throws Exception {
         Map<String, String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
         if (!params.containsKey(Constants.LOGIN_USERNAME) && !params.containsKey(Constants.LOGIN_PASSWORD)) {
             Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
             session.putValue(Constants.SESSION_REDIRECT_FROM_ERROR, Constants.VALUE_YES);
             exc.setResponse(redirectToLogin(couldNotVerifyUserError(session)));
-            return false;
+            return;
         }
         String username = params.get(Constants.LOGIN_USERNAME);
         String password = params.get(Constants.LOGIN_PASSWORD);
@@ -79,18 +76,17 @@ public class LoginEndpoint extends Endpoint {
             Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
             session.putValue(Constants.SESSION_REDIRECT_FROM_ERROR, Constants.VALUE_YES);
             exc.setResponse(redirectToLogin(couldNotVerifyUserError(session)));
-            return false;
+            return;
         }
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         if (params.get(Constants.SESSION_LOGIN_STATE) == null || !params.get(Constants.SESSION_LOGIN_STATE).equals(session.getValue(Constants.SESSION_LOGIN_STATE))) {
             session.putValue(Constants.SESSION_REDIRECT_FROM_ERROR, Constants.VALUE_YES);
             exc.setResponse(redirectToLogin(possibleCSRFError(session)));
-            return false;
+            return;
         }
         session.putValue(Constants.LOGIN_USERNAME, username);
         session.putValue(Constants.SESSION_LOGGED_IN, Constants.VALUE_YES);
         exc.setResponse(redirectToConsent(getConsentPageParams(session)));
-        return true;
     }
 
     private Map<String, String> possibleCSRFError(Session session) throws Exception {

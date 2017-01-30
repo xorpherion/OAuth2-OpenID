@@ -6,6 +6,7 @@ import com.nogiax.security.oauth2openid.ServerServices;
 import com.nogiax.security.oauth2openid.server.endpoints.AuthorizationEndpoint;
 import com.nogiax.security.oauth2openid.server.endpoints.Endpoint;
 import com.nogiax.security.oauth2openid.server.endpoints.LoginEndpoint;
+import com.nogiax.security.oauth2openid.server.endpoints.TokenEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,13 +28,14 @@ public class AuthorizationServer {
 
         endpoints.add(new AuthorizationEndpoint(serverServices));
         endpoints.add(new LoginEndpoint(serverServices));
+        endpoints.add(new TokenEndpoint(serverServices));
     }
 
     public Exchange invokeOn(Exchange exc) throws Exception {
         log.info("Authorization server connect");
         for (Endpoint endpoint : endpoints)
             if (exc.getResponse() == null)
-                exc = endpoint.useIfResponsible(exc);
+                endpoint.useIfResponsible(exc);
         return exc;
     }
 

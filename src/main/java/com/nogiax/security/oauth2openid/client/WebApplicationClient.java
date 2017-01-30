@@ -2,18 +2,18 @@ package com.nogiax.security.oauth2openid.client;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.nogiax.http.Exchange;
-import com.nogiax.http.ResponseBuilder;
+import com.nogiax.http.*;
 import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.ClientProvider;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.Session;
-import com.nogiax.security.oauth2openid.server.endpoints.Parameters;
+import com.nogiax.security.oauth2openid.Util;
 import com.nogiax.security.oauth2openid.token.BearerTokenProvider;
-import com.sun.jndi.toolkit.url.Uri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -42,10 +42,14 @@ public class WebApplicationClient {
 
     public Exchange invokeOn(Exchange exc) throws Exception {
         log.info("Client connect");
-        Exchange result = invokeWhenCallback(exc);
-        if (result == null)
+        Exchange result;
+        if(isCallbackCall(exc))
+            result = invokeWhenCallback(exc);
+        else
             result = invokeAuthRedirect(exc);
-        if(result != null && exc != null)
+        if(result.getRequest() == null)
+            result.setRequest(exc.getRequest());
+        if(exc != null)
             if(!exc.getProperties().isEmpty())
                 result.setProperties(exc.getProperties());
         return result;
@@ -57,8 +61,6 @@ public class WebApplicationClient {
     }
 
     private Exchange invokeWhenCallback(Exchange exc) throws Exception {
-        if (!clientData.getRedirectUri().endsWith(exc.getRequest().getUri().getPath()))
-            return null;
         // callback impl
         log.info("Client callback");
 
@@ -71,9 +73,44 @@ public class WebApplicationClient {
             return new ResponseBuilder().statuscode(400).body(Constants.ERROR_POSSIBLE_CSRF).buildExchange();
         }
 
+        log.info("State: " + params.get(Constants.PARAMETER_STATE));
+        log.info("Code: " + params.get(Constants.PARAMETER_CODE));
 
 
-        return new ResponseBuilder().statuscode(200).body("We did it!").buildExchange();
+        Exchange accessTokenRequest = createAccessTokenRequest(exc, params.get(Constants.PARAMETER_CODE));
+        Exchange accessTokenResponse = clientProvider.getHttpClient().sendExchange(accessTokenRequest);
+
+
+        Exchange origExc = originalRequestsForState.getIfPresent(params.get(Constants.PARAMETER_STATE));
+        exc.setRequest(origExc.getRequest());
+        // put access token here
+
+        exc.setResponse(new Response());
+        return exc;
+    }
+
+    private Exchange createAccessTokenRequest(Exchange exc, String authorizationCode) throws URISyntaxException, UnsupportedEncodingException {
+        Map<String,String> params = new HashMap<>();
+        params.put(Constants.PARAMETER_GRANT_TYPE, Constants.GRANT_TYPE_AUTHORIZATION_CODE);
+        params.put(Constants.PARAMETER_CODE,authorizationCode);
+        params.put(Constants.PARAMETER_REDIRECT_URI,clientData.getRedirectUri());
+        //params.put(Constants.PARAMETER_CLIENT_ID,clientData.getClientId());
+
+        return new RequestBuilder()
+                .method(Method.POST)
+                .uri(serverData.getTokenEndpoint())
+                .body(UriUtil.parametersToQuery(params))
+                .header(Constants.HEADER_AUTHORIZATION, getBasicAuthValue())
+                .header(Constants.HEADER_COOKIE,exc.getRequest().getHeader().getValue(Constants.HEADER_COOKIE))
+                .buildExchange();
+    }
+
+    private String getBasicAuthValue() throws UnsupportedEncodingException {
+        return Util.encodeToBasicAuthValue(clientData.getClientId(),clientData.getClientSecret());
+    }
+
+    private boolean isCallbackCall(Exchange exc) {
+        return clientData.getRedirectUri().endsWith(exc.getRequest().getUri().getPath());
     }
 
     public Exchange createAuthorizationEndpointRedirectForResourceOwner(Exchange exc) throws Exception {
@@ -83,7 +120,7 @@ public class WebApplicationClient {
 
     private String getAuthorizationEndpointUriWithQuery(Exchange exc) throws Exception {
         HashMap<String, String> parameters = new HashMap<>();
-        parameters.put(Constants.PARAMETER_RESPONSE_TYPE, Constants.GRANT_CODE);
+        parameters.put(Constants.PARAMETER_RESPONSE_TYPE, Constants.PARAMETER_VALUE_CODE);
         parameters.put(Constants.PARAMETER_CLIENT_ID, clientData.getClientId());
         parameters.put(Constants.PARAMETER_REDIRECT_URI, clientData.getRedirectUri());
         parameters.put(Constants.PARAMETER_SCOPE, clientData.getScope());

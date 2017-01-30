@@ -36,10 +36,9 @@ public abstract class Endpoint {
         loginStateProvider = new BearerTokenProvider();
     }
 
-    public Exchange useIfResponsible(Exchange exc) throws Exception {
+    public void useIfResponsible(Exchange exc) throws Exception {
         if (isResponsible(exc))
-            return invokeOn(exc);
-        return exc;
+            invokeOnOAuth2(exc);
     }
 
     public boolean isResponsible(Exchange exc) {
@@ -49,16 +48,7 @@ public abstract class Endpoint {
         return false;
     }
 
-    public Exchange invokeOn(Exchange exc) throws Exception {
-        invokeOnOAuth2(exc);
-        return exc;
-    }
-
-    //public abstract boolean checkParametersOAuth2(Exchange exc) throws Exception;
-    public abstract boolean invokeOnOAuth2(Exchange exc) throws Exception;
-
-    //public abstract boolean checkParametersOpenID(Exchange exc) throws Exception;
-    //public abstract boolean invokeOnOpenId(Exchange exc) throws Exception;
+    public abstract void invokeOnOAuth2(Exchange exc) throws Exception;
 
     public abstract String getScope(Exchange exc) throws Exception;
 
@@ -132,5 +122,13 @@ public abstract class Endpoint {
         HashMap<String, String> jsParams = new HashMap<>();
         jsParams.put(Constants.PARAMETER_STATE, stateToken);
         return jsParams;
+    }
+
+    protected Response answerWithJSONBody(int statuscode, Map<String,String> params) throws JsonProcessingException {
+        return new ResponseBuilder().statuscode(statuscode).body(new ObjectMapper().writeValueAsString(params)).build();
+    }
+
+    protected Response okWithJSONBody(Map<String,String> params) throws JsonProcessingException {
+        return answerWithJSONBody(200,params);
     }
 }

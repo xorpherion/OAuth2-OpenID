@@ -1,5 +1,7 @@
 package com.nogiax.http;
 
+import com.nogiax.security.oauth2openid.Constants;
+
 /**
  * Created by Xorpherion on 26.01.2017.
  */
@@ -19,11 +21,11 @@ public class ResponseBuilder extends MessageBuilder<Response, ResponseBuilder> {
     }
 
     public ResponseBuilder redirectTempWithGet(String uri) {
-        return statuscode(303).header("Location", uri);
+        return statuscode(303).header(Constants.HEADER_LOCATION, uri);
     }
 
     public ResponseBuilder redirectTempIdentical(String uri) {
-        return statuscode(307).header("Location", uri);
+        return statuscode(307).header(Constants.HEADER_LOCATION, uri);
     }
 
     public Exchange buildExchange() {

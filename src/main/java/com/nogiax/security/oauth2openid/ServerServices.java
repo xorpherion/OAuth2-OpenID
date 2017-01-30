@@ -1,24 +1,24 @@
 package com.nogiax.security.oauth2openid;
 
-import com.nogiax.security.oauth2openid.token.AllTokenManager;
+import com.nogiax.security.oauth2openid.token.CombinedTokenManager;
 
 /**
  * Created by Xorpherion on 29.01.2017.
  */
 public class ServerServices {
     ProvidedServices providedServices;
-    AllTokenManager tokenManager;
+    CombinedTokenManager tokenManager;
 
     public ServerServices(ProvidedServices providedServices) {
         this.providedServices = providedServices;
-        this.tokenManager = new AllTokenManager();
+        this.tokenManager = new CombinedTokenManager();
     }
 
     public ProvidedServices getProvidedServices() {
         return providedServices;
     }
 
-    public AllTokenManager getTokenManager() {
+    public CombinedTokenManager getTokenManager() {
         return tokenManager;
     }
 }

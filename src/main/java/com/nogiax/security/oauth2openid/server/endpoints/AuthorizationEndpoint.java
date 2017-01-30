@@ -5,7 +5,7 @@ import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ServerServices;
 import com.nogiax.security.oauth2openid.Session;
-import com.nogiax.security.oauth2openid.flow.AuthorizationEndpointFlowDecider;
+import com.nogiax.security.oauth2openid.tokenanswers.CombinedResponseGenerator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class AuthorizationEndpoint extends Endpoint {
 
 
     @Override
-    public boolean invokeOnOAuth2(Exchange exc) throws Exception {
+    public void invokeOnOAuth2(Exchange exc) throws Exception {
         log.info("Authorization endpoint oauth2");
         if (!isLoggedInAndHasGivenConsent(exc)) {
 
@@ -65,13 +65,15 @@ public class AuthorizationEndpoint extends Endpoint {
             HashMap<String, String> jsParams = prepareJsStateParameter(session);
             exc.setResponse(redirectToLogin(jsParams));
 
-            return true;
+            return;
         }
 
         System.out.println("logged in and consent");
-        Map<String, String> callbackParams = new AuthorizationEndpointFlowDecider(serverServices, exc).invokeFlows();
+        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
+        String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
+
+        Map<String, String> callbackParams = new CombinedResponseGenerator(serverServices, exc).invokeResponse(responseType);
         exc.setResponse(redirectToCallbackWithParams(serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams));
-        return true;
     }
 
 

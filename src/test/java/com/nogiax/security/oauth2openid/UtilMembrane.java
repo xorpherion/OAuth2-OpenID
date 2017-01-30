@@ -21,7 +21,7 @@ import java.nio.charset.Charset;
 /**
  * Created by Xorpherion on 25.01.2017.
  */
-public class Util {
+public class UtilMembrane {
 
 //    public static com.nogiax.http.Exchange convertFromMembraneExchange(Exchange membraneExc)
 //    {
@@ -115,7 +115,7 @@ public class Util {
     }
 
     public static OAuth2ClientData getDefaultCodeGrantClientData() {
-        return new OAuth2ClientData(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET, Constants.GRANT_CODE, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE);
+        return new OAuth2ClientData(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET, Constants.PARAMETER_VALUE_CODE, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE);
     }
 
     public static OAuth2AuthorizationServerData getDefaultAuthorizationServerData() {
@@ -123,11 +123,11 @@ public class Util {
     }
 
     public static Exchange followRedirect(Exchange responseProtectedResource) throws URISyntaxException {
-        return new com.predic8.membrane.core.http.Request.Builder().get(responseProtectedResource.getResponse().getHeader().getFirstValue("Location")).buildExchange();
+        return new com.predic8.membrane.core.http.Request.Builder().get(responseProtectedResource.getResponse().getHeader().getFirstValue(Constants.HEADER_LOCATION)).buildExchange();
     }
 
     public static Client createDefaultClient() {
-        return new Client(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
+        return new Client(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI);
     }
 
 

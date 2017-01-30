@@ -7,10 +7,20 @@ public class Client {
 
     String clientId;
     String clientSecret;
+    String redirectUri;
 
-    public Client(String clientId, String clientSecret) {
+    public Client(String clientId, String clientSecret, String redirectUri) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
+        this.redirectUri = redirectUri;
+    }
+
+    public String getRedirectUri() {
+        return redirectUri;
+    }
+
+    public void setRedirectUri(String redirectUri) {
+        this.redirectUri = redirectUri;
     }
 
     public String getClientId() {
