@@ -28,8 +28,10 @@ public class Constants {
     //Parameter values
     public static final String PARAMETER_VALUE_CODE = "code";
     public static final String PARAMETER_VALUE_TOKEN = "token";
+    public static final String PARAMETER_VALUE_ID_TOKEN = "id_token";
     public static final String PARAMETER_VALUE_PASSWORD = "password";
     public static final String PARAMETER_VALUE_CLIENT_CREDENTIALS = "client_credentials";
+    public static final String PARAMETER_VALUE_BEARER = "Bearer";
 
     //Endpoint names
     public static final String ENDPOINT_AUTHORIZATION = "/auth";
@@ -53,6 +55,7 @@ public class Constants {
     public static final String SESSION_CONSENT_GIVEN = "consent_given";
     public static final String SESSION_LOGIN_STATE = "login_state";
     public static final String SESSION_REDIRECT_FROM_ERROR = "redirect_from_error";
+    public static final String SESSION_AUTHORIZATION_CODE = "authorization_code";
 
     //Values
     public static final String VALUE_YES = "yes";
@@ -70,14 +73,18 @@ public class Constants {
     public static final String HEADER_LOCATION = "Location";
     public static final String HEADER_AUTHORIZATION = "Authorization";
     public static final String HEADER_COOKIE = "Cookie";
+    public static final String HEADER_CACHE_CONTROL = "Cache-Control";
+    public static final String HEADER_PRAGMA = "Pragma";
 
+    //Header values
+    public static final String HEADER_VALUE_NO_CACHE = "no-cache";
+    public static final String HEADER_VALUE_NO_STORE = "no-store";
+
+    // Response types
     public static final String TOKEN_TYPE_CODE = "code";
     public static final String TOKEN_TYPE_TOKEN = "token";
     public static final String TOKEN_TYPE_ID_TOKEN = "id_token";
 
-    public static final String SESSION_AUTHORIZATION_CODE = "authorization_code";
-
-    public static final String PARAMETER_VALUE_BEARER = "Bearer";
 
 
 }

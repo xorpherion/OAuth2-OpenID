@@ -19,26 +19,6 @@ public class AuthorizationEndpoint extends Endpoint {
         super(serverServices, Constants.ENDPOINT_AUTHORIZATION);
     }
 
-    public boolean checkParametersOAuth2(Exchange exc) throws Exception {
-        if (!isLoggedInAndHasGivenConsent(exc)) {
-            Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
-            params = Parameters.stripEmptyParams(params);
-
-            if (redirectUriOrClientIdProblem(params)) {
-                exc.setResponse(informResourceOwnerError(Constants.ERROR_INVALID_REQUEST));
-                return false;
-            }
-
-            if (params.get(Constants.PARAMETER_RESPONSE_TYPE) == null || params.get(Constants.PARAMETER_CLIENT_ID) == null || params.get(Constants.PARAMETER_REDIRECT_URI) == null) {
-                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST));
-                return false;
-            }
-
-            return true;
-        }
-        return true;
-    }
-
 
     private boolean redirectUriOrClientIdProblem(Map<String, String> params) {
         return params.get(Constants.PARAMETER_REDIRECT_URI) == null
@@ -52,11 +32,19 @@ public class AuthorizationEndpoint extends Endpoint {
     public void invokeOnOAuth2(Exchange exc) throws Exception {
         log.info("Authorization endpoint oauth2");
         if (!isLoggedInAndHasGivenConsent(exc)) {
-
-            checkParametersOAuth2(exc);
-
             Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
             params = Parameters.stripEmptyParams(params);
+
+            if (redirectUriOrClientIdProblem(params)) {
+                exc.setResponse(informResourceOwnerError(Constants.ERROR_INVALID_REQUEST));
+                return;
+            }
+
+            if (params.get(Constants.PARAMETER_RESPONSE_TYPE) == null || params.get(Constants.PARAMETER_CLIENT_ID) == null || params.get(Constants.PARAMETER_REDIRECT_URI) == null) {
+                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST));
+                return;
+            }
+
 
             Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
             for (String param : params.keySet())
@@ -72,8 +60,22 @@ public class AuthorizationEndpoint extends Endpoint {
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
 
-        Map<String, String> callbackParams = new CombinedResponseGenerator(serverServices, exc).invokeResponse(responseType);
+        Map<String, String> callbackParams = new CombinedResponseGenerator(serverServices, exc).invokeResponse(responseTypeToResponseGeneratorValue(responseType));
         exc.setResponse(redirectToCallbackWithParams(serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams));
+    }
+
+    private String responseTypeToResponseGeneratorValue(String responseType){
+        StringBuilder builder = new StringBuilder();
+
+        if(responseType.contains(Constants.PARAMETER_VALUE_CODE))
+            builder.append(Constants.TOKEN_TYPE_CODE).append(" ");
+        if(responseType.contains(Constants.PARAMETER_VALUE_TOKEN))
+            builder.append(Constants.TOKEN_TYPE_ID_TOKEN).append(" ");
+        if(responseType.contains(Constants.PARAMETER_VALUE_ID_TOKEN))
+            builder.append(Constants.TOKEN_TYPE_ID_TOKEN).append(" ");
+
+        return builder.toString().trim();
+
     }
 
 

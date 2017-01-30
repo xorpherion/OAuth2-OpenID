@@ -1,6 +1,7 @@
 package com.nogiax.security.oauth2openid.server;
 
 import com.nogiax.http.Exchange;
+import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ProvidedServices;
 import com.nogiax.security.oauth2openid.ServerServices;
 import com.nogiax.security.oauth2openid.server.endpoints.AuthorizationEndpoint;
@@ -36,7 +37,15 @@ public class AuthorizationServer {
         for (Endpoint endpoint : endpoints)
             if (exc.getResponse() == null)
                 endpoint.useIfResponsible(exc);
+        addMissingHeaders(exc);
         return exc;
+    }
+
+    private void addMissingHeaders(Exchange exc) {
+        if(exc != null && exc.getResponse() != null) {
+            exc.getResponse().getHeader().append(Constants.HEADER_CACHE_CONTROL, Constants.HEADER_VALUE_NO_STORE);
+            exc.getResponse().getHeader().append(Constants.HEADER_PRAGMA, Constants.HEADER_VALUE_NO_CACHE);
+        }
     }
 
 }

@@ -18,10 +18,8 @@ public class TokenResponseGenerator extends ResponseGenerator {
 
     @Override
     public Map<String, String> invokeResponse() throws Exception {
-        String username = getSession().getValue(Constants.LOGIN_USERNAME);
-        String clientId = getSession().getValue(Constants.PARAMETER_CLIENT_ID);
-        String claims = getSession().getValue(Constants.PARAMETER_CLAIMS);
         String code = getSession().getValue(Constants.SESSION_AUTHORIZATION_CODE);
+        String responseType = getSession().getValue(Constants.PARAMETER_RESPONSE_TYPE);
 
         Token authorizationCode = getTokenManager().getAuthorizationCodes().getToken(code);
 
@@ -32,7 +30,8 @@ public class TokenResponseGenerator extends ResponseGenerator {
         result.put(Constants.PARAMETER_ACCESS_TOKEN,accessToken.getValue());
         result.put(Constants.PARAMETER_TOKEN_TYPE, Constants.PARAMETER_VALUE_BEARER);
         result.put(Constants.PARAMETER_EXPIRES_IN, String.valueOf(accessToken.getValidFor().getSeconds()));
-        result.put(Constants.PARAMETER_REFRESH_TOKEN, refreshToken.getValue());
+        if(!responseType.equals(Constants.PARAMETER_VALUE_TOKEN) || !responseType.equals(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS))
+            result.put(Constants.PARAMETER_REFRESH_TOKEN, refreshToken.getValue());
 
         return result;
     }

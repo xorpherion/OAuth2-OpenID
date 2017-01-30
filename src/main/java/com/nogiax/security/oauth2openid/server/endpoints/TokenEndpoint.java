@@ -62,16 +62,12 @@ public class TokenEndpoint extends Endpoint {
 
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         session.putValue(Constants.SESSION_AUTHORIZATION_CODE,code);
-        String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
-        if(responseType.contains(Constants.PARAMETER_VALUE_CODE))
-            responseType = Constants.PARAMETER_VALUE_TOKEN;
+        String response = Constants.TOKEN_TYPE_TOKEN;
+        if(hasOpenIdScope(exc))
+            response += "_" + Constants.TOKEN_TYPE_ID_TOKEN;
 
-        Map<String, String> responseBody = new CombinedResponseGenerator(serverServices, exc).invokeResponse(responseType);
+        Map<String, String> responseBody = new CombinedResponseGenerator(serverServices, exc).invokeResponse(response);
         exc.setResponse(okWithJSONBody(responseBody));
-
-
-
-
     }
 
     @Override

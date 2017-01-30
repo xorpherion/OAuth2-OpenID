@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Created by Xorpherion on 25.01.2017.
@@ -52,8 +53,12 @@ public abstract class Endpoint {
 
     public abstract String getScope(Exchange exc) throws Exception;
 
-    private boolean hasOpenIdScope(String scope) {
+    protected boolean hasOpenIdScope(String scope) {
         return scope != null && scope.contains(Constants.SCOPE_OPENID);
+    }
+
+    protected boolean hasOpenIdScope(Exchange exc) throws Exception {
+        return hasOpenIdScope(getScope(exc));
     }
 
     protected Response informResourceOwnerError(String error) throws JsonProcessingException {
@@ -84,6 +89,7 @@ public abstract class Endpoint {
         String newurl = url;
         if (params != null && !params.isEmpty())
             newurl += "?" + UriUtil.parametersToQuery(params);
+
         return new ResponseBuilder().redirectTempWithGet(newurl).build();
     }
 
@@ -125,10 +131,19 @@ public abstract class Endpoint {
     }
 
     protected Response answerWithJSONBody(int statuscode, Map<String,String> params) throws JsonProcessingException {
-        return new ResponseBuilder().statuscode(statuscode).body(new ObjectMapper().writeValueAsString(params)).build();
+        return answerWithBody(statuscode,new ObjectMapper().writeValueAsString(params));
+    }
+
+    protected Response answerWithBody(int statuscode, String body){
+        return new ResponseBuilder().statuscode(statuscode).body(body).build();
     }
 
     protected Response okWithJSONBody(Map<String,String> params) throws JsonProcessingException {
         return answerWithJSONBody(200,params);
+    }
+
+    protected Response answerWithError(int statusCode, String error) throws JsonProcessingException {
+        return answerWithBody(statusCode, getErrorBody(error));
+
     }
 }
