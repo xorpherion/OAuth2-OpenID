@@ -16,7 +16,7 @@ import java.util.Map;
 public class AuthorizationEndpoint extends Endpoint {
 
     public AuthorizationEndpoint(ServerServices serverServices) {
-        super(serverServices, Constants.ENDPOINT_AUTHORIZATION);
+        super(serverServices, Constants.ENDPOINT_AUTHORIZATION, Constants.ENDPOINT_AFTER_LOGIN);
     }
 
 
@@ -29,9 +29,10 @@ public class AuthorizationEndpoint extends Endpoint {
 
 
     @Override
-    public void invokeOnOAuth2(Exchange exc) throws Exception {
+    public void invokeOn(Exchange exc) throws Exception {
         log.info("Authorization endpoint oauth2");
-        if (!isLoggedInAndHasGivenConsent(exc)) {
+        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
+        if(exc.getRequest().getUri().getPath().endsWith(Constants.ENDPOINT_AUTHORIZATION)) {
             Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
             params = Parameters.stripEmptyParams(params);
 
@@ -45,33 +46,32 @@ public class AuthorizationEndpoint extends Endpoint {
                 return;
             }
 
-
-            Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
             for (String param : params.keySet())
                 session.putValue(param, params.get(param));
-
-            HashMap<String, String> jsParams = prepareJsStateParameter(session);
-            exc.setResponse(redirectToLogin(jsParams));
-
-            return;
+            if(!isLoggedInAndHasGivenConsent(exc)){
+                HashMap<String, String> jsParams = prepareJsStateParameter(session);
+                exc.setResponse(redirectToLogin(jsParams));
+            }
         }
+        if (isLoggedInAndHasGivenConsent(exc)) {
+            System.out.println("logged in and consent");
+            String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
 
-        System.out.println("logged in and consent");
-        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
-        String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
-
-        Map<String, String> callbackParams = new CombinedResponseGenerator(serverServices, exc).invokeResponse(responseTypeToResponseGeneratorValue(responseType));
-        exc.setResponse(redirectToCallbackWithParams(serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams));
+            Map<String, String> callbackParams = new CombinedResponseGenerator(serverServices, exc).invokeResponse(responseTypeToResponseGeneratorValue(responseType));
+            exc.setResponse(redirectToCallbackWithParams(serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams));
+        }else{
+            exc.setResponse(answerWithError(400,Constants.ERROR_INVALID_REQUEST));
+        }
     }
 
-    private String responseTypeToResponseGeneratorValue(String responseType){
+    private String responseTypeToResponseGeneratorValue(String responseType) {
         StringBuilder builder = new StringBuilder();
 
-        if(responseType.contains(Constants.PARAMETER_VALUE_CODE))
+        if (responseType.contains(Constants.PARAMETER_VALUE_CODE))
             builder.append(Constants.TOKEN_TYPE_CODE).append(" ");
-        if(responseType.contains(Constants.PARAMETER_VALUE_TOKEN))
+        if (responseType.contains(Constants.PARAMETER_VALUE_TOKEN))
             builder.append(Constants.TOKEN_TYPE_ID_TOKEN).append(" ");
-        if(responseType.contains(Constants.PARAMETER_VALUE_ID_TOKEN))
+        if (responseType.contains(Constants.PARAMETER_VALUE_ID_TOKEN))
             builder.append(Constants.TOKEN_TYPE_ID_TOKEN).append(" ");
 
         return builder.toString().trim();

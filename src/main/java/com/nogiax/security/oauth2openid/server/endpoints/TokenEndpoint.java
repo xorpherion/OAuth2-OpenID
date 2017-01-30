@@ -17,7 +17,7 @@ public class TokenEndpoint extends Endpoint {
     }
 
     @Override
-    public void invokeOnOAuth2(Exchange exc) throws Exception {
+    public void invokeOn(Exchange exc) throws Exception {
         log.info("Token endpoint");
 
         boolean clientIsAuthorized = false;

@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Created by Xorpherion on 25.01.2017.
@@ -39,7 +38,7 @@ public abstract class Endpoint {
 
     public void useIfResponsible(Exchange exc) throws Exception {
         if (isResponsible(exc))
-            invokeOnOAuth2(exc);
+            invokeOn(exc);
     }
 
     public boolean isResponsible(Exchange exc) {
@@ -49,7 +48,7 @@ public abstract class Endpoint {
         return false;
     }
 
-    public abstract void invokeOnOAuth2(Exchange exc) throws Exception;
+    public abstract void invokeOn(Exchange exc) throws Exception;
 
     public abstract String getScope(Exchange exc) throws Exception;
 

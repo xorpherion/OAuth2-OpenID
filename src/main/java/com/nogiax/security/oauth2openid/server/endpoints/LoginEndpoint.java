@@ -25,7 +25,7 @@ public class LoginEndpoint extends Endpoint {
     }
 
     @Override
-    public void invokeOnOAuth2(Exchange exc) throws Exception {
+    public void invokeOn(Exchange exc) throws Exception {
         log.info("Login endpoint");
         if (exc.getRequest().getUri().getPath().endsWith(Constants.ENDPOINT_LOGIN)) {
             if (!wasRedirectFromError(exc) && hasSentLoginData(exc))
@@ -54,12 +54,12 @@ public class LoginEndpoint extends Endpoint {
             return;
         }
         session.putValue(Constants.SESSION_CONSENT_GIVEN, Constants.VALUE_YES);
-        exc.setResponse(redirectToAuthEndpoint());
+        exc.setResponse(redirectToAfterLoginEndpoint());
     }
 
-    private Response redirectToAuthEndpoint() {
+    private Response redirectToAfterLoginEndpoint() {
         return new ResponseBuilder()
-                .redirectTempWithGet(Constants.ENDPOINT_AUTHORIZATION).build();
+                .redirectTempWithGet(Constants.ENDPOINT_AFTER_LOGIN).build();
     }
 
     private void checkLogin(Exchange exc) throws Exception {
