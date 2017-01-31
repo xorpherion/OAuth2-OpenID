@@ -12,6 +12,7 @@ import com.predic8.membrane.core.http.Request;
 import com.predic8.membrane.core.rules.AbstractServiceProxy;
 import com.predic8.membrane.core.rules.ServiceProxy;
 import com.predic8.membrane.core.rules.ServiceProxyKey;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,7 @@ public class OAuth2 {
         log.info("done");
     }
 
+    @Disabled
     @Test
     void testStartAuthServerAndClient() throws Exception {
         Router authorizationServer = UtilMembrane.startMembraneWithProxies(UtilMembrane.createAuthorizationServerProxy());
@@ -106,5 +108,8 @@ public class OAuth2 {
         );
 
         log.info(responseConsent.getResponse().getBodyAsStringDecoded());
+
+        authorizationServer.stop();
+        webApplicationClient.stop();
     }
 }
