@@ -35,13 +35,13 @@ public abstract class ResponseGenerator {
         return false;
     }
 
-    protected Map<String,String> errorParams(String error){
-        Map<String,String> result = new HashMap<>();
+    protected Map<String, String> errorParams(String error) {
+        Map<String, String> result = new HashMap<>();
         result.put(Constants.PARAMETER_ERROR, error);
         return result;
     }
 
-    protected Map<String,String> invalidScopeError() {
+    protected Map<String, String> invalidScopeError() {
         return errorParams(Constants.ERROR_INVALID_SCOPE);
     }
 

@@ -89,6 +89,4 @@ public class Constants {
     public static final String TOKEN_TYPE_ID_TOKEN = "id_token";
 
 
-
-
 }

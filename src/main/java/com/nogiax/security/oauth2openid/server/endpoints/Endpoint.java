@@ -129,16 +129,16 @@ public abstract class Endpoint {
         return jsParams;
     }
 
-    protected Response answerWithJSONBody(int statuscode, Map<String,String> params) throws JsonProcessingException {
-        return answerWithBody(statuscode,new ObjectMapper().writeValueAsString(params));
+    protected Response answerWithJSONBody(int statuscode, Map<String, String> params) throws JsonProcessingException {
+        return answerWithBody(statuscode, new ObjectMapper().writeValueAsString(params));
     }
 
-    protected Response answerWithBody(int statuscode, String body){
+    protected Response answerWithBody(int statuscode, String body) {
         return new ResponseBuilder().statuscode(statuscode).body(body).build();
     }
 
-    protected Response okWithJSONBody(Map<String,String> params) throws JsonProcessingException {
-        return answerWithJSONBody(200,params);
+    protected Response okWithJSONBody(Map<String, String> params) throws JsonProcessingException {
+        return answerWithJSONBody(200, params);
     }
 
     protected Response answerWithError(int statusCode, String error) throws JsonProcessingException {

@@ -36,14 +36,14 @@ public class AuthorizationServer {
         for (Endpoint endpoint : endpoints)
             if (exc.getResponse() == null)
                 endpoint.useIfResponsible(exc);
-        if(exc.getResponse() == null)
+        if (exc.getResponse() == null)
             exc.setResponse(new ResponseBuilder().statuscode(404).body("Not found - try /userinfo with access token in Authorization Header").build());
         addMissingHeaders(exc);
         return exc;
     }
 
     private void addMissingHeaders(Exchange exc) {
-        if(exc != null && exc.getResponse() != null) {
+        if (exc != null && exc.getResponse() != null) {
             exc.getResponse().getHeader().append(Constants.HEADER_CACHE_CONTROL, Constants.HEADER_VALUE_NO_STORE);
             exc.getResponse().getHeader().append(Constants.HEADER_PRAGMA, Constants.HEADER_VALUE_NO_CACHE);
         }

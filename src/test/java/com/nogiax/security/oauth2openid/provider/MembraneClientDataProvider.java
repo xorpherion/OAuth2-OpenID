@@ -27,7 +27,7 @@ public class MembraneClientDataProvider implements ClientDataProvider {
 
     @Override
     public boolean verify(String clientId, String secret) {
-        if(!clientExists(clientId))
+        if (!clientExists(clientId))
             return false;
         Client client = clients.get(clientId);
         return client.getClientSecret().equals(secret);

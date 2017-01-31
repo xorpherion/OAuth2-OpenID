@@ -17,7 +17,7 @@ public class CombinedTokenManager {
     TokenManager idTokens;
 
 
-    public CombinedTokenManager(){
+    public CombinedTokenManager() {
         tokenProvider = new BearerTokenProvider();
         jwtProvider = new JwtTokenProvider();
 
@@ -52,38 +52,36 @@ public class CombinedTokenManager {
 //        return createAccessToken(user,clientId,Token.getDefaultValidFor(),claims);
 //    }
 
-    public Token addTokenToManager(TokenManager manager, Token token){
+    public Token addTokenToManager(TokenManager manager, Token token) {
         manager.addToken(token);
         return token;
     }
 
-    public Token createToken(String value, String username, String clientId, Duration validFor, String claims, String scope){
-        return new Token(value,username,clientId,LocalDateTime.now(),validFor,claims, scope);
+    public Token createToken(String value, String username, String clientId, Duration validFor, String claims, String scope) {
+        return new Token(value, username, clientId, LocalDateTime.now(), validFor, claims, scope);
     }
 
-    public Token createBearerToken(String username, String clientId, Duration validFor, String claims, String scope){
-        return createToken(tokenProvider.get(),username,clientId,validFor,claims, scope);
+    public Token createBearerToken(String username, String clientId, Duration validFor, String claims, String scope) {
+        return createToken(tokenProvider.get(), username, clientId, validFor, claims, scope);
     }
 
-    public Token createChildToken(String value, Duration validFor, Token parent){
-        Token result = createToken(value,parent.getUsername(),parent.getClientId(),validFor,parent.getClaims(), parent.getScope());
+    public Token createChildToken(String value, Duration validFor, Token parent) {
+        Token result = createToken(value, parent.getUsername(), parent.getClientId(), validFor, parent.getClaims(), parent.getScope());
         parent.addChild(result);
         return result;
     }
 
-    public Token createChildBearerToken(Duration validFor, Token parent){
-        return createChildToken(tokenProvider.get(),validFor,parent);
+    public Token createChildBearerToken(Duration validFor, Token parent) {
+        return createChildToken(tokenProvider.get(), validFor, parent);
     }
 
-    public Token createBearerTokenWithDefaultDuration(String username, String clientId,String claims, String scope){
-        return createBearerToken(username,clientId,Token.getDefaultValidFor(),claims,scope);
+    public Token createBearerTokenWithDefaultDuration(String username, String clientId, String claims, String scope) {
+        return createBearerToken(username, clientId, Token.getDefaultValidFor(), claims, scope);
     }
 
-    public Token createChildBearerTokenWithDefaultDuration(Token parent){
-        return createChildBearerToken(Token.defaultValidFor,parent);
+    public Token createChildBearerTokenWithDefaultDuration(Token parent) {
+        return createChildBearerToken(Token.defaultValidFor, parent);
     }
-
-
 
 
     public TokenManager getAuthorizationCodes() {

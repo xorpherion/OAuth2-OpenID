@@ -12,11 +12,11 @@ import java.util.regex.Pattern;
 public class Util {
 
     public static String encodeToBasicAuthValue(String name, String pass) throws UnsupportedEncodingException {
-        return "Basic " + Base64.encode((UriUtil.encode(name)+":"+ UriUtil.encode(pass)).getBytes());
+        return "Basic " + Base64.encode((UriUtil.encode(name) + ":" + UriUtil.encode(pass)).getBytes());
     }
 
     public static User decodeFromBasicAuthValue(String value) throws UnsupportedEncodingException {
         String[] userAndPass = new String(Base64.decode(value.split(Pattern.quote(" "))[1])).split(Pattern.quote(":"));
-        return new User(UriUtil.decode(userAndPass[0]),UriUtil.decode(userAndPass[1]));
+        return new User(UriUtil.decode(userAndPass[0]), UriUtil.decode(userAndPass[1]));
     }
 }

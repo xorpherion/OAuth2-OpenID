@@ -18,8 +18,8 @@ public class IdTokenResponseGenerator extends ResponseGenerator {
 
     @Override
     public Map<String, String> invokeResponse() throws Exception {
-        HashMap<String,String> result = new HashMap<>();
-        if(isOpenIdScope()){
+        HashMap<String, String> result = new HashMap<>();
+        if (isOpenIdScope()) {
 
         }
         return result;
@@ -28,7 +28,7 @@ public class IdTokenResponseGenerator extends ResponseGenerator {
     private boolean isOpenIdScope() throws Exception {
         Session session = getSession();
         String scope = session.getValue(Constants.PARAMETER_SCOPE);
-        if(scope != null && scope.equals(Constants.SCOPE_OPENID))
+        if (scope != null && scope.equals(Constants.SCOPE_OPENID))
             return true;
         return false;
     }

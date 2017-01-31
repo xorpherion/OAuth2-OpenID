@@ -1,7 +1,6 @@
 package com.nogiax.security.oauth2openid.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.ExtendedHttpClient;
@@ -13,14 +12,15 @@ import com.predic8.membrane.core.http.Request;
 import com.predic8.membrane.core.rules.AbstractServiceProxy;
 import com.predic8.membrane.core.rules.ServiceProxy;
 import com.predic8.membrane.core.rules.ServiceProxyKey;
-import com.predic8.membrane.core.transport.http.HttpClient;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Base64;
 
 import java.net.URI;
+import java.util.Base64;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -32,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class OAuth2 {
 
     Logger log = LoggerFactory.getLogger(OAuth2.class);
+    Lock l = new ReentrantLock();
 
     @Test
     void pseudoMain() throws Exception {
@@ -60,7 +61,7 @@ public class OAuth2 {
     @Test
     void testStartAuthServerAndClient() throws Exception {
         Router authorizationServer = UtilMembrane.startMembraneWithProxies(UtilMembrane.createAuthorizationServerProxy());
-        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target(ConstantsTest.HOST_AUTHORIZATION_SERVER.replace("http://",""), ConstantsTest.PORT_AUTHORIZATION_SERVER)));
+        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target(ConstantsTest.HOST_AUTHORIZATION_SERVER.replace("http://", ""), ConstantsTest.PORT_AUTHORIZATION_SERVER)));
         boolean running = true;
         while (running)
             Thread.sleep(1000);
@@ -71,7 +72,7 @@ public class OAuth2 {
     @Test
     void testSuccessfulAuthorizationFlow() throws Exception {
         Router authorizationServer = UtilMembrane.startMembraneWithProxies(UtilMembrane.createAuthorizationServerProxy());
-        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target(ConstantsTest.HOST_AUTHORIZATION_SERVER.replace("http://",""), ConstantsTest.PORT_AUTHORIZATION_SERVER)));
+        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target(ConstantsTest.HOST_AUTHORIZATION_SERVER.replace("http://", ""), ConstantsTest.PORT_AUTHORIZATION_SERVER)));
 
         ExtendedHttpClient client = new ExtendedHttpClient();
 
@@ -84,9 +85,9 @@ public class OAuth2 {
 
         URI uri = new URI(responseProtectedResource.getDestinations().get(0));
         String params = new String(Base64.getDecoder().decode(uri.getFragment().split(Pattern.quote("="))[1]));
-        Map<String,String> paramsAsMap = new ObjectMapper().readValue(params,Map.class);
+        Map<String, String> paramsAsMap = new ObjectMapper().readValue(params, Map.class);
 
-        Exchange requestLogin = new Request.Builder().post(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_LOGIN).body("username="+ ConstantsTest.USER_DEFAULT_NAME+"&password=" + ConstantsTest.USER_DEFAULT_PASSWORD + "&login_state=" + paramsAsMap.get("state")).buildExchange();
+        Exchange requestLogin = new Request.Builder().post(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_LOGIN).body("username=" + ConstantsTest.USER_DEFAULT_NAME + "&password=" + ConstantsTest.USER_DEFAULT_PASSWORD + "&login_state=" + paramsAsMap.get("state")).buildExchange();
         Exchange responseLogin = client.call(requestLogin);
 
         assertAll("Consent page",
@@ -95,7 +96,7 @@ public class OAuth2 {
 
         uri = new URI(responseLogin.getDestinations().get(0));
         params = new String(Base64.getDecoder().decode(uri.getFragment().split(Pattern.quote("="))[1]));
-        paramsAsMap = new ObjectMapper().readValue(params,Map.class);
+        paramsAsMap = new ObjectMapper().readValue(params, Map.class);
 
         Exchange requestConsent = new Request.Builder().post(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_CONSENT).body("consent=yes&login_state=" + paramsAsMap.get("state")).buildExchange();
         Exchange responseConsent = client.call(requestConsent);

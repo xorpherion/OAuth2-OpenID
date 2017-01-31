@@ -44,10 +44,10 @@ public class WebApplicationClientInterceptor extends AbstractInterceptor {
         exc.setOriginalRequestUri(exc.getRequest().getUri());
         String destination = exc.getDestinations().get(0);
         URI uri = new URI(exc.getDestinations().get(0));
-        if(uri.getQuery() != null)
-            destination = destination.replace(uri.getQuery(),origUri.getQuery() != null ? origUri.getQuery() : "");
-        if(uri.getPath() != null)
-            destination = destination.replace(uri.getPath(),origUri.getPath() != null ? origUri.getPath() : "/");
+        if (uri.getQuery() != null)
+            destination = destination.replace(uri.getQuery(), origUri.getQuery() != null ? origUri.getQuery() : "");
+        if (uri.getPath() != null)
+            destination = destination.replace(uri.getPath(), origUri.getPath() != null ? origUri.getPath() : "/");
         exc.getDestinations().clear();
         exc.getDestinations().add(destination);
     }

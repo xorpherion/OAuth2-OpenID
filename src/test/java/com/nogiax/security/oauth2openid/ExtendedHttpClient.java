@@ -15,7 +15,7 @@ public class ExtendedHttpClient {
     HttpClient client;
     HashSet<String> cookies;
 
-    public ExtendedHttpClient(){
+    public ExtendedHttpClient() {
         client = new HttpClient();
         cookies = new HashSet<>();
     }
@@ -23,25 +23,24 @@ public class ExtendedHttpClient {
 
     public Exchange call(Exchange exc) throws Exception {
 
-            exc.getRequest().getHeader().add("Cookie",foldCookies());
+        exc.getRequest().getHeader().add("Cookie", foldCookies());
         Exchange res = client.call(exc);
-        if(res.getResponse().getHeader().getFirstValue("Set-Cookie") != null)
+        if (res.getResponse().getHeader().getFirstValue("Set-Cookie") != null)
             cookies.add(res.getResponse().getHeader().getFirstValue("Set-Cookie"));
-        if(res.getResponse().isRedirect())
+        if (res.getResponse().isRedirect())
             return call(followRedirect(res));
         return res;
     }
 
     private Exchange followRedirect(Exchange responseProtectedResource) throws URISyntaxException {
         URI uri = new URI(responseProtectedResource.getResponse().getHeader().getFirstValue(Constants.HEADER_LOCATION));
-        if(uri.isAbsolute()) {
+        if (uri.isAbsolute()) {
             Exchange res = new com.predic8.membrane.core.http.Request.Builder().get(responseProtectedResource.getResponse().getHeader().getFirstValue(Constants.HEADER_LOCATION)).buildExchange();
             responseProtectedResource.setOriginalRequestUri(uri.toString());
             res.getDestinations().clear();
             res.getDestinations().add(responseProtectedResource.getResponse().getHeader().getFirstValue(Constants.HEADER_LOCATION));
             return res;
-        }
-        else{
+        } else {
             uri = new URI("http://" + responseProtectedResource.getRequest().getHeader().getHost() + responseProtectedResource.getResponse().getHeader().getFirstValue(Constants.HEADER_LOCATION));
             Exchange res = new com.predic8.membrane.core.http.Request.Builder().get(uri.toString()).buildExchange();
             responseProtectedResource.setOriginalRequestUri(uri.toString());
@@ -52,13 +51,13 @@ public class ExtendedHttpClient {
 
     }
 
-    private String foldCookies(){
+    private String foldCookies() {
         StringBuilder builder = new StringBuilder();
-        for(String cookie : cookies){
+        for (String cookie : cookies) {
             builder.append(cookie).append(",");
         }
-        if(cookies.size() > 0)
-            builder.deleteCharAt(builder.length()-1);
+        if (cookies.size() > 0)
+            builder.deleteCharAt(builder.length() - 1);
         return builder.toString();
     }
 

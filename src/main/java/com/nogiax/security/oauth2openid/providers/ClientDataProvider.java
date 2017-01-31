@@ -7,5 +7,6 @@ public interface ClientDataProvider {
     boolean clientExists(String clientId);
 
     boolean verify(String clientId, String secret);
+
     String getRedirectUri(String clientId);
 }

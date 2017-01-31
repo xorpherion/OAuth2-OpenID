@@ -22,7 +22,7 @@ public class CombinedResponseGenerator {
         this.exc = exc;
 
         this.responseGenerators = new ArrayList<>();
-        responseGenerators.add(new CodeResponseGenerator(serverServices,exc));
+        responseGenerators.add(new CodeResponseGenerator(serverServices, exc));
         responseGenerators.add(new TokenResponseGenerator(serverServices, exc));
         responseGenerators.add(new IdTokenResponseGenerator(serverServices, exc));
     }

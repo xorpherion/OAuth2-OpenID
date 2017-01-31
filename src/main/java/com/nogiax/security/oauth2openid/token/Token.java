@@ -36,11 +36,11 @@ public class Token {
         usages = 0;
     }
 
-    public void addChild(Token child){
+    public void addChild(Token child) {
         children.add(child);
     }
 
-    public void incrementUsage(){
+    public void incrementUsage() {
         usages++;
     }
 

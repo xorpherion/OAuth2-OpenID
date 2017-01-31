@@ -24,11 +24,11 @@ public class CodeResponseGenerator extends ResponseGenerator {
         String claims = getSession().getValue(Constants.PARAMETER_CLAIMS);
         String scope = getSession().getValue(Constants.PARAMETER_SCOPE);
         String state = getSession().getValue(Constants.PARAMETER_STATE);
-        Token authCode = getTokenManager().addTokenToManager(getTokenManager().getAuthorizationCodes(),getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, claims,scope));
+        Token authCode = getTokenManager().addTokenToManager(getTokenManager().getAuthorizationCodes(), getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, claims, scope));
 
-        Map<String,String> result = new HashMap<>();
+        Map<String, String> result = new HashMap<>();
         result.put(Constants.PARAMETER_CODE, authCode.getValue());
-        result.put(Constants.PARAMETER_STATE,state);
+        result.put(Constants.PARAMETER_STATE, state);
 
         return result;
     }

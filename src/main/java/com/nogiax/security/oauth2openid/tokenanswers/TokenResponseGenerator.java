@@ -23,14 +23,14 @@ public class TokenResponseGenerator extends ResponseGenerator {
 
         Token authorizationCode = getTokenManager().getAuthorizationCodes().getToken(code);
 
-        Token accessToken = getTokenManager().addTokenToManager(getTokenManager().getAccessTokens(),getTokenManager().createChildBearerTokenWithDefaultDuration(authorizationCode));
-        Token refreshToken = getTokenManager().addTokenToManager(getTokenManager().getRefreshTokens(),getTokenManager().createChildBearerToken(Token.getDefaultValidForLong(),authorizationCode));
+        Token accessToken = getTokenManager().addTokenToManager(getTokenManager().getAccessTokens(), getTokenManager().createChildBearerTokenWithDefaultDuration(authorizationCode));
+        Token refreshToken = getTokenManager().addTokenToManager(getTokenManager().getRefreshTokens(), getTokenManager().createChildBearerToken(Token.getDefaultValidForLong(), authorizationCode));
 
-        Map<String,String> result = new HashMap<>();
-        result.put(Constants.PARAMETER_ACCESS_TOKEN,accessToken.getValue());
+        Map<String, String> result = new HashMap<>();
+        result.put(Constants.PARAMETER_ACCESS_TOKEN, accessToken.getValue());
         result.put(Constants.PARAMETER_TOKEN_TYPE, Constants.PARAMETER_VALUE_BEARER);
         result.put(Constants.PARAMETER_EXPIRES_IN, String.valueOf(accessToken.getValidFor().getSeconds()));
-        if(!responseType.equals(Constants.PARAMETER_VALUE_TOKEN) || !responseType.equals(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS))
+        if (!responseType.equals(Constants.PARAMETER_VALUE_TOKEN) || !responseType.equals(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS))
             result.put(Constants.PARAMETER_REFRESH_TOKEN, refreshToken.getValue());
 
         return result;

@@ -3,7 +3,10 @@ package com.nogiax.security.oauth2openid.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.nogiax.http.*;
+import com.nogiax.http.Exchange;
+import com.nogiax.http.Method;
+import com.nogiax.http.RequestBuilder;
+import com.nogiax.http.ResponseBuilder;
 import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.ClientProvider;
 import com.nogiax.security.oauth2openid.Constants;
@@ -45,19 +48,19 @@ public class WebApplicationClient {
         log.info("Client connect");
         Exchange result;
         Session session = clientProvider.getSessionProvider().getSession(exc);
-        if( session != null && session.getValue(Constants.SESSION_LOGGED_IN) != null && session.getValue(Constants.SESSION_LOGGED_IN).equals(Constants.VALUE_YES)){
-            exc.getRequest().getHeader().append(Constants.HEADER_AUTHORIZATION,session.getValue(Constants.PARAMETER_TOKEN_TYPE) + " " + session.getValue(Constants.PARAMETER_ACCESS_TOKEN));
+        if (session != null && session.getValue(Constants.SESSION_LOGGED_IN) != null && session.getValue(Constants.SESSION_LOGGED_IN).equals(Constants.VALUE_YES)) {
+            exc.getRequest().getHeader().append(Constants.HEADER_AUTHORIZATION, session.getValue(Constants.PARAMETER_TOKEN_TYPE) + " " + session.getValue(Constants.PARAMETER_ACCESS_TOKEN));
             return exc;
         }
 
-        if(isCallbackCall(exc))
+        if (isCallbackCall(exc))
             result = invokeWhenCallback(exc);
         else
             result = invokeAuthRedirect(exc);
-        if(result.getRequest() == null)
+        if (result.getRequest() == null)
             result.setRequest(exc.getRequest());
-        if(exc != null)
-            if(!exc.getProperties().isEmpty())
+        if (exc != null)
+            if (!exc.getProperties().isEmpty())
                 result.setProperties(exc.getProperties());
         return result;
     }
@@ -71,12 +74,12 @@ public class WebApplicationClient {
         // callback impl
         log.info("Client callback");
 
-        Map<String,String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
+        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
 
         Session session = clientProvider.getSessionProvider().getSession(exc);
         String state = session.getValue(Constants.PARAMETER_STATE);
 
-        if(!state.equals(params.get(Constants.PARAMETER_STATE))){
+        if (!state.equals(params.get(Constants.PARAMETER_STATE))) {
             return new ResponseBuilder().statuscode(400).body(Constants.ERROR_POSSIBLE_CSRF).buildExchange();
         }
 
@@ -84,23 +87,23 @@ public class WebApplicationClient {
         Exchange accessTokenRequest = createAccessTokenRequest(exc, params.get(Constants.PARAMETER_CODE));
         Exchange accessTokenResponse = clientProvider.getHttpClient().sendExchange(accessTokenRequest);
 
-        Map<String,Object> json = new ObjectMapper().readValue(accessTokenResponse.getResponse().getBody(),Map.class);
+        Map<String, Object> json = new ObjectMapper().readValue(accessTokenResponse.getResponse().getBody(), Map.class);
 
-        for(String s : json.keySet())
-            session.putValue(s,json.get(s).toString());
-        session.putValue(Constants.SESSION_LOGGED_IN,Constants.VALUE_YES);
+        for (String s : json.keySet())
+            session.putValue(s, json.get(s).toString());
+        session.putValue(Constants.SESSION_LOGGED_IN, Constants.VALUE_YES);
 
         Exchange origExc = originalRequestsForState.getIfPresent(params.get(Constants.PARAMETER_STATE));
         exc.setRequest(origExc.getRequest());
-        exc.getRequest().getHeader().append(Constants.HEADER_AUTHORIZATION,session.getValue(Constants.PARAMETER_TOKEN_TYPE) + " " + session.getValue(Constants.PARAMETER_ACCESS_TOKEN));
+        exc.getRequest().getHeader().append(Constants.HEADER_AUTHORIZATION, session.getValue(Constants.PARAMETER_TOKEN_TYPE) + " " + session.getValue(Constants.PARAMETER_ACCESS_TOKEN));
         return exc;
     }
 
     private Exchange createAccessTokenRequest(Exchange exc, String authorizationCode) throws URISyntaxException, UnsupportedEncodingException {
-        Map<String,String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<>();
         params.put(Constants.PARAMETER_GRANT_TYPE, Constants.GRANT_TYPE_AUTHORIZATION_CODE);
-        params.put(Constants.PARAMETER_CODE,authorizationCode);
-        params.put(Constants.PARAMETER_REDIRECT_URI,clientData.getRedirectUri());
+        params.put(Constants.PARAMETER_CODE, authorizationCode);
+        params.put(Constants.PARAMETER_REDIRECT_URI, clientData.getRedirectUri());
         //params.put(Constants.PARAMETER_CLIENT_ID,clientData.getClientId());
 
         return new RequestBuilder()
@@ -108,12 +111,12 @@ public class WebApplicationClient {
                 .uri(serverData.getTokenEndpoint())
                 .body(UriUtil.parametersToQuery(params))
                 .header(Constants.HEADER_AUTHORIZATION, getBasicAuthValue())
-                .header(Constants.HEADER_COOKIE,exc.getRequest().getHeader().getValue(Constants.HEADER_COOKIE))
+                .header(Constants.HEADER_COOKIE, exc.getRequest().getHeader().getValue(Constants.HEADER_COOKIE))
                 .buildExchange();
     }
 
     private String getBasicAuthValue() throws UnsupportedEncodingException {
-        return Util.encodeToBasicAuthValue(clientData.getClientId(),clientData.getClientSecret());
+        return Util.encodeToBasicAuthValue(clientData.getClientId(), clientData.getClientSecret());
     }
 
     private boolean isCallbackCall(Exchange exc) {
@@ -141,7 +144,7 @@ public class WebApplicationClient {
         originalRequestsForState.put(state, exc);
 
         Session session = clientProvider.getSessionProvider().getSession(exc);
-        session.putValue(Constants.PARAMETER_STATE,state);
+        session.putValue(Constants.PARAMETER_STATE, state);
 
         return state;
     }
