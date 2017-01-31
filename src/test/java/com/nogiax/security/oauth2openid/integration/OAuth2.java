@@ -60,7 +60,7 @@ public class OAuth2 {
     @Test
     void testStartAuthServerAndClient() throws Exception {
         Router authorizationServer = UtilMembrane.startMembraneWithProxies(UtilMembrane.createAuthorizationServerProxy());
-        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target("www.google.de", 80)));
+        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target(ConstantsTest.HOST_AUTHORIZATION_SERVER.replace("http://",""), ConstantsTest.PORT_AUTHORIZATION_SERVER)));
         boolean running = true;
         while (running)
             Thread.sleep(1000);
@@ -71,11 +71,11 @@ public class OAuth2 {
     @Test
     void testSuccessfulAuthorizationFlow() throws Exception {
         Router authorizationServer = UtilMembrane.startMembraneWithProxies(UtilMembrane.createAuthorizationServerProxy());
-        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target("www.google.de", 80)));
+        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target(ConstantsTest.HOST_AUTHORIZATION_SERVER.replace("http://",""), ConstantsTest.PORT_AUTHORIZATION_SERVER)));
 
         ExtendedHttpClient client = new ExtendedHttpClient();
 
-        Exchange requestProtectedResource = new Request.Builder().get(ConstantsTest.URL_CLIENT).buildExchange();
+        Exchange requestProtectedResource = new Request.Builder().get(ConstantsTest.URL_PROTECTED_RESOURCE).buildExchange();
         Exchange responseProtectedResource = client.call(requestProtectedResource);
 
         assertAll("Login page",
@@ -90,7 +90,7 @@ public class OAuth2 {
         Exchange responseLogin = client.call(requestLogin);
 
         assertAll("Consent page",
-                () -> assertEquals(200, responseProtectedResource.getResponse().getStatusCode(), "Statuscode was not OK")
+                () -> assertEquals(200, responseLogin.getResponse().getStatusCode(), "Statuscode was not OK")
         );
 
         uri = new URI(responseLogin.getDestinations().get(0));
@@ -101,7 +101,9 @@ public class OAuth2 {
         Exchange responseConsent = client.call(requestConsent);
 
         assertAll("Protected resource",
-                () -> assertEquals(200, responseProtectedResource.getResponse().getStatusCode(), "Statuscode was not OK")
+                () -> assertEquals(200, responseConsent.getResponse().getStatusCode(), "Statuscode was not OK")
         );
+
+        log.info(responseConsent.getResponse().getBodyAsStringDecoded());
     }
 }

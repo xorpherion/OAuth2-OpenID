@@ -47,6 +47,7 @@ public class Constants {
     public static final String ERROR_INVALID_REQUEST = "invalid_request";
     public static final String ERROR_ACCESS_DENIED = "access_denied";
     public static final String ERROR_INVALID_SCOPE = "invalid_scope";
+    public static final String ERROR_INVALID_TOKEN = "invalid_token";
 
     public static final String ERROR_COULD_NOT_VALIDATE_USER = "Could not verify user. Please try again.";
     public static final String ERROR_POSSIBLE_CSRF = "Possible CSRF attack.";
@@ -76,6 +77,7 @@ public class Constants {
     public static final String HEADER_COOKIE = "Cookie";
     public static final String HEADER_CACHE_CONTROL = "Cache-Control";
     public static final String HEADER_PRAGMA = "Pragma";
+    public static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
 
     //Header values
     public static final String HEADER_VALUE_NO_CACHE = "no-cache";
@@ -85,6 +87,7 @@ public class Constants {
     public static final String TOKEN_TYPE_CODE = "code";
     public static final String TOKEN_TYPE_TOKEN = "token";
     public static final String TOKEN_TYPE_ID_TOKEN = "id_token";
+
 
 
 

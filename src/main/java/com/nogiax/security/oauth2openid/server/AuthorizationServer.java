@@ -4,10 +4,7 @@ import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ProvidedServices;
 import com.nogiax.security.oauth2openid.ServerServices;
-import com.nogiax.security.oauth2openid.server.endpoints.AuthorizationEndpoint;
-import com.nogiax.security.oauth2openid.server.endpoints.Endpoint;
-import com.nogiax.security.oauth2openid.server.endpoints.LoginEndpoint;
-import com.nogiax.security.oauth2openid.server.endpoints.TokenEndpoint;
+import com.nogiax.security.oauth2openid.server.endpoints.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +27,7 @@ public class AuthorizationServer {
         endpoints.add(new AuthorizationEndpoint(serverServices));
         endpoints.add(new LoginEndpoint(serverServices));
         endpoints.add(new TokenEndpoint(serverServices));
+        endpoints.add(new UserinfoEndpoint(serverServices));
     }
 
     public Exchange invokeOn(Exchange exc) throws Exception {

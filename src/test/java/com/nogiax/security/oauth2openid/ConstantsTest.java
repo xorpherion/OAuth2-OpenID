@@ -21,6 +21,9 @@ public class ConstantsTest {
     public static final String CLIENT_DEFAULT_SECRET = "SECRET";
     public static final String CLIENT_DEFAULT_SCOPE = "openid profile";
 
+    public static final String URL_PROTECTED_RESOURCE = URL_CLIENT + Constants.ENDPOINT_USERINFO;
+
     public static final String USER_DEFAULT_NAME = "Till";
     public static final String USER_DEFAULT_PASSWORD = "Born";
+
 }
