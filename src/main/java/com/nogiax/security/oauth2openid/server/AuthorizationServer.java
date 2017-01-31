@@ -1,6 +1,7 @@
 package com.nogiax.security.oauth2openid.server;
 
 import com.nogiax.http.Exchange;
+import com.nogiax.http.ResponseBuilder;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ProvidedServices;
 import com.nogiax.security.oauth2openid.ServerServices;
@@ -35,6 +36,8 @@ public class AuthorizationServer {
         for (Endpoint endpoint : endpoints)
             if (exc.getResponse() == null)
                 endpoint.useIfResponsible(exc);
+        if(exc.getResponse() == null)
+            exc.setResponse(new ResponseBuilder().statuscode(404).body("Not found - try /userinfo with access token in Authorization Header").build());
         addMissingHeaders(exc);
         return exc;
     }
