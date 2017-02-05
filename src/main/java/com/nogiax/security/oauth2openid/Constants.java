@@ -24,6 +24,10 @@ public class Constants {
 
     //Scope names
     public static final String SCOPE_OPENID = "openid";
+    public static final String SCOPE_EMAIL = "email";
+    public static final String SCOPE_PROFILE = "profile";
+    public static final String SCOPE_ADDRESS = "address";
+    public static final String SCOPE_PHONE = "phone";
 
     //Parameter values
     public static final String PARAMETER_VALUE_CODE = "code";
@@ -46,6 +50,7 @@ public class Constants {
     //Error values
     public static final String ERROR_INVALID_REQUEST = "invalid_request";
     public static final String ERROR_ACCESS_DENIED = "access_denied";
+    public static final String ERROR_UNSUPPORTED_RESPONSE_TYPE = "unsupported_response_type";
     public static final String ERROR_INVALID_SCOPE = "invalid_scope";
     public static final String ERROR_INVALID_TOKEN = "invalid_token";
 
@@ -88,5 +93,25 @@ public class Constants {
     public static final String TOKEN_TYPE_TOKEN = "token";
     public static final String TOKEN_TYPE_ID_TOKEN = "id_token";
 
-
+    // Claim names
+    public static final String CLAIM_SUB = "sub";
+    public static final String CLAIM_NAME = "name";
+    public static final String CLAIM_GIVEN_NAME = "given_name";
+    public static final String CLAIM_FAMILY_NAME = "family_name";
+    public static final String CLAIM_MIDDLE_NAME = "middle_name";
+    public static final String CLAIM_NICKNAME = "nickname";
+    public static final String CLAIM_PREFERRED_USERNAME = "preferred_username";
+    public static final String CLAIM_PROFILE = "profile";
+    public static final String CLAIM_PICTURE = "picture";
+    public static final String CLAIM_WEBSITE = "website";
+    public static final String CLAIM_EMAIL = "email";
+    public static final String CLAIM_EMAIL_VERIFIED = "email_verified";
+    public static final String CLAIM_GENDER = "gender";
+    public static final String CLAIM_BIRTHDATE = "birthdate";
+    public static final String CLAIM_ZONEINFO = "zoneinfo";
+    public static final String CLAIM_LOCALE = "locale";
+    public static final String CLAIM_PHONE_NUMBER = "phone_number";
+    public static final String CLAIM_PHONE_NUMBER_VERIFIED = "phone_number_verified";
+    public static final String CLAIM_ADDRESS = "address";
+    public static final String CLAIM_UPDATED_AT = "updated_at";
 }

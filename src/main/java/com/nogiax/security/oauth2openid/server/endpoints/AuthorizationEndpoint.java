@@ -24,6 +24,7 @@ public class AuthorizationEndpoint extends Endpoint {
         return params.get(Constants.PARAMETER_REDIRECT_URI) == null
                 || !Parameters.redirectUriIsAbsolute(params.get(Constants.PARAMETER_REDIRECT_URI))
                 || params.get(Constants.PARAMETER_CLIENT_ID) == null
+                || !params.get(Constants.PARAMETER_REDIRECT_URI).equals(serverServices.getProvidedServices().getClientDataProvider().getRedirectUri(params.get(Constants.PARAMETER_CLIENT_ID)))
                 || !clientExists(params.get(Constants.PARAMETER_CLIENT_ID));
     }
 

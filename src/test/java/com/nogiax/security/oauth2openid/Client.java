@@ -8,11 +8,21 @@ public class Client {
     String clientId;
     String clientSecret;
     String redirectUri;
+    boolean isConfidential;
 
     public Client(String clientId, String clientSecret, String redirectUri) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
+
+        if(clientSecret == null)
+            isConfidential = false;
+        else
+            isConfidential = true;
+    }
+
+    public Client(String clientId, String redirectUri){
+        this(clientId,null,redirectUri);
     }
 
     public String getRedirectUri() {
@@ -39,4 +49,11 @@ public class Client {
         this.clientSecret = clientSecret;
     }
 
+    public boolean isConfidential() {
+        return isConfidential;
+    }
+
+    public void setConfidential(boolean confidential) {
+        isConfidential = confidential;
+    }
 }

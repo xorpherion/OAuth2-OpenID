@@ -26,6 +26,11 @@ public class MembraneClientDataProvider implements ClientDataProvider {
     }
 
     @Override
+    public boolean isConfidential(String clientId) {
+        return clients.get(clientId).isConfidential();
+    }
+
+    @Override
     public boolean verify(String clientId, String secret) {
         if (!clientExists(clientId))
             return false;

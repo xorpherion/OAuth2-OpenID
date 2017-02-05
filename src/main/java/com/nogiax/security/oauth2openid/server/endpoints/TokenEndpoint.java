@@ -29,6 +29,8 @@ public class TokenEndpoint extends Endpoint {
                 if (clientIsAuthorized)
                     clientId = clientData.getName();
             } catch (Exception e) {
+                clientIsAuthorized = false;
+                clientId = null;
             }
         }
 
