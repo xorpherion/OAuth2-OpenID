@@ -83,6 +83,7 @@ public class Constants {
     public static final String HEADER_CACHE_CONTROL = "Cache-Control";
     public static final String HEADER_PRAGMA = "Pragma";
     public static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
+    public static final String HEADER_SET_COOKIE = "Set-Cookie";
 
     //Header values
     public static final String HEADER_VALUE_NO_CACHE = "no-cache";
@@ -114,4 +115,5 @@ public class Constants {
     public static final String CLAIM_PHONE_NUMBER_VERIFIED = "phone_number_verified";
     public static final String CLAIM_ADDRESS = "address";
     public static final String CLAIM_UPDATED_AT = "updated_at";
+
 }

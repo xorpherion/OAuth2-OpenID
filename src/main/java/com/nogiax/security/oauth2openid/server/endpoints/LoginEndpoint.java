@@ -44,7 +44,7 @@ public class LoginEndpoint extends Endpoint {
         Map<String, String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         if (!params.containsKey(Constants.LOGIN_CONSENT) || params.get(Constants.LOGIN_CONSENT).equals(Constants.VALUE_NO)) {
-            exc.setResponse(redirectToCallbackWithError(session.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED));
+            exc.setResponse(redirectToCallbackWithError(session.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED,session.getValue(Constants.SESSION_LOGIN_STATE)));
             return;
         }
 

@@ -10,8 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
  */
 public class EndpointTests {
 
-    AuthorizationServer server;
-    ProvidedServices services;
+    protected AuthorizationServer server;
 
     @BeforeEach
     public void setUp() throws Exception{

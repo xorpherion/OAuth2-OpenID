@@ -1,10 +1,10 @@
 package com.nogiax.security.oauth2openid.integration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.ExtendedHttpClient;
 import com.nogiax.security.oauth2openid.UtilMembrane;
+import com.nogiax.security.oauth2openid.unit.Common;
 import com.predic8.membrane.core.HttpRouter;
 import com.predic8.membrane.core.Router;
 import com.predic8.membrane.core.exchange.Exchange;
@@ -17,12 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,6 +32,7 @@ public class OAuth2 {
     Logger log = LoggerFactory.getLogger(OAuth2.class);
     Lock l = new ReentrantLock();
 
+    @Disabled
     @Test
     void pseudoMain() throws Exception {
 
@@ -85,9 +83,7 @@ public class OAuth2 {
                 () -> assertEquals(200, responseProtectedResource.getResponse().getStatusCode(), "Statuscode was not OK")
         );
 
-        URI uri = new URI(responseProtectedResource.getDestinations().get(0));
-        String params = new String(Base64.getDecoder().decode(uri.getFragment().split(Pattern.quote("="))[1]));
-        Map<String, String> paramsAsMap = new ObjectMapper().readValue(params, Map.class);
+        Map<String, String> paramsAsMap = Common.convertLoginPageParamsToMap(responseProtectedResource.getDestinations().get(0));
 
         Exchange requestLogin = new Request.Builder().post(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_LOGIN).body("username=" + ConstantsTest.USER_DEFAULT_NAME + "&password=" + ConstantsTest.USER_DEFAULT_PASSWORD + "&login_state=" + paramsAsMap.get("state")).buildExchange();
         Exchange responseLogin = client.call(requestLogin);
@@ -96,9 +92,7 @@ public class OAuth2 {
                 () -> assertEquals(200, responseLogin.getResponse().getStatusCode(), "Statuscode was not OK")
         );
 
-        uri = new URI(responseLogin.getDestinations().get(0));
-        params = new String(Base64.getDecoder().decode(uri.getFragment().split(Pattern.quote("="))[1]));
-        paramsAsMap = new ObjectMapper().readValue(params, Map.class);
+        paramsAsMap = Common.convertLoginPageParamsToMap(responseLogin.getDestinations().get(0));
 
         Exchange requestConsent = new Request.Builder().post(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_CONSENT).body("consent=yes&login_state=" + paramsAsMap.get("state")).buildExchange();
         Exchange responseConsent = client.call(requestConsent);
@@ -112,4 +106,5 @@ public class OAuth2 {
         authorizationServer.stop();
         webApplicationClient.stop();
     }
+
 }

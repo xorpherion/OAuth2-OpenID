@@ -49,4 +49,7 @@ public class AuthorizationServer {
         }
     }
 
+    public ServerServices getServerServices() {
+        return serverServices;
+    }
 }

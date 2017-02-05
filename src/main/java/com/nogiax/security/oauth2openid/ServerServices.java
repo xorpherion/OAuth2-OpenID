@@ -17,12 +17,12 @@ public class ServerServices {
     public ServerServices(ProvidedServices providedServices) {
         this.providedServices = providedServices;
         this.tokenManager = new CombinedTokenManager();
-        this.supportedScopes = new SupportedScopes(getDefaultScopes());
-        this.supportedClaims = new SupportedClaims(getSupportedClaims());
+        this.supportedScopes = new SupportedScopes(defaultScopes());
+        this.supportedClaims = new SupportedClaims(supportedClaims());
 
     }
 
-    private Scope[] getDefaultScopes() {
+    private Scope[] defaultScopes() {
         return new Scope[]{
                 new Scope(Constants.SCOPE_OPENID),
                 new Scope(Constants.SCOPE_PROFILE, Constants.CLAIM_NAME, Constants.CLAIM_FAMILY_NAME, Constants.CLAIM_GIVEN_NAME,
@@ -35,7 +35,7 @@ public class ServerServices {
         };
     }
 
-    private String[] getSupportedClaims() {
+    private String[] supportedClaims() {
         return new String[]{Constants.CLAIM_SUB, Constants.CLAIM_NAME, Constants.CLAIM_GIVEN_NAME, Constants.CLAIM_FAMILY_NAME, Constants.CLAIM_MIDDLE_NAME, Constants.CLAIM_NICKNAME, Constants.CLAIM_PREFERRED_USERNAME,
                 Constants.CLAIM_PROFILE, Constants.CLAIM_PICTURE, Constants.CLAIM_WEBSITE, Constants.CLAIM_EMAIL, Constants.CLAIM_EMAIL_VERIFIED, Constants.CLAIM_GENDER, Constants.CLAIM_BIRTHDATE, Constants.CLAIM_ZONEINFO, Constants.CLAIM_LOCALE,
                 Constants.CLAIM_PHONE_NUMBER, Constants.CLAIM_PHONE_NUMBER_VERIFIED, Constants.CLAIM_ADDRESS, Constants.CLAIM_UPDATED_AT};
@@ -47,5 +47,13 @@ public class ServerServices {
 
     public CombinedTokenManager getTokenManager() {
         return tokenManager;
+    }
+
+    public SupportedScopes getSupportedScopes() {
+        return supportedScopes;
+    }
+
+    public SupportedClaims getSupportedClaims() {
+        return supportedClaims;
     }
 }

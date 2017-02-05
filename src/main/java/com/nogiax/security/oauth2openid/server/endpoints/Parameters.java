@@ -2,6 +2,7 @@ package com.nogiax.security.oauth2openid.server.endpoints;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,10 +12,13 @@ import java.util.Map;
 public class Parameters {
 
     public static Map<String, String> stripEmptyParams(Map<String, String> params) {
-        HashMap<String, String> result = new HashMap<>(params);
-        for (String key : result.keySet())
-            if (result.get(key).isEmpty())
-                result.remove(key);
+        HashMap<String, String> result = new HashMap<>();
+        if(params == null)
+            return result;
+        params.keySet().stream().forEach((key)->{
+            if (params.get(key) != null && !params.get(key).isEmpty())
+                result.put(key,params.get(key));
+        });
         return result;
     }
 

@@ -44,7 +44,17 @@ public class AuthorizationEndpoint extends Endpoint {
             }
 
             if (params.get(Constants.PARAMETER_RESPONSE_TYPE) == null || params.get(Constants.PARAMETER_CLIENT_ID) == null || params.get(Constants.PARAMETER_REDIRECT_URI) == null) {
-                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST));
+                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST,params.get(Constants.PARAMETER_STATE)));
+                return;
+            }
+
+            if(!responseTypeIsSupported(params.get(Constants.PARAMETER_RESPONSE_TYPE))){
+                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_UNSUPPORTED_RESPONSE_TYPE,params.get(Constants.PARAMETER_STATE)));
+                return;
+            }
+
+            if(!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE))){
+                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_SCOPE,params.get(Constants.PARAMETER_STATE)));
                 return;
             }
 
@@ -65,6 +75,15 @@ public class AuthorizationEndpoint extends Endpoint {
 
     }
 
+    private boolean responseTypeIsSupported(String responseType) {
+        switch(responseType){
+            case Constants.PARAMETER_VALUE_CODE: ;
+            case Constants.PARAMETER_VALUE_TOKEN: ;
+            case Constants.PARAMETER_VALUE_ID_TOKEN: return true;
+            default: return false;
+        }
+    }
+
     private void copyParametersInSession(Session session, Map<String, String> params) throws Exception {
         for (String param : params.keySet())
             session.putValue(param, params.get(param));
@@ -75,7 +94,7 @@ public class AuthorizationEndpoint extends Endpoint {
         String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
 
         Map<String, String> callbackParams = new CombinedResponseGenerator(serverServices, exc).invokeResponse(responseTypeToResponseGeneratorValue(responseType));
-        exc.setResponse(redirectToCallbackWithParams(serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams));
+        exc.setResponse(redirectToCallbackWithParams(session.getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams,session.getValue(Constants.PARAMETER_STATE),responseType.contains(Constants.PARAMETER_VALUE_TOKEN)));
     }
 
     private String responseTypeToResponseGeneratorValue(String responseType) {
