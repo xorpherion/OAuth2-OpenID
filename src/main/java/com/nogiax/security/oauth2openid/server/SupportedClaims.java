@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Xorpherion on 04.02.2017.
@@ -20,12 +21,11 @@ public class SupportedClaims {
             this.claims.add(claim);
     }
 
-    public boolean claimsSupported(String claims) throws IOException {
-        return claimsSupported(new ObjectMapper().readValue(claims, Map.class));
+    public Set<String> getValidClaims(Set<String> claims) {
+        HashSet<String> result = new HashSet<>();
+        for(String claim : claims)
+            if(this.claims.contains(claim))
+                result.add(claim);
+        return result;
     }
-
-    public boolean claimsSupported(Map<String, Object> json) {
-        throw new RuntimeException("NYI");
-    }
-
 }

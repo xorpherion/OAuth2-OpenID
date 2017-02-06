@@ -164,4 +164,8 @@ public class Common {
         String authHeader = Util.encodeToBasicAuthValue(clientId, clientSecret);
         return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_AUTHORIZATION, authHeader),cookie).buildExchange();
     }
+
+    public static Exchange createUserinfoRequest(String accessToken, String tokenType) throws URISyntaxException {
+        return new RequestBuilder().uri(ConstantsTest.SERVER_USERINFO_ENDPOINT).method(Method.GET).header(Constants.HEADER_AUTHORIZATION,tokenType + " " + accessToken).buildExchange();
+    }
 }

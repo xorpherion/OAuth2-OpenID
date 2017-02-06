@@ -9,14 +9,18 @@ import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ServerServices;
 import com.nogiax.security.oauth2openid.Session;
+import com.nogiax.security.oauth2openid.permissions.ClaimsParameter;
 import com.nogiax.security.oauth2openid.token.BearerTokenProvider;
+import com.nogiax.security.oauth2openid.token.Token;
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Xorpherion on 25.01.2017.
@@ -157,5 +161,13 @@ public abstract class Endpoint {
     protected Response answerWithError(int statusCode, String error) throws JsonProcessingException {
         return answerWithBody(statusCode, getErrorBody(error));
 
+    }
+
+    protected Set<String> getValidClaimsFromToken(Token token) throws IOException {
+        ClaimsParameter tokenClaims = new ClaimsParameter(token.getClaims());
+        Set<String> claims = serverServices.getSupportedScopes().getClaimsForScope(token.getScope());
+        claims.addAll(tokenClaims.getAllClaimNames());
+        claims = serverServices.getSupportedClaims().getValidClaims(claims);
+        return claims;
     }
 }

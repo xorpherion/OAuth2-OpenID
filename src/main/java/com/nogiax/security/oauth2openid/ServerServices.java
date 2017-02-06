@@ -24,7 +24,7 @@ public class ServerServices {
 
     private Scope[] defaultScopes() {
         return new Scope[]{
-                new Scope(Constants.SCOPE_OPENID),
+                new Scope(Constants.SCOPE_OPENID, Constants.CLAIM_SUB),
                 new Scope(Constants.SCOPE_PROFILE, Constants.CLAIM_NAME, Constants.CLAIM_FAMILY_NAME, Constants.CLAIM_GIVEN_NAME,
                         Constants.CLAIM_MIDDLE_NAME, Constants.CLAIM_NICKNAME, Constants.CLAIM_PREFERRED_USERNAME,
                         Constants.CLAIM_PROFILE, Constants.CLAIM_PICTURE, Constants.CLAIM_WEBSITE, Constants.CLAIM_GENDER,

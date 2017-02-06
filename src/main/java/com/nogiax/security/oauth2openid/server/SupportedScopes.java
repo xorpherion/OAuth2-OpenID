@@ -31,6 +31,11 @@ public class SupportedScopes {
     }
 
     public HashSet<String> getClaimsForScope(String scope) {
-        return supportedScopes.get(scope).getClaims();
+        HashSet<String> result = new HashSet<>();
+
+        for(String s : scope.split(Pattern.quote(" ")))
+            result.addAll(supportedScopes.get(s).getClaims());
+
+        return result;
     }
 }
