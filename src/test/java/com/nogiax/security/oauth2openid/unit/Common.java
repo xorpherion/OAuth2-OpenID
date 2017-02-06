@@ -145,4 +145,23 @@ public class Common {
 
         return Parameters.stripEmptyParams(params);
     }
+
+    public static Exchange preStepAndRefreshTokenRequest(Supplier<Exchange> preStep, String scope, String clientId, String clientSecret) throws IOException, URISyntaxException {
+
+        Exchange exc = preStep.get();
+        String cookie = extractSessionCookie(exc);
+        String refreshToken = String.valueOf(new ObjectMapper().readValue(exc.getResponse().getBody(),Map.class).get(Constants.PARAMETER_REFRESH_TOKEN));
+
+        Map<String, String> params = new HashMap<>();
+        params.put(Constants.PARAMETER_GRANT_TYPE, Constants.PARAMETER_VALUE_REFRESH_TOKEN);
+        params.put(Constants.PARAMETER_REFRESH_TOKEN, refreshToken);
+        params.put(Constants.PARAMETER_SCOPE, scope);
+
+        params = Parameters.stripEmptyParams(params);
+
+        if (clientSecret == null)
+            return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)),cookie).buildExchange();
+        String authHeader = Util.encodeToBasicAuthValue(clientId, clientSecret);
+        return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_AUTHORIZATION, authHeader),cookie).buildExchange();
+    }
 }

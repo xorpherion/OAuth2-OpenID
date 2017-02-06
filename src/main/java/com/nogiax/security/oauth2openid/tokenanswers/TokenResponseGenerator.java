@@ -24,18 +24,28 @@ public class TokenResponseGenerator extends ResponseGenerator {
         String claims = getSession().getValue(Constants.PARAMETER_CLAIMS);
         String code = getSession().getValue(Constants.SESSION_AUTHORIZATION_CODE);
         String grantType = getSession().getValue(Constants.PARAMETER_GRANT_TYPE);
+        String refreshTokenValue = getSession().getValue(Constants.PARAMETER_REFRESH_TOKEN);
 
-        if (code == null) {
+
+        Token parentToken = null;
+        if(refreshTokenValue != null){
+            parentToken = getTokenManager().getRefreshTokens().getToken(refreshTokenValue);
+            getSession().removeValue(Constants.PARAMETER_REFRESH_TOKEN);
+        }
+        else if (code == null) {
             Token fakeAuthToken = getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, scope, claims);
             getTokenManager().getAuthorizationCodes().addToken(fakeAuthToken);
             code = fakeAuthToken.getValue();
+            parentToken = getTokenManager().getAuthorizationCodes().getToken(code);
+        }else{
+            parentToken = getTokenManager().getAuthorizationCodes().getToken(code);
+            getSession().removeValue(Constants.SESSION_AUTHORIZATION_CODE);
         }
 
-        Token authorizationCode = getTokenManager().getAuthorizationCodes().getToken(code);
 
-        Token accessToken = getTokenManager().addTokenToManager(getTokenManager().getAccessTokens(), getTokenManager().createChildBearerTokenWithDefaultDuration(authorizationCode));
-        Token refreshToken = getTokenManager().addTokenToManager(getTokenManager().getRefreshTokens(), getTokenManager().createChildBearerToken(Token.getDefaultValidForLong(), authorizationCode));
-        authorizationCode.incrementUsage();
+        Token accessToken = getTokenManager().addTokenToManager(getTokenManager().getAccessTokens(), getTokenManager().createChildBearerTokenWithDefaultDuration(parentToken));
+        Token refreshToken = getTokenManager().addTokenToManager(getTokenManager().getRefreshTokens(), getTokenManager().createChildBearerToken(Token.getDefaultValidForLong(), parentToken));
+        parentToken.incrementUsage();
 
 
         Map<String, String> result = new HashMap<>();

@@ -41,7 +41,7 @@ public class TokenEndpoint extends Endpoint {
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);
 
-        String code = params.get(Constants.PARAMETER_CODE);
+
         if (clientId == null)
             clientId = params.get(Constants.PARAMETER_CLIENT_ID);
         if (clientId == null) {
@@ -68,6 +68,7 @@ public class TokenEndpoint extends Endpoint {
 
 
         if (grantType.equals(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE)) {
+            String code = params.get(Constants.PARAMETER_CODE);
             if (params.get(Constants.PARAMETER_REDIRECT_URI) == null || !session.getValue(Constants.PARAMETER_REDIRECT_URI).equals(params.get(Constants.PARAMETER_REDIRECT_URI)) || params.get(Constants.PARAMETER_CODE) == null) {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
                 return;
@@ -118,6 +119,37 @@ public class TokenEndpoint extends Endpoint {
                 exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
                 return;
             }
+            if(grantType.equals(Constants.PARAMETER_VALUE_REFRESH_TOKEN)) {
+                String refreshToken = params.get(Constants.PARAMETER_REFRESH_TOKEN);
+                if (params.get(Constants.PARAMETER_REFRESH_TOKEN) == null) {
+                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+                    return;
+                }
+
+                if (!serverServices.getTokenManager().getRefreshTokens().tokenExists(refreshToken)) {
+                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                    return;
+                }
+
+                Token refreshTokenToken = serverServices.getTokenManager().getRefreshTokens().getToken(refreshToken);
+
+                if(refreshTokenToken.getUsages() > 0){
+                    refreshTokenToken.revokeThisAndAllChildren();
+                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                    return;
+                }
+
+                if (refreshTokenToken.isExpired() || refreshTokenToken.getUsages() > 1) {
+                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                    return;
+                }
+
+                if (!refreshTokenToken.getClientId().equals(clientId)) {
+                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                    return;
+                }
+                session.putValue(Constants.PARAMETER_REFRESH_TOKEN,refreshToken);
+            }
 
         if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE)) || scopeIsSuperior(session.getValue(Constants.PARAMETER_SCOPE), params.get(Constants.PARAMETER_SCOPE))) {
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_SCOPE));
@@ -158,6 +190,8 @@ public class TokenEndpoint extends Endpoint {
             case Constants.PARAMETER_VALUE_PASSWORD:
                 ;
             case Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS:
+                ;
+            case Constants.PARAMETER_VALUE_REFRESH_TOKEN:
                 return true;
             default:
                 return false;

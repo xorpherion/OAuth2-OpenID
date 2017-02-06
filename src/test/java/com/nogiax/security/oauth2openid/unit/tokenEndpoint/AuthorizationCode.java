@@ -1,18 +1,14 @@
 package com.nogiax.security.oauth2openid.unit.tokenEndpoint;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nogiax.http.Exchange;
-import com.nogiax.http.Method;
-import com.nogiax.http.RequestBuilder;
 import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.Util;
-import com.nogiax.security.oauth2openid.server.endpoints.Parameters;
+import com.nogiax.security.oauth2openid.server.AuthorizationServer;
 import com.nogiax.security.oauth2openid.unit.Common;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -72,6 +68,11 @@ public class AuthorizationCode extends BaseTokenEndpointTests {
         };
     }
 
+    public AuthorizationCode init(AuthorizationServer server){
+        this.server = server;
+        return this;
+    }
+
     @Test
     public void superiorScopeThanBefore() throws Exception {
         Common.testExchangeOn(server,
@@ -128,8 +129,8 @@ public class AuthorizationCode extends BaseTokenEndpointTests {
     }
 
     @Test
-    public void goodRequest() throws Exception{
-        Common.testExchangeOn(server,
+    public Exchange goodRequest() throws Exception{
+        return Common.testExchangeOn(server,
                 () -> {
                     try {
                         return Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());

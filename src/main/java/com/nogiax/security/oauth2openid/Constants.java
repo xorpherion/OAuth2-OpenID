@@ -39,6 +39,7 @@ public class Constants {
     public static final String PARAMETER_VALUE_PASSWORD = "password";
     public static final String PARAMETER_VALUE_CLIENT_CREDENTIALS = "client_credentials";
     public static final String PARAMETER_VALUE_BEARER = "Bearer";
+    public static final String PARAMETER_VALUE_REFRESH_TOKEN = "refresh_token";
 
     //Endpoint names
     public static final String ENDPOINT_AUTHORIZATION = "/auth";
@@ -117,6 +118,7 @@ public class Constants {
     public static final String CLAIM_PHONE_NUMBER_VERIFIED = "phone_number_verified";
     public static final String CLAIM_ADDRESS = "address";
     public static final String CLAIM_UPDATED_AT = "updated_at";
+
 
 
 }
