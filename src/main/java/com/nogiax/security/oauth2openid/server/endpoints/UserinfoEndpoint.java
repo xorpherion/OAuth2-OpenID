@@ -3,10 +3,8 @@ package com.nogiax.security.oauth2openid.server.endpoints;
 import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ServerServices;
-import com.nogiax.security.oauth2openid.permissions.ClaimsParameter;
 import com.nogiax.security.oauth2openid.token.Token;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -49,13 +47,12 @@ public class UserinfoEndpoint extends Endpoint {
         HashMap<String, String> resp = new HashMap<>();
         Set<String> claims = getValidClaimsFromToken(accessToken);
 
-        Map<String,String> claimValues = serverServices.getProvidedServices().getUserDataProvider().getClaims(accessToken.getUsername(),claims);
+        Map<String, String> claimValues = serverServices.getProvidedServices().getUserDataProvider().getClaims(accessToken.getUsername(), claims);
         claimValues = Parameters.stripEmptyParams(claimValues);
 
         resp.putAll(claimValues);
         exc.setResponse(okWithJSONBody(resp));
     }
-
 
 
     @Override

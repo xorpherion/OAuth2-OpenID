@@ -18,7 +18,7 @@ public class MembraneClientDataProvider implements ClientDataProvider {
     public MembraneClientDataProvider() {
         clients = new HashMap<>();
         clients.put(ConstantsTest.CLIENT_DEFAULT_ID, UtilMembrane.createDefaultClient());
-        clients.put(ConstantsTest.CLIENT_DEFAULT_ID2,UtilMembrane.createDefaultClient2());
+        clients.put(ConstantsTest.CLIENT_DEFAULT_ID2, UtilMembrane.createDefaultClient2());
     }
 
     @Override

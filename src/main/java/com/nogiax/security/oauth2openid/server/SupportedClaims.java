@@ -1,10 +1,6 @@
 package com.nogiax.security.oauth2openid.server;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -23,8 +19,8 @@ public class SupportedClaims {
 
     public Set<String> getValidClaims(Set<String> claims) {
         HashSet<String> result = new HashSet<>();
-        for(String claim : claims)
-            if(this.claims.contains(claim))
+        for (String claim : claims)
+            if (this.claims.contains(claim))
                 result.add(claim);
         return result;
     }

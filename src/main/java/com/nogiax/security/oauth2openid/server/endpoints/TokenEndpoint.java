@@ -80,7 +80,7 @@ public class TokenEndpoint extends Endpoint {
 
             Token authorizationCodeToken = serverServices.getTokenManager().getAuthorizationCodes().getToken(code);
 
-            if(authorizationCodeToken.getUsages() > 0){
+            if (authorizationCodeToken.getUsages() > 0) {
                 authorizationCodeToken.revokeThisAndAllChildren();
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
@@ -107,7 +107,7 @@ public class TokenEndpoint extends Endpoint {
         }
 
         if (grantType.equals(Constants.PARAMETER_VALUE_PASSWORD)) {
-            if (params.get(Constants.PARAMETER_USERNAME) == null || params.get(Constants.PARAMETER_PASSWORD) == null || !serverServices.getProvidedServices().getUserDataProvider().verifyUser(params.get(Constants.PARAMETER_USERNAME),params.get(Constants.PARAMETER_PASSWORD))) {
+            if (params.get(Constants.PARAMETER_USERNAME) == null || params.get(Constants.PARAMETER_PASSWORD) == null || !serverServices.getProvidedServices().getUserDataProvider().verifyUser(params.get(Constants.PARAMETER_USERNAME), params.get(Constants.PARAMETER_PASSWORD))) {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
                 return;
             }
@@ -119,37 +119,37 @@ public class TokenEndpoint extends Endpoint {
                 exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
                 return;
             }
-            if(grantType.equals(Constants.PARAMETER_VALUE_REFRESH_TOKEN)) {
-                String refreshToken = params.get(Constants.PARAMETER_REFRESH_TOKEN);
-                if (params.get(Constants.PARAMETER_REFRESH_TOKEN) == null) {
-                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
-                    return;
-                }
-
-                if (!serverServices.getTokenManager().getRefreshTokens().tokenExists(refreshToken)) {
-                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
-                    return;
-                }
-
-                Token refreshTokenToken = serverServices.getTokenManager().getRefreshTokens().getToken(refreshToken);
-
-                if(refreshTokenToken.getUsages() > 0){
-                    refreshTokenToken.revokeThisAndAllChildren();
-                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
-                    return;
-                }
-
-                if (refreshTokenToken.isExpired() || refreshTokenToken.getUsages() > 1) {
-                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
-                    return;
-                }
-
-                if (!refreshTokenToken.getClientId().equals(clientId)) {
-                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
-                    return;
-                }
-                session.putValue(Constants.PARAMETER_REFRESH_TOKEN,refreshToken);
+        if (grantType.equals(Constants.PARAMETER_VALUE_REFRESH_TOKEN)) {
+            String refreshToken = params.get(Constants.PARAMETER_REFRESH_TOKEN);
+            if (params.get(Constants.PARAMETER_REFRESH_TOKEN) == null) {
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+                return;
             }
+
+            if (!serverServices.getTokenManager().getRefreshTokens().tokenExists(refreshToken)) {
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                return;
+            }
+
+            Token refreshTokenToken = serverServices.getTokenManager().getRefreshTokens().getToken(refreshToken);
+
+            if (refreshTokenToken.getUsages() > 0) {
+                refreshTokenToken.revokeThisAndAllChildren();
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                return;
+            }
+
+            if (refreshTokenToken.isExpired() || refreshTokenToken.getUsages() > 1) {
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                return;
+            }
+
+            if (!refreshTokenToken.getClientId().equals(clientId)) {
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                return;
+            }
+            session.putValue(Constants.PARAMETER_REFRESH_TOKEN, refreshToken);
+        }
 
         if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE)) || scopeIsSuperior(session.getValue(Constants.PARAMETER_SCOPE), params.get(Constants.PARAMETER_SCOPE))) {
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_SCOPE));

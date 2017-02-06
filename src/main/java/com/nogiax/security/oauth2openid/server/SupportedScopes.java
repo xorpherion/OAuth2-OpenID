@@ -33,7 +33,7 @@ public class SupportedScopes {
     public HashSet<String> getClaimsForScope(String scope) {
         HashSet<String> result = new HashSet<>();
 
-        for(String s : scope.split(Pattern.quote(" ")))
+        for (String s : scope.split(Pattern.quote(" ")))
             result.addAll(supportedScopes.get(s).getClaims());
 
         return result;

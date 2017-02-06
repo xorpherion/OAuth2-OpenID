@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nogiax.http.Exchange;
 import com.nogiax.http.Method;
 import com.nogiax.http.RequestBuilder;
-import com.nogiax.http.ResponseBuilder;
 import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
@@ -112,29 +111,28 @@ public class Common {
     public static Exchange preStepAndTokenRequest(Supplier<Exchange> preStep, String grantType, String redirectUri, String scope, String clientId, String clientSecret, String username, String password) throws Exception {
         String cookie = null;
         String code = null;
-        if(preStep != null) {
+        if (preStep != null) {
             Exchange exc = preStep.get();
             cookie = extractSessionCookie(exc);
             code = Common.getQueryParamsFromRedirectResponse(exc).get(Constants.PARAMETER_CODE);
         }
 
 
-
-        Map<String, String> params = createBodyParams(grantType,code,redirectUri,scope,username,password);
+        Map<String, String> params = createBodyParams(grantType, code, redirectUri, scope, username, password);
 
         if (clientSecret == null)
-            return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)),cookie).buildExchange();
+            return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)), cookie).buildExchange();
         String authHeader = Util.encodeToBasicAuthValue(clientId, clientSecret);
-        return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_AUTHORIZATION, authHeader),cookie).buildExchange();
+        return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_AUTHORIZATION, authHeader), cookie).buildExchange();
     }
 
     private static RequestBuilder addCookieIfNotNull(RequestBuilder response, String cookie) {
         if (cookie != null)
-            response.header(Constants.HEADER_COOKIE,cookie);
+            response.header(Constants.HEADER_COOKIE, cookie);
         return response;
     }
 
-    private static Map<String,String> createBodyParams(String grantType, String code, String redirectUri, String scope, String username, String password){
+    private static Map<String, String> createBodyParams(String grantType, String code, String redirectUri, String scope, String username, String password) {
         Map<String, String> params = new HashMap<>();
         params.put(Constants.PARAMETER_GRANT_TYPE, grantType);
         params.put(Constants.PARAMETER_CODE, code);
@@ -150,7 +148,7 @@ public class Common {
 
         Exchange exc = preStep.get();
         String cookie = extractSessionCookie(exc);
-        String refreshToken = String.valueOf(new ObjectMapper().readValue(exc.getResponse().getBody(),Map.class).get(Constants.PARAMETER_REFRESH_TOKEN));
+        String refreshToken = String.valueOf(new ObjectMapper().readValue(exc.getResponse().getBody(), Map.class).get(Constants.PARAMETER_REFRESH_TOKEN));
 
         Map<String, String> params = new HashMap<>();
         params.put(Constants.PARAMETER_GRANT_TYPE, Constants.PARAMETER_VALUE_REFRESH_TOKEN);
@@ -160,12 +158,12 @@ public class Common {
         params = Parameters.stripEmptyParams(params);
 
         if (clientSecret == null)
-            return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)),cookie).buildExchange();
+            return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)), cookie).buildExchange();
         String authHeader = Util.encodeToBasicAuthValue(clientId, clientSecret);
-        return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_AUTHORIZATION, authHeader),cookie).buildExchange();
+        return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_AUTHORIZATION, authHeader), cookie).buildExchange();
     }
 
     public static Exchange createUserinfoRequest(String accessToken, String tokenType) throws URISyntaxException {
-        return new RequestBuilder().uri(ConstantsTest.SERVER_USERINFO_ENDPOINT).method(Method.GET).header(Constants.HEADER_AUTHORIZATION,tokenType + " " + accessToken).buildExchange();
+        return new RequestBuilder().uri(ConstantsTest.SERVER_USERINFO_ENDPOINT).method(Method.GET).header(Constants.HEADER_AUTHORIZATION, tokenType + " " + accessToken).buildExchange();
     }
 }

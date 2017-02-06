@@ -1,22 +1,16 @@
 package com.nogiax.security.oauth2openid.unit.tokenEndpoint;
 
 import com.nogiax.http.Exchange;
-import com.nogiax.http.Method;
-import com.nogiax.http.RequestBuilder;
 import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
-import com.nogiax.security.oauth2openid.Util;
-import com.nogiax.security.oauth2openid.server.endpoints.Parameters;
 import com.nogiax.security.oauth2openid.unit.Common;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Created by Xorpherion on 06.02.2017.
@@ -63,11 +57,11 @@ public class Password extends BaseTokenEndpointTests {
     }
 
     @Test
-    public void goodRequest() throws Exception{
+    public void goodRequest() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -85,12 +79,12 @@ public class Password extends BaseTokenEndpointTests {
     }
 
     @Test
-    public void missingUsername() throws Exception{
+    public void missingUsername() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
-                        Map<String,String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
+                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
+                        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
                         params.remove(Constants.PARAMETER_USERNAME);
                         exc.getRequest().setBody(UriUtil.parametersToQuery(params));
                         return exc;
@@ -102,20 +96,20 @@ public class Password extends BaseTokenEndpointTests {
                     assertAll(
                             Common.getMethodName(),
                             () -> assertEquals(400, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }
 
     @Test
-    public void badUsername() throws Exception{
+    public void badUsername() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
-                        Map<String,String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
+                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
+                        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
                         params.remove(Constants.PARAMETER_USERNAME);
-                        params.put(Constants.PARAMETER_USERNAME,"43097438904723843280492304238904789407230");
+                        params.put(Constants.PARAMETER_USERNAME, "43097438904723843280492304238904789407230");
                         exc.getRequest().setBody(UriUtil.parametersToQuery(params));
                         return exc;
                     } catch (Exception e) {
@@ -126,18 +120,18 @@ public class Password extends BaseTokenEndpointTests {
                     assertAll(
                             Common.getMethodName(),
                             () -> assertEquals(400, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }
 
     @Test
-    public void missingPassword() throws Exception{
+    public void missingPassword() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
-                        Map<String,String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
+                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
+                        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
                         params.remove(Constants.PARAMETER_PASSWORD);
                         exc.getRequest().setBody(UriUtil.parametersToQuery(params));
                         return exc;
@@ -149,20 +143,20 @@ public class Password extends BaseTokenEndpointTests {
                     assertAll(
                             Common.getMethodName(),
                             () -> assertEquals(400, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }
 
     @Test
-    public void badPassword() throws Exception{
+    public void badPassword() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
-                        Map<String,String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
+                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
+                        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
                         params.remove(Constants.PARAMETER_PASSWORD);
-                        params.put(Constants.PARAMETER_PASSWORD,"43097438904723843280492304238904789407230");
+                        params.put(Constants.PARAMETER_PASSWORD, "43097438904723843280492304238904789407230");
                         exc.getRequest().setBody(UriUtil.parametersToQuery(params));
                         return exc;
                     } catch (Exception e) {
@@ -173,7 +167,7 @@ public class Password extends BaseTokenEndpointTests {
                     assertAll(
                             Common.getMethodName(),
                             () -> assertEquals(400, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }

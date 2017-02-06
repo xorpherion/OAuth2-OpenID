@@ -28,16 +28,15 @@ public class TokenResponseGenerator extends ResponseGenerator {
 
 
         Token parentToken = null;
-        if(refreshTokenValue != null){
+        if (refreshTokenValue != null) {
             parentToken = getTokenManager().getRefreshTokens().getToken(refreshTokenValue);
             getSession().removeValue(Constants.PARAMETER_REFRESH_TOKEN);
-        }
-        else if (code == null) {
+        } else if (code == null) {
             Token fakeAuthToken = getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, scope, claims);
             getTokenManager().getAuthorizationCodes().addToken(fakeAuthToken);
             code = fakeAuthToken.getValue();
             parentToken = getTokenManager().getAuthorizationCodes().getToken(code);
-        }else{
+        } else {
             parentToken = getTokenManager().getAuthorizationCodes().getToken(code);
             getSession().removeValue(Constants.SESSION_AUTHORIZATION_CODE);
         }

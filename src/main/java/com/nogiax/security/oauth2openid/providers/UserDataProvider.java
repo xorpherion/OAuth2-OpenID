@@ -9,6 +9,7 @@ import java.util.Set;
 public interface UserDataProvider {
     boolean verifyUser(String username, String plaintextPassword);
 
-    Map<String,String> getClaims(String username, Set<String> claims);
+    Map<String, String> getClaims(String username, Set<String> claims);
+
     String getSubClaim(String username);
 }

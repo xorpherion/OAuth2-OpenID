@@ -37,9 +37,9 @@ public class Token {
         usages = 0;
     }
 
-    public void revokeThisAndAllChildren(){
+    public void revokeThisAndAllChildren() {
         manuallyRevoked = true;
-        for(Token t : children)
+        for (Token t : children)
             t.revokeThisAndAllChildren();
     }
 

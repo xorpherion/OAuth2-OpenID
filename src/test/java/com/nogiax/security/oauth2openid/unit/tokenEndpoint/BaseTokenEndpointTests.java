@@ -2,7 +2,6 @@ package com.nogiax.security.oauth2openid.unit.tokenEndpoint;
 
 import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
-import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.MembraneServerFunctionality;
 import com.nogiax.security.oauth2openid.server.AuthorizationServer;
 import com.nogiax.security.oauth2openid.unit.Common;
@@ -22,12 +21,19 @@ public abstract class BaseTokenEndpointTests {
     protected AuthorizationServer server;
 
     public abstract String getGrantType();
+
     public abstract String getRedirectUri();
+
     public abstract String getScope();
+
     public abstract String getClientId();
+
     public abstract String getClientSecret();
+
     public abstract String getUsername();
+
     public abstract String getPassword();
+
     public abstract Supplier<Exchange> getPreStep();
 
     public BaseTokenEndpointTests(AuthorizationServer server) {
@@ -48,7 +54,7 @@ public abstract class BaseTokenEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(),getGrantType() +"123",getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType() + "123", getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -67,7 +73,7 @@ public abstract class BaseTokenEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(),null,getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                        return Common.preStepAndTokenRequest(getPreStep(), null, getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -86,7 +92,7 @@ public abstract class BaseTokenEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope() + "maybe this scope is not supported?",getClientId(),getClientSecret(),getUsername(),getPassword());
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope() + "maybe this scope is not supported?", getClientId(), getClientSecret(), getUsername(), getPassword());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -105,7 +111,7 @@ public abstract class BaseTokenEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),null,getClientId(),getClientSecret(),getUsername(),getPassword());
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), null, getClientId(), getClientSecret(), getUsername(), getPassword());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -124,7 +130,7 @@ public abstract class BaseTokenEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret()+"wrong secret",getUsername(),getPassword());
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret() + "wrong secret", getUsername(), getPassword());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }

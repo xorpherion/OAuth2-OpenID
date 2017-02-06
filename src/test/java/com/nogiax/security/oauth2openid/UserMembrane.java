@@ -10,7 +10,7 @@ public class UserMembrane {
     String name;
     String password;
 
-    HashMap<String,String> claims;
+    HashMap<String, String> claims;
 
     public UserMembrane(String name, String password) {
         this.name = name;

@@ -120,5 +120,4 @@ public class Constants {
     public static final String CLAIM_UPDATED_AT = "updated_at";
 
 
-
 }

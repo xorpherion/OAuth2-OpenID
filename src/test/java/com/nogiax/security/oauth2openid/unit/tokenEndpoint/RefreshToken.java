@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Created by Xorpherion on 06.02.2017.
@@ -65,12 +64,12 @@ public class RefreshToken {
     }
 
     @Test
-    public void missingRefreshToken() throws Exception{
+    public void missingRefreshToken() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = Common.preStepAndRefreshTokenRequest(getPreStep(), ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
-                        Map<String,String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
+                        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
                         params.remove(Constants.PARAMETER_REFRESH_TOKEN);
                         exc.getRequest().setBody(UriUtil.parametersToQuery(params));
                         return exc;
@@ -82,20 +81,20 @@ public class RefreshToken {
                     assertAll(
                             Common.getMethodName(),
                             () -> assertEquals(400, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }
 
     @Test
-    public void badRefreshToken() throws Exception{
+    public void badRefreshToken() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = Common.preStepAndRefreshTokenRequest(getPreStep(), ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
-                        Map<String,String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
+                        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
                         params.remove(Constants.PARAMETER_REFRESH_TOKEN);
-                        params.put(Constants.PARAMETER_REFRESH_TOKEN,"3409580743543574390849230");
+                        params.put(Constants.PARAMETER_REFRESH_TOKEN, "3409580743543574390849230");
                         exc.getRequest().setBody(UriUtil.parametersToQuery(params));
                         return exc;
                     } catch (Exception e) {
@@ -106,13 +105,13 @@ public class RefreshToken {
                     assertAll(
                             Common.getMethodName(),
                             () -> assertEquals(400, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_INVALID_GRANT,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                            () -> assertEquals(Constants.ERROR_INVALID_GRANT, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }
 
     @Test
-    public void useRefreshTokenMultipleTimes() throws Exception{
+    public void useRefreshTokenMultipleTimes() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
@@ -128,18 +127,18 @@ public class RefreshToken {
                     assertAll(
                             Common.getMethodName(),
                             () -> assertEquals(400, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_INVALID_GRANT,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                            () -> assertEquals(Constants.ERROR_INVALID_GRANT, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }
 
     @Test
-    public void wrongClientIdForRefreshToken() throws Exception{
+    public void wrongClientIdForRefreshToken() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = Common.preStepAndRefreshTokenRequest(getPreStep(), ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
-                        exc.getRequest().getHeader().getRawHeaders().replace(Constants.HEADER_AUTHORIZATION, Util.encodeToBasicAuthValue(ConstantsTest.CLIENT_DEFAULT_ID2,ConstantsTest.CLIENT_DEFAULT_SECRET2));
+                        exc.getRequest().getHeader().getRawHeaders().replace(Constants.HEADER_AUTHORIZATION, Util.encodeToBasicAuthValue(ConstantsTest.CLIENT_DEFAULT_ID2, ConstantsTest.CLIENT_DEFAULT_SECRET2));
                         return exc;
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
@@ -149,7 +148,7 @@ public class RefreshToken {
                     assertAll(
                             Common.getMethodName(),
                             () -> assertEquals(400, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_INVALID_GRANT,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                            () -> assertEquals(Constants.ERROR_INVALID_GRANT, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }

@@ -1,22 +1,14 @@
 package com.nogiax.security.oauth2openid.unit.tokenEndpoint;
 
 import com.nogiax.http.Exchange;
-import com.nogiax.http.Method;
-import com.nogiax.http.RequestBuilder;
-import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
-import com.nogiax.security.oauth2openid.Util;
-import com.nogiax.security.oauth2openid.server.endpoints.Parameters;
 import com.nogiax.security.oauth2openid.unit.Common;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Created by Xorpherion on 06.02.2017.
@@ -63,11 +55,11 @@ public class ClientCredentials extends BaseTokenEndpointTests {
     }
 
     @Test
-    public void goodRequest() throws Exception{
+    public void goodRequest() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
