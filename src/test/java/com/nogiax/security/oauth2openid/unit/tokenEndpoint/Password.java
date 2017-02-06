@@ -11,6 +11,7 @@ import com.nogiax.security.oauth2openid.server.endpoints.Parameters;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Created by Xorpherion on 06.02.2017.
@@ -22,23 +23,37 @@ public class Password extends BaseTokenEndpointTests {
     }
 
     @Override
-    public Exchange preStepAndTokenRequest(String grantType, String scope, boolean authenticate, boolean authenticateCorrectly) throws Exception {
+    public String getRedirectUri() {
+        return null;
+    }
 
-        Map<String, String> params = new HashMap<>();
-        params.put(Constants.PARAMETER_GRANT_TYPE, grantType);
-        params.put(Constants.PARAMETER_USERNAME, ConstantsTest.USER_DEFAULT_NAME);
-        params.put(Constants.PARAMETER_PASSWORD, ConstantsTest.USER_DEFAULT_PASSWORD);
-        params.put(Constants.PARAMETER_SCOPE, scope);
+    @Override
+    public String getScope() {
+        return ConstantsTest.CLIENT_DEFAULT_SCOPE;
+    }
 
-        params = Parameters.stripEmptyParams(params);
+    @Override
+    public String getClientId() {
+        return ConstantsTest.CLIENT_DEFAULT_ID;
+    }
 
-        if (!authenticate)
-            return new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).buildExchange();
-        String clientId = ConstantsTest.CLIENT_DEFAULT_ID;
-        String clientSecret = ConstantsTest.CLIENT_DEFAULT_SECRET;
-        if (!authenticateCorrectly)
-            clientSecret += "sdjfhnsdkfsdkfsdgjklsdklfsdnfjksnjkl";
-        String authHeader = Util.encodeToBasicAuthValue(clientId, clientSecret);
-        return new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_AUTHORIZATION, authHeader).buildExchange();
+    @Override
+    public String getClientSecret() {
+        return ConstantsTest.CLIENT_DEFAULT_SECRET;
+    }
+
+    @Override
+    public String getUsername() {
+        return ConstantsTest.USER_DEFAULT_NAME;
+    }
+
+    @Override
+    public String getPassword() {
+        return ConstantsTest.USER_DEFAULT_PASSWORD;
+    }
+
+    @Override
+    public Supplier<Exchange> getPreStep() {
+        return null;
     }
 }

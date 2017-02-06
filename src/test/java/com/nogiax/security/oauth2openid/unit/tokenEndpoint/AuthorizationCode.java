@@ -1,5 +1,6 @@
 package com.nogiax.security.oauth2openid.unit.tokenEndpoint;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nogiax.http.Exchange;
 import com.nogiax.http.Method;
 import com.nogiax.http.RequestBuilder;
@@ -13,9 +14,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Created by Xorpherion on 06.02.2017.
@@ -27,27 +29,47 @@ public class AuthorizationCode extends BaseTokenEndpointTests {
     }
 
     @Override
-    public Exchange preStepAndTokenRequest(String grantType, String scope, boolean authenticate, boolean authenticateCorrectly) throws Exception {
-        Exchange exc = new com.nogiax.security.oauth2openid.unit.authorizationEndpoint.AuthorizationCode().init(server).goodPostLoginRequest();
-        String cookie = Common.extractSessionCookie(exc);
-        Map<String, String> responseParams = Common.getQueryParamsFromRedirectResponse(exc);
+    public String getRedirectUri() {
+        return ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI;
+    }
 
-        Map<String, String> params = new HashMap<>();
-        params.put(Constants.PARAMETER_GRANT_TYPE, grantType);
-        params.put(Constants.PARAMETER_CODE, responseParams.get(Constants.PARAMETER_CODE));
-        params.put(Constants.PARAMETER_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI);
-        params.put(Constants.PARAMETER_SCOPE, scope);
+    @Override
+    public String getScope() {
+        return ConstantsTest.CLIENT_DEFAULT_SCOPE;
+    }
 
-        params = Parameters.stripEmptyParams(params);
+    @Override
+    public String getClientId() {
+        return ConstantsTest.CLIENT_DEFAULT_ID;
+    }
 
-        if (!authenticate)
-            return new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_COOKIE, cookie).buildExchange();
-        String clientId = ConstantsTest.CLIENT_DEFAULT_ID;
-        String clientSecret = ConstantsTest.CLIENT_DEFAULT_SECRET;
-        if (!authenticateCorrectly)
-            clientSecret += "sdjfhnsdkfsdkfsdgjklsdklfsdnfjksnjkl";
-        String authHeader = Util.encodeToBasicAuthValue(clientId, clientSecret);
-        return new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_AUTHORIZATION, authHeader).header(Constants.HEADER_COOKIE, cookie).buildExchange();
+    @Override
+    public String getClientSecret() {
+        return ConstantsTest.CLIENT_DEFAULT_SECRET;
+    }
+
+    @Override
+    public String getUsername() {
+        return null;
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
+    }
+
+    @Override
+    public Supplier<Exchange> getPreStep() {
+        return new Supplier<Exchange>() {
+            @Override
+            public Exchange get() {
+                try {
+                    return new com.nogiax.security.oauth2openid.unit.authorizationEndpoint.AuthorizationCode().init(server).goodPostLoginRequest();
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+        };
     }
 
     @Test
@@ -55,7 +77,7 @@ public class AuthorizationCode extends BaseTokenEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return preStepAndTokenRequest(getGrantType(), ConstantsTest.CLIENT_DEFAULT_SCOPE + " " + Constants.SCOPE_EMAIL, true, true);
+                        return Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope() + " " + Constants.SCOPE_EMAIL,getClientId(),getClientSecret(),getUsername(),getPassword());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -68,4 +90,64 @@ public class AuthorizationCode extends BaseTokenEndpointTests {
                     );
                 });
     }
+
+    @Test
+    public void equalScope() throws Exception {
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(200, exc.getResponse().getStatuscode())
+                    );
+                });
+    }
+
+    @Test
+    public void inferiorScopeThanBefore() throws Exception {
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),Constants.SCOPE_OPENID,getClientId(),getClientSecret(),getUsername(),getPassword());
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(200, exc.getResponse().getStatuscode())
+                    );
+                });
+    }
+
+    @Test
+    public void goodRequest() throws Exception{
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(200, exc.getResponse().getStatuscode()),
+                            () -> assertNotNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ACCESS_TOKEN)),
+                            () -> assertNotNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_EXPIRES_IN)),
+                            () -> assertNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_CODE)),
+                            () -> assertNotNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_REFRESH_TOKEN))
+                    );
+                });
+    }
+
+
 }

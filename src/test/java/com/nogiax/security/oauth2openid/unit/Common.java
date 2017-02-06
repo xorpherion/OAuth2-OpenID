@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nogiax.http.Exchange;
 import com.nogiax.http.Method;
 import com.nogiax.http.RequestBuilder;
+import com.nogiax.http.ResponseBuilder;
 import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
+import com.nogiax.security.oauth2openid.Util;
 import com.nogiax.security.oauth2openid.server.AuthorizationServer;
 import com.nogiax.security.oauth2openid.server.endpoints.Parameters;
 
@@ -14,6 +16,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -104,5 +107,42 @@ public class Common {
 
     public static Exchange createPostLoginRequest(String cookie) throws URISyntaxException {
         return new RequestBuilder().uri(ConstantsTest.SERVER_AFTER_LOGIN_ENDPOINT).method(Method.POST).header(Constants.HEADER_COOKIE, cookie).buildExchange();
+    }
+
+    public static Exchange preStepAndTokenRequest(Supplier<Exchange> preStep, String grantType, String redirectUri, String scope, String clientId, String clientSecret, String username, String password) throws Exception {
+        String cookie = null;
+        String code = null;
+        if(preStep != null) {
+            Exchange exc = preStep.get();
+            cookie = extractSessionCookie(exc);
+            code = Common.getQueryParamsFromRedirectResponse(exc).get(Constants.PARAMETER_CODE);
+        }
+
+
+
+        Map<String, String> params = createBodyParams(grantType,code,redirectUri,scope,username,password);
+
+        if (clientSecret == null)
+            return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)),cookie).buildExchange();
+        String authHeader = Util.encodeToBasicAuthValue(clientId, clientSecret);
+        return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_AUTHORIZATION, authHeader),cookie).buildExchange();
+    }
+
+    private static RequestBuilder addCookieIfNotNull(RequestBuilder response, String cookie) {
+        if (cookie != null)
+            response.header(Constants.HEADER_COOKIE,cookie);
+        return response;
+    }
+
+    private static Map<String,String> createBodyParams(String grantType, String code, String redirectUri, String scope, String username, String password){
+        Map<String, String> params = new HashMap<>();
+        params.put(Constants.PARAMETER_GRANT_TYPE, grantType);
+        params.put(Constants.PARAMETER_CODE, code);
+        params.put(Constants.PARAMETER_REDIRECT_URI, redirectUri);
+        params.put(Constants.PARAMETER_SCOPE, scope);
+        params.put(Constants.PARAMETER_USERNAME, username);
+        params.put(Constants.PARAMETER_PASSWORD, password);
+
+        return Parameters.stripEmptyParams(params);
     }
 }

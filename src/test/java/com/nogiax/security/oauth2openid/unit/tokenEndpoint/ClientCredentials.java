@@ -11,6 +11,7 @@ import com.nogiax.security.oauth2openid.server.endpoints.Parameters;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Created by Xorpherion on 06.02.2017.
@@ -22,21 +23,38 @@ public class ClientCredentials extends BaseTokenEndpointTests {
     }
 
     @Override
-    public Exchange preStepAndTokenRequest(String grantType, String scope, boolean authenticate, boolean authenticateCorrectly) throws Exception {
-
-        Map<String, String> params = new HashMap<>();
-        params.put(Constants.PARAMETER_GRANT_TYPE, grantType);
-        params.put(Constants.PARAMETER_SCOPE, scope);
-
-        params = Parameters.stripEmptyParams(params);
-
-        if (!authenticate)
-            return new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).buildExchange();
-        String clientId = ConstantsTest.CLIENT_DEFAULT_ID;
-        String clientSecret = ConstantsTest.CLIENT_DEFAULT_SECRET;
-        if (!authenticateCorrectly)
-            clientSecret += "sdjfhnsdkfsdkfsdgjklsdklfsdnfjksnjkl";
-        String authHeader = Util.encodeToBasicAuthValue(clientId, clientSecret);
-        return new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_AUTHORIZATION, authHeader).buildExchange();
+    public String getRedirectUri() {
+        return null;
     }
+
+    @Override
+    public String getScope() {
+        return ConstantsTest.CLIENT_DEFAULT_SCOPE;
+    }
+
+    @Override
+    public String getClientId() {
+        return ConstantsTest.CLIENT_DEFAULT_ID;
+    }
+
+    @Override
+    public String getClientSecret() {
+        return ConstantsTest.CLIENT_DEFAULT_SECRET;
+    }
+
+    @Override
+    public String getUsername() {
+        return null;
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
+    }
+
+    @Override
+    public Supplier<Exchange> getPreStep() {
+        return null;
+    }
+
 }
