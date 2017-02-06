@@ -22,6 +22,7 @@ public class Token {
     private final String scope;
     private final ArrayList<Token> children;
     private int usages;
+    private boolean manuallyRevoked = false;
 
     public Token(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, String scope, Token... children) {
         this.value = value;
@@ -36,6 +37,12 @@ public class Token {
         usages = 0;
     }
 
+    public void revokeThisAndAllChildren(){
+        manuallyRevoked = true;
+        for(Token t : children)
+            t.revokeThisAndAllChildren();
+    }
+
     public void addChild(Token child) {
         children.add(child);
     }
@@ -45,7 +52,7 @@ public class Token {
     }
 
     public boolean isExpired() {
-        return LocalDateTime.now().isAfter(LocalDateTime.now().plus(validFor));
+        return LocalDateTime.now().isAfter(LocalDateTime.now().plus(validFor)) || manuallyRevoked;
     }
 
     public static Duration getDefaultValidFor() {
@@ -90,5 +97,9 @@ public class Token {
 
     public String getScope() {
         return scope;
+    }
+
+    public boolean isManuallyRevoked() {
+        return manuallyRevoked;
     }
 }

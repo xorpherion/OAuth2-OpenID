@@ -22,6 +22,8 @@ public class ConstantsTest {
     public static final String CLIENT_DEFAULT_REDIRECT_URI = URL_CLIENT + Constants.ENDPOINT_CLIENT_CALLBACK;
     public static final String CLIENT_DEFAULT_ID = "cid_123";
     public static final String CLIENT_DEFAULT_SECRET = "SECRET";
+    public static final String CLIENT_DEFAULT_ID2 = "cid_456";
+    public static final String CLIENT_DEFAULT_SECRET2 = "secret";
     public static final String CLIENT_DEFAULT_SCOPE = "openid profile";
     public static final String CLIENT_DEFAULT_STATE = "totallyRandomStateValue";
 
@@ -29,6 +31,7 @@ public class ConstantsTest {
 
     public static final String USER_DEFAULT_NAME = "Till";
     public static final String USER_DEFAULT_PASSWORD = "Born";
+
 
 
 }

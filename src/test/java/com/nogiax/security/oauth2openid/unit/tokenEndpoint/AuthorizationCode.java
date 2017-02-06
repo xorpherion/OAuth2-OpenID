@@ -149,5 +149,162 @@ public class AuthorizationCode extends BaseTokenEndpointTests {
                 });
     }
 
+    @Test
+    public void badCode() throws Exception{
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                        Map<String,String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
+                        params.remove(Constants.PARAMETER_CODE);
+                        params.put(Constants.PARAMETER_CODE,"thisissurelynotavalidcode");
+                        exc.getRequest().setBody(UriUtil.parametersToQuery(params));
+                        return exc;
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_GRANT,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                    );
+                });
+    }
+
+    @Test
+    public void missingCode() throws Exception{
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                        Map<String,String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
+                        params.remove(Constants.PARAMETER_CODE);
+                        exc.getRequest().setBody(UriUtil.parametersToQuery(params));
+                        return exc;
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                    );
+                });
+    }
+
+    @Test
+    public void useAuthorizationCodeMultipleTimes() throws Exception{
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                        server.invokeOn(exc);
+                        exc.setResponse(null);
+                        return exc;
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_GRANT,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                    );
+                });
+    }
+
+    @Test
+    public void wrongClientIdForCode() throws Exception{
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                        exc.getRequest().getHeader().getRawHeaders().replace(Constants.HEADER_AUTHORIZATION,Util.encodeToBasicAuthValue(ConstantsTest.CLIENT_DEFAULT_ID2,ConstantsTest.CLIENT_DEFAULT_SECRET2));
+                        return exc;
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_GRANT,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                    );
+                });
+    }
+
+    @Test
+    public void missingRedirectUri() throws Exception{
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                        Map<String,String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
+                        params.remove(Constants.PARAMETER_REDIRECT_URI);
+                        exc.getRequest().setBody(UriUtil.parametersToQuery(params));
+                        return exc;
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                    );
+                });
+    }
+
+    @Test
+    public void badRedirectUri() throws Exception{
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                        Map<String,String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
+                        params.remove(Constants.PARAMETER_REDIRECT_URI);
+                        params.put(Constants.PARAMETER_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI + "43897589234");
+                        exc.getRequest().setBody(UriUtil.parametersToQuery(params));
+                        return exc;
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                    );
+                });
+    }
+
+    @Test
+    public void wrongClientAuthForGrant() throws Exception{
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                        exc.getRequest().getHeader().getRawHeaders().replace(Constants.HEADER_AUTHORIZATION,Util.encodeToBasicAuthValue(ConstantsTest.CLIENT_DEFAULT_ID,ConstantsTest.CLIENT_DEFAULT_SECRET + "23542342"));
+                        return exc;
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(401, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_ACCESS_DENIED,Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                    );
+                });
+    }
 
 }

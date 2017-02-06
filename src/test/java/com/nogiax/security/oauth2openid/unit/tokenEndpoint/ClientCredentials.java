@@ -8,10 +8,15 @@ import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.Util;
 import com.nogiax.security.oauth2openid.server.endpoints.Parameters;
+import com.nogiax.security.oauth2openid.unit.Common;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Created by Xorpherion on 06.02.2017.
@@ -55,6 +60,28 @@ public class ClientCredentials extends BaseTokenEndpointTests {
     @Override
     public Supplier<Exchange> getPreStep() {
         return null;
+    }
+
+    @Test
+    public void goodRequest() throws Exception{
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.preStepAndTokenRequest(getPreStep(),getGrantType(),getRedirectUri(),getScope(),getClientId(),getClientSecret(),getUsername(),getPassword());
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(200, exc.getResponse().getStatuscode()),
+                            () -> assertNotNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ACCESS_TOKEN)),
+                            () -> assertNotNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_EXPIRES_IN)),
+                            () -> assertNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_CODE)),
+                            () -> assertNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_REFRESH_TOKEN))
+                    );
+                });
     }
 
 }

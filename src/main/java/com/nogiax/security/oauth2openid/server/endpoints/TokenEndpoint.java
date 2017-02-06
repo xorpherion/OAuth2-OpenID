@@ -79,7 +79,13 @@ public class TokenEndpoint extends Endpoint {
 
             Token authorizationCodeToken = serverServices.getTokenManager().getAuthorizationCodes().getToken(code);
 
-            if (authorizationCodeToken.isExpired()) {
+            if(authorizationCodeToken.getUsages() > 0){
+                authorizationCodeToken.revokeThisAndAllChildren();
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                return;
+            }
+
+            if (authorizationCodeToken.isExpired() || authorizationCodeToken.getUsages() > 1) {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
@@ -100,7 +106,7 @@ public class TokenEndpoint extends Endpoint {
         }
 
         if (grantType.equals(Constants.PARAMETER_VALUE_PASSWORD)) {
-            if (params.get(Constants.PARAMETER_USERNAME) == null || params.get(Constants.PARAMETER_PASSWORD) == null) {
+            if (params.get(Constants.PARAMETER_USERNAME) == null || params.get(Constants.PARAMETER_PASSWORD) == null || !serverServices.getProvidedServices().getUserDataProvider().verifyUser(params.get(Constants.PARAMETER_USERNAME),params.get(Constants.PARAMETER_PASSWORD))) {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
                 return;
             }
@@ -118,7 +124,6 @@ public class TokenEndpoint extends Endpoint {
             return;
         }
         session.putValue(Constants.PARAMETER_SCOPE, params.get(Constants.PARAMETER_SCOPE));
-
 
         // request is now valid
 

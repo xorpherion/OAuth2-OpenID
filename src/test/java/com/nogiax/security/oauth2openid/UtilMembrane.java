@@ -134,4 +134,8 @@ public class UtilMembrane {
     public static User createDefaultUser() {
         return new User(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD);
     }
+
+    public static Client createDefaultClient2() {
+        return new Client(ConstantsTest.CLIENT_DEFAULT_ID2, ConstantsTest.CLIENT_DEFAULT_SECRET2, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI);
+    }
 }

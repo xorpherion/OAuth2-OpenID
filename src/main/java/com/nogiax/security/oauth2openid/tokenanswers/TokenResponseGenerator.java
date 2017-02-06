@@ -35,6 +35,8 @@ public class TokenResponseGenerator extends ResponseGenerator {
 
         Token accessToken = getTokenManager().addTokenToManager(getTokenManager().getAccessTokens(), getTokenManager().createChildBearerTokenWithDefaultDuration(authorizationCode));
         Token refreshToken = getTokenManager().addTokenToManager(getTokenManager().getRefreshTokens(), getTokenManager().createChildBearerToken(Token.getDefaultValidForLong(), authorizationCode));
+        authorizationCode.incrementUsage();
+
 
         Map<String, String> result = new HashMap<>();
         result.put(Constants.PARAMETER_ACCESS_TOKEN, accessToken.getValue());
