@@ -14,7 +14,7 @@ public class Scope {
         this.name = name;
         this.claims = new HashSet<>();
 
-        for(String claim : claims)
+        for (String claim : claims)
             this.claims.add(claim);
     }
 

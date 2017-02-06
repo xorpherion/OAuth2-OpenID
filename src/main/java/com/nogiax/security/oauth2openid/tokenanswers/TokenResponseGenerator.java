@@ -23,9 +23,9 @@ public class TokenResponseGenerator extends ResponseGenerator {
         String scope = getSession().getValue(Constants.PARAMETER_SCOPE);
         String claims = getSession().getValue(Constants.PARAMETER_CLAIMS);
         String code = getSession().getValue(Constants.SESSION_AUTHORIZATION_CODE);
-        String responseType = getSession().getValue(Constants.PARAMETER_RESPONSE_TYPE);
+        String grantType = getSession().getValue(Constants.PARAMETER_GRANT_TYPE);
 
-        if(code == null) {
+        if (code == null) {
             Token fakeAuthToken = getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, scope, claims);
             getTokenManager().getAuthorizationCodes().addToken(fakeAuthToken);
             code = fakeAuthToken.getValue();
@@ -40,7 +40,7 @@ public class TokenResponseGenerator extends ResponseGenerator {
         result.put(Constants.PARAMETER_ACCESS_TOKEN, accessToken.getValue());
         result.put(Constants.PARAMETER_TOKEN_TYPE, Constants.PARAMETER_VALUE_BEARER);
         result.put(Constants.PARAMETER_EXPIRES_IN, String.valueOf(accessToken.getValidFor().getSeconds()));
-        if (!(responseType.equals(Constants.PARAMETER_VALUE_TOKEN) || responseType.equals(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS)))
+        if (grantType != null && !(grantType.equals(Constants.PARAMETER_VALUE_TOKEN) || grantType.equals(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS)))
             result.put(Constants.PARAMETER_REFRESH_TOKEN, refreshToken.getValue());
 
         return result;

@@ -7,6 +7,10 @@ import com.nogiax.security.oauth2openid.token.Token;
 import com.nogiax.security.oauth2openid.tokenanswers.CombinedResponseGenerator;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by Xorpherion on 29.01.2017.
@@ -33,43 +37,126 @@ public class TokenEndpoint extends Endpoint {
                 clientId = null;
             }
         }
-
+        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
+        params = Parameters.stripEmptyParams(params);
+
         String code = params.get(Constants.PARAMETER_CODE);
         if (clientId == null)
             clientId = params.get(Constants.PARAMETER_CLIENT_ID);
+        if (clientId == null) {
+            exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
+            return;
+        }
+        if (!clientIsAuthorized && serverServices.getProvidedServices().getClientDataProvider().isConfidential(clientId)) {
+            exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
+            return;
+        }
+        session.putValue(Constants.PARAMETER_CLIENT_ID, clientId);
 
-        if (!serverServices.getTokenManager().getAuthorizationCodes().tokenExists(code)) {
+        if (params.get(Constants.PARAMETER_GRANT_TYPE) == null || params.get(Constants.PARAMETER_SCOPE) == null) {
+            exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+            return;
+        }
+
+        String grantType = params.get(Constants.PARAMETER_GRANT_TYPE);
+        if (!grantTypeIsSupported(grantType)) {
+            exc.setResponse(answerWithError(400, Constants.ERROR_UNSUPPORTED_GRANT_TYPE));
+            return;
+        }
+        session.putValue(Constants.PARAMETER_GRANT_TYPE, grantType);
+
+
+        if (grantType.equals(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE)) {
+            if (params.get(Constants.PARAMETER_REDIRECT_URI) == null || !session.getValue(Constants.PARAMETER_REDIRECT_URI).equals(params.get(Constants.PARAMETER_REDIRECT_URI)) || params.get(Constants.PARAMETER_CODE) == null) {
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+                return;
+            }
+            if (!serverServices.getTokenManager().getAuthorizationCodes().tokenExists(code)) {
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                return;
+            }
+
+            Token authorizationCodeToken = serverServices.getTokenManager().getAuthorizationCodes().getToken(code);
+
+            if (authorizationCodeToken.isExpired()) {
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                return;
+            }
+
+            if (!authorizationCodeToken.getClientId().equals(clientId)) {
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                return;
+            }
+
+            String redirectUri = serverServices.getProvidedServices().getClientDataProvider().getRedirectUri(clientId);
+            if (!redirectUri.equals(params.get(Constants.PARAMETER_REDIRECT_URI))) {
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+                return;
+            }
+            session.putValue(Constants.SESSION_AUTHORIZATION_CODE, code);
+
 
         }
 
-        Token authorizationCodeToken = serverServices.getTokenManager().getAuthorizationCodes().getToken(code);
-
-        if (authorizationCodeToken.isExpired()) {
-
+        if (grantType.equals(Constants.PARAMETER_VALUE_PASSWORD)) {
+            if (params.get(Constants.PARAMETER_USERNAME) == null || params.get(Constants.PARAMETER_PASSWORD) == null) {
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+                return;
+            }
+            session.putValue(Constants.PARAMETER_USERNAME, params.get(Constants.PARAMETER_USERNAME));
         }
 
-        if (!authorizationCodeToken.getClientId().equals(clientId)) {
+        if (grantType.equals(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS))
+            if (!clientIsAuthorized) {
+                exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
+                return;
+            }
 
+        if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE)) || scopeIsSuperior(session.getValue(Constants.PARAMETER_SCOPE), params.get(Constants.PARAMETER_SCOPE))) {
+            exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_SCOPE));
+            return;
         }
+        session.putValue(Constants.PARAMETER_SCOPE, params.get(Constants.PARAMETER_SCOPE));
 
-        String redirectUri = serverServices.getProvidedServices().getClientDataProvider().getRedirectUri(clientId);
-        if (!redirectUri.equals(params.get(Constants.PARAMETER_REDIRECT_URI))) {
-
-        }
 
         // request is now valid
 
         log.info("Valid Token Request");
 
-        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
-        session.putValue(Constants.SESSION_AUTHORIZATION_CODE, code);
+
         String response = Constants.TOKEN_TYPE_TOKEN;
         if (hasOpenIdScope(exc))
-            response += "_" + Constants.TOKEN_TYPE_ID_TOKEN;
+            response += " " + Constants.TOKEN_TYPE_ID_TOKEN;
 
         Map<String, String> responseBody = new CombinedResponseGenerator(serverServices, exc).invokeResponse(response);
         exc.setResponse(okWithJSONBody(responseBody));
+    }
+
+    private boolean scopeIsSuperior(String oldScope, String newScope) {
+        if (oldScope == null)
+            return false;
+        Set<String> oldScopes = Stream.of(oldScope.split(Pattern.quote(" "))).collect(Collectors.toSet());
+        Set<String> newScopes = Stream.of(newScope.split(Pattern.quote(" "))).collect(Collectors.toSet());
+
+        for (String scope : newScopes)
+            if (!oldScopes.contains(scope))
+                return true;
+
+        return false;
+    }
+
+    private boolean grantTypeIsSupported(String grantType) {
+        switch (grantType) {
+            case Constants.PARAMETER_VALUE_AUTHORIZATION_CODE:
+                ;
+            case Constants.PARAMETER_VALUE_PASSWORD:
+                ;
+            case Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS:
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override

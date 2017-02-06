@@ -20,20 +20,20 @@ public class Implicit extends BaseAuthorizationEndpointTests {
     }
 
     @Test
-    public Exchange goodPreLoginRequest() throws Exception{
+    public Exchange goodPreLoginRequest() throws Exception {
         return Common.testExchangeOn(server,
-                () ->{
+                () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(), ConstantsTest.CLIENT_DEFAULT_ID,ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI,ConstantsTest.CLIENT_DEFAULT_SCOPE,ConstantsTest.CLIENT_DEFAULT_STATE);
+                        return Common.createAuthRequest(getResponseType(), ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_STATE);
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
                 },
-                (exc) ->{
+                (exc) -> {
                     assertAll(
                             Common.getMethodName(),
                             () -> assertEquals(303, exc.getResponse().getStatuscode(), "Statuscode was not 303"),
-                            () -> assertEquals(Constants.ENDPOINT_LOGIN,Common.getResponseLocationHeaderAsUri(exc).getPath())
+                            () -> assertEquals(Constants.ENDPOINT_LOGIN, Common.getResponseLocationHeaderAsUri(exc).getPath())
                     );
                 });
     }
@@ -41,7 +41,7 @@ public class Implicit extends BaseAuthorizationEndpointTests {
     @Test
     public Exchange goodPostLoginRequest() throws Exception {
         return Common.testExchangeOn(server,
-                () ->{
+                () -> {
                     try {
                         Exchange exc = goodConsent();
                         return Common.createPostLoginRequest(Common.extractSessionCookie(exc));
@@ -49,11 +49,11 @@ public class Implicit extends BaseAuthorizationEndpointTests {
                         return Common.defaultExceptionHandling(e);
                     }
                 },
-                (exc) ->{
+                (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(303,exc.getResponse().getStatuscode()),
-                            () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(),Common.getResponseLocationHeaderAsUri(exc).getPath()),
+                            () -> assertEquals(303, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath()),
                             () -> assertNotNull(Common.getFragmentParamsFromRedirectResponse(exc).get(Constants.PARAMETER_ACCESS_TOKEN)),
                             () -> assertNotNull(Common.getFragmentParamsFromRedirectResponse(exc).get(Constants.PARAMETER_EXPIRES_IN)),
                             () -> assertNull(Common.getFragmentParamsFromRedirectResponse(exc).get(Constants.PARAMETER_CODE)),

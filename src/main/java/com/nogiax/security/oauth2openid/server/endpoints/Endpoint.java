@@ -77,26 +77,26 @@ public abstract class Endpoint {
     protected Response redirectToCallbackWithError(String callbackUrl, String error, String state) {
         HashMap<String, String> params = new HashMap<>();
         params.put(Constants.PARAMETER_ERROR, error);
-        return redirectToCallbackWithParams(callbackUrl, params,state);
+        return redirectToCallbackWithParams(callbackUrl, params, state);
     }
 
     protected Response redirectToCallbackWithParams(String callbackurl, Map<String, String> params, String state) {
-        return redirectToCallbackWithParams(callbackurl,params,state,false);
+        return redirectToCallbackWithParams(callbackurl, params, state, false);
     }
 
     protected Response redirectToCallbackWithParams(String callbackurl, Map<String, String> params, String state, boolean useFragment) {
-        params.put(Constants.PARAMETER_STATE,state);
-        return redirectToUrl(callbackurl, params,useFragment);
+        params.put(Constants.PARAMETER_STATE, state);
+        return redirectToUrl(callbackurl, params, useFragment);
     }
 
     protected Response redirectToUrl(String url, Map<String, String> params) {
-        return redirectToUrl(url,params,false);
+        return redirectToUrl(url, params, false);
     }
 
     protected Response redirectToUrl(String url, Map<String, String> params, boolean useFragment) {
         String newurl = url;
         String delimiter = "?";
-        if(useFragment)
+        if (useFragment)
             delimiter = "#";
         params = Parameters.stripEmptyParams(params);
         if (params != null && !params.isEmpty())

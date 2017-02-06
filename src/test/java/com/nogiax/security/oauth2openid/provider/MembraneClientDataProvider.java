@@ -27,7 +27,7 @@ public class MembraneClientDataProvider implements ClientDataProvider {
 
     @Override
     public boolean isConfidential(String clientId) {
-        if(!clientExists(clientId))
+        if (!clientExists(clientId))
             return false;
         return clients.get(clientId).isConfidential();
     }
@@ -43,7 +43,7 @@ public class MembraneClientDataProvider implements ClientDataProvider {
 
     @Override
     public String getRedirectUri(String clientId) {
-        if(!clientExists(clientId))
+        if (!clientExists(clientId))
             return null;
         return clients.get(clientId).getRedirectUri();
 

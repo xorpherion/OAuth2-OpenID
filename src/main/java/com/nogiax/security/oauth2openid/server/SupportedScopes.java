@@ -11,24 +11,26 @@ import java.util.regex.Pattern;
  */
 public class SupportedScopes {
 
-    HashMap<String,Scope> supportedScopes;
+    HashMap<String, Scope> supportedScopes;
 
-    public SupportedScopes(Scope... supportedScopes){
+    public SupportedScopes(Scope... supportedScopes) {
         this.supportedScopes = new HashMap<>();
 
-        for(Scope scope : supportedScopes)
-            this.supportedScopes.put(scope.getName(),scope);
+        for (Scope scope : supportedScopes)
+            this.supportedScopes.put(scope.getName(), scope);
     }
 
-    public boolean scopesSupported(String scopes){
+    public boolean scopesSupported(String scopes) {
+        if (scopes == null || scopes.isEmpty())
+            return false;
         String[] scopesArr = scopes.split(Pattern.quote(" "));
-        for(String scope : scopesArr)
-            if(!this.supportedScopes.containsKey(scope))
+        for (String scope : scopesArr)
+            if (!this.supportedScopes.containsKey(scope))
                 return false;
         return true;
     }
 
-    public HashSet<String> getClaimsForScope(String scope){
+    public HashSet<String> getClaimsForScope(String scope) {
         return supportedScopes.get(scope).getClaims();
     }
 }

@@ -101,10 +101,10 @@ public class WebApplicationClient {
 
     private Exchange createAccessTokenRequest(Exchange exc, String authorizationCode) throws URISyntaxException, UnsupportedEncodingException {
         Map<String, String> params = new HashMap<>();
-        params.put(Constants.PARAMETER_GRANT_TYPE, Constants.GRANT_TYPE_AUTHORIZATION_CODE);
+        params.put(Constants.PARAMETER_GRANT_TYPE, Constants.PARAMETER_VALUE_AUTHORIZATION_CODE);
         params.put(Constants.PARAMETER_CODE, authorizationCode);
         params.put(Constants.PARAMETER_REDIRECT_URI, clientData.getRedirectUri());
-        //params.put(Constants.PARAMETER_CLIENT_ID,clientData.getClientId());
+        params.put(Constants.PARAMETER_SCOPE, clientData.getScope());
 
         return new RequestBuilder()
                 .method(Method.POST)

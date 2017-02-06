@@ -15,14 +15,14 @@ public class Client {
         this.clientSecret = clientSecret;
         this.redirectUri = redirectUri;
 
-        if(clientSecret == null)
+        if (clientSecret == null)
             isConfidential = false;
         else
             isConfidential = true;
     }
 
-    public Client(String clientId, String redirectUri){
-        this(clientId,null,redirectUri);
+    public Client(String clientId, String redirectUri) {
+        this(clientId, null, redirectUri);
     }
 
     public String getRedirectUri() {

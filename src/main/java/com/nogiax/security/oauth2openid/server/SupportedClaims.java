@@ -13,10 +13,10 @@ public class SupportedClaims {
 
     HashSet<String> claims;
 
-    public SupportedClaims(String... claims){
+    public SupportedClaims(String... claims) {
         this.claims = new HashSet<String>();
 
-        for(String claim : claims)
+        for (String claim : claims)
             this.claims.add(claim);
     }
 
@@ -24,7 +24,7 @@ public class SupportedClaims {
         return claimsSupported(new ObjectMapper().readValue(claims, Map.class));
     }
 
-    public boolean claimsSupported(Map<String,Object> json){
+    public boolean claimsSupported(Map<String, Object> json) {
         throw new RuntimeException("NYI");
     }
 
