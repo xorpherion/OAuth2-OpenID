@@ -29,6 +29,7 @@ public class AuthorizationServer {
         endpoints.add(new LoginEndpoint(serverServices));
         endpoints.add(new TokenEndpoint(serverServices));
         endpoints.add(new UserinfoEndpoint(serverServices));
+        endpoints.add(new RevocationEndpoint(serverServices));
     }
 
     public Exchange invokeOn(Exchange exc) throws Exception {

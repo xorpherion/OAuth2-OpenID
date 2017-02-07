@@ -49,4 +49,58 @@ public class UserinfoEndpoint {
                     );
                 });
     }
+
+    @Test
+    public void badToken() throws Exception {
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.createUserinfoRequest(accessToken + "1215415151515145415", Constants.PARAMETER_VALUE_BEARER);
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(401, exc.getResponse().getStatuscode())
+                    );
+                });
+    }
+
+    @Test
+    public void missingToken() throws Exception {
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.createUserinfoRequest(null, Constants.PARAMETER_VALUE_BEARER);
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(401, exc.getResponse().getStatuscode())
+                    );
+                });
+    }
+
+    @Test
+    public void missingTokenType() throws Exception {
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.createUserinfoRequest(accessToken, null);
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(400, exc.getResponse().getStatuscode())
+                    );
+                });
+    }
 }

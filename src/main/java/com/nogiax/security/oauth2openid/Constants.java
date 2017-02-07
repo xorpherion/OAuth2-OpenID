@@ -48,6 +48,7 @@ public class Constants {
     public static final String ENDPOINT_LOGIN = "/login/login";
     public static final String ENDPOINT_AFTER_LOGIN = "/auth2";
     public static final String ENDPOINT_CONSENT = "/login/consent";
+    public static final String ENDPOINT_REVOCATION = "/revoke";
 
     public static final String ENDPOINT_CLIENT_CALLBACK = "/oauth2cb";
 
