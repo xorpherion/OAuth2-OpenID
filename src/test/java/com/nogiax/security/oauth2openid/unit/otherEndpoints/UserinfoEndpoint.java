@@ -1,4 +1,4 @@
-package com.nogiax.security.oauth2openid.unit.OtherEndpoints;
+package com.nogiax.security.oauth2openid.unit.otherEndpoints;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nogiax.security.oauth2openid.Constants;

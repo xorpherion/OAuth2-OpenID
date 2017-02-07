@@ -7,6 +7,7 @@ import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.Util;
 import com.nogiax.security.oauth2openid.server.AuthorizationServer;
 import com.nogiax.security.oauth2openid.unit.Common;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -17,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Created by Xorpherion on 06.02.2017.
  */
+@DisplayName("TokenEndpoint.AuthorizationCode")
 public class AuthorizationCode extends BaseTokenEndpointTests {
     @Override
     public String getGrantType() {

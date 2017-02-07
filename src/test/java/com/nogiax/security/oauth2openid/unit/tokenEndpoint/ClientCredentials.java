@@ -4,6 +4,7 @@ import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.unit.Common;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
@@ -13,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Created by Xorpherion on 06.02.2017.
  */
+@DisplayName("TokenEndpoint.ClientCredentials")
 public class ClientCredentials extends BaseTokenEndpointTests {
     @Override
     public String getGrantType() {
