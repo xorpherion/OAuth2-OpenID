@@ -12,6 +12,7 @@ import com.nogiax.security.oauth2openid.server.AuthorizationServer;
 import com.nogiax.security.oauth2openid.server.endpoints.Parameters;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Base64;
@@ -165,5 +166,16 @@ public class Common {
 
     public static Exchange createUserinfoRequest(String accessToken, String tokenType) throws URISyntaxException {
         return new RequestBuilder().uri(ConstantsTest.SERVER_USERINFO_ENDPOINT).method(Method.GET).header(Constants.HEADER_AUTHORIZATION, tokenType + " " + accessToken).buildExchange();
+    }
+
+    public static Exchange createRevocationRequest(String accessToken, String clientId, String clientSecret) throws UnsupportedEncodingException, URISyntaxException {
+        Map<String,String> params = new HashMap<>();
+        params.put(Constants.PARAMETER_TOKEN,accessToken);
+
+        if(clientSecret == null)
+            return new RequestBuilder().uri(ConstantsTest.SERVER_REVOCATION_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).buildExchange();
+        String authHeader = Util.encodeToBasicAuthValue(clientId, clientSecret);
+        return new RequestBuilder().uri(ConstantsTest.SERVER_REVOCATION_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_AUTHORIZATION, authHeader).buildExchange();
+
     }
 }

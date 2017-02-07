@@ -15,6 +15,7 @@ public class ConstantsTest {
     public static final String SERVER_LOGIN_ENDPOINT = URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_LOGIN;
     public static final String SERVER_CONSENT_ENDPOINT = URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_CONSENT;
     public static final String SERVER_AFTER_LOGIN_ENDPOINT = URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_AFTER_LOGIN;
+    public static final String SERVER_REVOCATION_ENDPOINT = URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_REVOCATION;
 
     public static final String HOST_CLIENT = HOST_LOCALHOST;
     public static final int PORT_CLIENT = 1338;
@@ -31,6 +32,7 @@ public class ConstantsTest {
 
     public static final String USER_DEFAULT_NAME = "Till";
     public static final String USER_DEFAULT_PASSWORD = "Born";
+
 
 
 }

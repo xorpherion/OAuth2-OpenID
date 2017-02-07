@@ -81,7 +81,7 @@ public class TokenEndpoint extends Endpoint {
             Token authorizationCodeToken = serverServices.getTokenManager().getAuthorizationCodes().getToken(code);
 
             if (authorizationCodeToken.getUsages() > 0) {
-                authorizationCodeToken.revokeThisAndAllChildren();
+                authorizationCodeToken.revokeCascade();
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
@@ -134,7 +134,7 @@ public class TokenEndpoint extends Endpoint {
             Token refreshTokenToken = serverServices.getTokenManager().getRefreshTokens().getToken(refreshToken);
 
             if (refreshTokenToken.getUsages() > 0) {
-                refreshTokenToken.revokeThisAndAllChildren();
+                refreshTokenToken.revokeCascade();
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }

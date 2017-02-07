@@ -23,6 +23,7 @@ public class Constants {
     public static final String PARAMETER_REFRESH_TOKEN = "refresh_token";
     public static final String PARAMETER_USERNAME = "username";
     public static final String PARAMETER_PASSWORD = "password";
+    public static final String PARAMETER_TOKEN = "token";
 
     //Scope names
     public static final String SCOPE_OPENID = "openid";
@@ -60,6 +61,7 @@ public class Constants {
     public static final String ERROR_INVALID_TOKEN = "invalid_token";
     public static final String ERROR_INVALID_GRANT = "invalid_grant";
     public static final String ERROR_UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
+    public static final String ERROR_UNSUPPORTED_TOKEN_TYPE = "unsupported_token_type";
 
     public static final String ERROR_COULD_NOT_VALIDATE_USER = "Could not verify user. Please try again.";
     public static final String ERROR_POSSIBLE_CSRF = "Possible CSRF attack.";
@@ -119,6 +121,7 @@ public class Constants {
     public static final String CLAIM_PHONE_NUMBER_VERIFIED = "phone_number_verified";
     public static final String CLAIM_ADDRESS = "address";
     public static final String CLAIM_UPDATED_AT = "updated_at";
+
 
 
 }

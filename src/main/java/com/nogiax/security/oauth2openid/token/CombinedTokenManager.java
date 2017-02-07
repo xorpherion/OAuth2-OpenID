@@ -52,6 +52,15 @@ public class CombinedTokenManager {
 //        return createAccessToken(user,clientId,Token.getDefaultValidFor(),claims);
 //    }
 
+    public Token findToken(String value){
+        if(getRefreshTokens().tokenExists(value))
+            return getRefreshTokens().getToken(value);
+        if(getAccessTokens().tokenExists(value))
+            return getAccessTokens().getToken(value);
+        return null;
+        // we wont search for other tokens as finding tokens is only needed with revocation endpoint
+    }
+
     public Token addTokenToManager(TokenManager manager, Token token) {
         manager.addToken(token);
         return token;

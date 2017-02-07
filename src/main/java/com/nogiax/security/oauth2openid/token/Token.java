@@ -37,10 +37,10 @@ public class Token {
         usages = 0;
     }
 
-    public void revokeThisAndAllChildren() {
+    public void revokeCascade() {
         manuallyRevoked = true;
         for (Token t : children)
-            t.revokeThisAndAllChildren();
+            t.revokeCascade();
     }
 
     public void addChild(Token child) {
