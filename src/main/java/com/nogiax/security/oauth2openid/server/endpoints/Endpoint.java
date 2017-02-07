@@ -163,10 +163,18 @@ public abstract class Endpoint {
 
     }
 
-    protected Set<String> getValidClaimsFromToken(Token token) throws IOException {
+    protected Set<String> getValidUserinfoClaimsFromToken(Token token) throws IOException {
         ClaimsParameter tokenClaims = new ClaimsParameter(token.getClaims());
         Set<String> claims = serverServices.getSupportedScopes().getClaimsForScope(token.getScope());
         claims.addAll(tokenClaims.getAllUserinfoClaimNames());
+        claims = serverServices.getSupportedClaims().getValidClaims(claims);
+        return claims;
+    }
+
+    protected Set<String> getValidIdTokenClaimsFromToken(Token token) throws IOException {
+        ClaimsParameter tokenClaims = new ClaimsParameter(token.getClaims());
+        Set<String> claims = serverServices.getSupportedScopes().getClaimsForScope(token.getScope());
+        claims.addAll(tokenClaims.getAllIdTokenClaimNames());
         claims = serverServices.getSupportedClaims().getValidClaims(claims);
         return claims;
     }

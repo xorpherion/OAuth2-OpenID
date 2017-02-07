@@ -45,7 +45,7 @@ public class UserinfoEndpoint extends Endpoint {
             return;
         }
         HashMap<String, String> resp = new HashMap<>();
-        Set<String> claims = getValidClaimsFromToken(accessToken);
+        Set<String> claims = getValidUserinfoClaimsFromToken(accessToken);
 
         Map<String, String> claimValues = serverServices.getProvidedServices().getUserDataProvider().getClaims(accessToken.getUsername(), claims);
         claimValues = Parameters.stripEmptyParams(claimValues);
