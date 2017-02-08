@@ -4,6 +4,7 @@ import com.nogiax.security.oauth2openid.permissions.Scope;
 import com.nogiax.security.oauth2openid.server.SupportedClaims;
 import com.nogiax.security.oauth2openid.server.SupportedScopes;
 import com.nogiax.security.oauth2openid.token.CombinedTokenManager;
+import org.jose4j.lang.JoseException;
 
 /**
  * Created by Xorpherion on 29.01.2017.
@@ -14,7 +15,7 @@ public class ServerServices {
     SupportedScopes supportedScopes;
     SupportedClaims supportedClaims;
 
-    public ServerServices(ProvidedServices providedServices) {
+    public ServerServices(ProvidedServices providedServices) throws JoseException {
         this.providedServices = providedServices;
         this.tokenManager = new CombinedTokenManager();
         this.supportedScopes = new SupportedScopes(defaultScopes());

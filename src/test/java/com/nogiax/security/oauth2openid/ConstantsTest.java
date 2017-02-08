@@ -34,5 +34,4 @@ public class ConstantsTest {
     public static final String USER_DEFAULT_PASSWORD = "Born";
 
 
-
 }

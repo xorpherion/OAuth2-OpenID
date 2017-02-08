@@ -26,7 +26,7 @@ public class RevocationEndpoint {
 
     @BeforeEach
     public void setUp() throws Exception {
-        server = new AuthorizationServer(new MembraneServerFunctionality());
+        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER));
         accessToken = getAccessToken();
     }
 
@@ -39,7 +39,7 @@ public class RevocationEndpoint {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createRevocationRequest(accessToken, ConstantsTest.CLIENT_DEFAULT_ID,ConstantsTest.CLIENT_DEFAULT_SECRET);
+                        return Common.createRevocationRequest(accessToken, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -57,7 +57,7 @@ public class RevocationEndpoint {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createRevocationRequest("4398753094738924908432z23907823529482370494028758940238749204", ConstantsTest.CLIENT_DEFAULT_ID,ConstantsTest.CLIENT_DEFAULT_SECRET);
+                        return Common.createRevocationRequest("4398753094738924908432z23907823529482370494028758940238749204", ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -75,7 +75,7 @@ public class RevocationEndpoint {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createRevocationRequest(null, ConstantsTest.CLIENT_DEFAULT_ID,ConstantsTest.CLIENT_DEFAULT_SECRET);
+                        return Common.createRevocationRequest(null, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }

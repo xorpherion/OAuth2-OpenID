@@ -19,7 +19,7 @@ public class AuthorizationServerInterceptor extends AbstractInterceptor {
     @Override
     public void init(Router router) throws Exception {
         super.init(router);
-        providedServices = new MembraneServerFunctionality();
+        providedServices = new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER);
         server = new AuthorizationServer(providedServices);
     }
 

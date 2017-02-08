@@ -3,10 +3,14 @@ package com.nogiax.security.oauth2openid.tokenanswers;
 import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ServerServices;
+import com.nogiax.security.oauth2openid.Session;
+import com.nogiax.security.oauth2openid.Util;
+import com.nogiax.security.oauth2openid.permissions.ClaimsParameter;
 import com.nogiax.security.oauth2openid.token.Token;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Xorpherion on 28.01.2017.
@@ -54,8 +58,38 @@ public class TokenResponseGenerator extends ResponseGenerator {
         if (grantType != null && !(grantType.equals(Constants.PARAMETER_VALUE_TOKEN) || grantType.equals(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS)))
             result.put(Constants.PARAMETER_REFRESH_TOKEN, refreshToken.getValue());
 
+        if (isOpenIdScope()) {
+            String authTime = getSession().getValue(Constants.PARAMETER_AUTH_TIME);
+            String nonce = getSession().getValue(Constants.PARAMETER_NONCE);
+            Set<String> idTokenClaimNames = new ClaimsParameter(claims).getAllIdTokenClaimNames();
+            idTokenClaimNames.addAll(getServerServices().getSupportedScopes().getClaimsForScope(scope));
+            idTokenClaimNames = getServerServices().getSupportedClaims().getValidClaims(idTokenClaimNames);
+            Map<String, String> idTokenClaims = getServerServices().getProvidedServices().getUserDataProvider().getClaims(username, idTokenClaimNames);
+
+            idTokenClaims.put(Constants.CLAIM_AT_HASH, Util.atHashFromValue(Constants.ALG_SHA_256, accessToken.getValue()));
+
+            Token idToken = getServerServices().getTokenManager().createChildIdToken(getIssuer(), getSubClaim(username), clientId, Token.getDefaultValidFor(), authTime, nonce, idTokenClaims, parentToken);
+
+            result.put(Constants.PARAMETER_ID_TOKEN, idToken.getValue());
+        }
+
         return result;
     }
 
+    private String getSubClaim(String username) {
+        return getServerServices().getProvidedServices().getUserDataProvider().getSubClaim(username);
+    }
+
+    private String getIssuer() {
+        return getServerServices().getProvidedServices().getIssuer();
+    }
+
+    private boolean isOpenIdScope() throws Exception {
+        Session session = getSession();
+        String scope = session.getValue(Constants.PARAMETER_SCOPE);
+        if (scope != null && scope.contains(Constants.SCOPE_OPENID))
+            return true;
+        return false;
+    }
 
 }

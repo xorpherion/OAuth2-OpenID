@@ -14,4 +14,6 @@ public interface ProvidedServices {
     ClientDataProvider getClientDataProvider();
 
     UserDataProvider getUserDataProvider();
+
+    String getIssuer();
 }

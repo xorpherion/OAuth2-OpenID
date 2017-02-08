@@ -3,7 +3,10 @@ package com.nogiax.security.oauth2openid.server.endpoints;
 import com.nogiax.http.Exchange;
 import com.nogiax.http.ResponseBuilder;
 import com.nogiax.http.util.UriUtil;
-import com.nogiax.security.oauth2openid.*;
+import com.nogiax.security.oauth2openid.Constants;
+import com.nogiax.security.oauth2openid.ServerServices;
+import com.nogiax.security.oauth2openid.User;
+import com.nogiax.security.oauth2openid.Util;
 import com.nogiax.security.oauth2openid.token.Token;
 
 import java.util.Map;
@@ -18,23 +21,23 @@ public class RevocationEndpoint extends Endpoint {
 
     @Override
     public void invokeOn(Exchange exc) throws Exception {
-        Map<String,String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
+        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);
 
-        if(params.get(Constants.PARAMETER_TOKEN) == null){
+        if (params.get(Constants.PARAMETER_TOKEN) == null) {
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
             return;
         }
 
         Token token = serverServices.getTokenManager().findToken(params.get(Constants.PARAMETER_TOKEN));
-        if(token == null){
+        if (token == null) {
             exc.setResponse(new ResponseBuilder().statuscode(200).build());
             return;
         }
 
         boolean clientIsAuthorized = false;
         String clientId = null;
-        if(serverServices.getProvidedServices().getClientDataProvider().isConfidential(token.getClientId())){
+        if (serverServices.getProvidedServices().getClientDataProvider().isConfidential(token.getClientId())) {
             if (exc.getRequest().getHeader().getValue(Constants.HEADER_AUTHORIZATION) != null) {
                 try {
                     User clientData = Util.decodeFromBasicAuthValue(exc.getRequest().getHeader().getValue(Constants.HEADER_AUTHORIZATION));
@@ -49,8 +52,6 @@ public class RevocationEndpoint extends Endpoint {
         }
 
 
-
-
         if (clientId == null)
             clientId = token.getClientId();
 
@@ -59,7 +60,7 @@ public class RevocationEndpoint extends Endpoint {
             return;
         }
 
-        if(!clientId.equals(token.getClientId())){
+        if (!clientId.equals(token.getClientId())) {
             exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
             return;
         }

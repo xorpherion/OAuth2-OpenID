@@ -34,13 +34,16 @@ public class MembraneUserDataProvider implements UserDataProvider {
     @Override
     public Map<String, String> getClaims(String username, Set<String> claims) {
         HashMap<String, String> result = new HashMap<>();
-        for (String claim : claims)
-            result.put(claim, users.get(username).getClaims().get(claim));
+        if (users.containsKey(username))
+            for (String claim : claims)
+                result.put(claim, users.get(username).getClaims().get(claim));
         return result;
     }
 
     @Override
     public String getSubClaim(String username) {
+        if (!users.containsKey(username))
+            return "N/A";
         return users.get(username).getClaims().get(Constants.CLAIM_SUB);
     }
 }

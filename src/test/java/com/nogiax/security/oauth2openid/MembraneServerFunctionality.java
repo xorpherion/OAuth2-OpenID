@@ -12,14 +12,16 @@ import com.nogiax.security.oauth2openid.providers.UserDataProvider;
  */
 public class MembraneServerFunctionality implements ProvidedServices {
 
+    private final String issuer;
     MembraneSessionProvider sessionProvider;
     MembraneClientDataProvider clientDataProvider;
     MembraneUserDataProvider userDataProvider;
 
-    public MembraneServerFunctionality() {
+    public MembraneServerFunctionality(String issuer) {
         sessionProvider = new MembraneSessionProvider("SC_ID");
         clientDataProvider = new MembraneClientDataProvider();
         userDataProvider = new MembraneUserDataProvider();
+        this.issuer = issuer;
     }
 
     @Override
@@ -35,5 +37,10 @@ public class MembraneServerFunctionality implements ProvidedServices {
     @Override
     public UserDataProvider getUserDataProvider() {
         return userDataProvider;
+    }
+
+    @Override
+    public String getIssuer() {
+        return issuer;
     }
 }

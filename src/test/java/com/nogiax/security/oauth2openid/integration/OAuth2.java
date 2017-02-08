@@ -5,13 +5,10 @@ import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.ExtendedHttpClient;
 import com.nogiax.security.oauth2openid.UtilMembrane;
 import com.nogiax.security.oauth2openid.unit.Common;
-import com.predic8.membrane.core.HttpRouter;
 import com.predic8.membrane.core.Router;
 import com.predic8.membrane.core.exchange.Exchange;
 import com.predic8.membrane.core.http.Request;
 import com.predic8.membrane.core.rules.AbstractServiceProxy;
-import com.predic8.membrane.core.rules.ServiceProxy;
-import com.predic8.membrane.core.rules.ServiceProxyKey;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -36,25 +33,6 @@ public class OAuth2 {
     @Test
     void pseudoMain() throws Exception {
 
-        log.info("starting");
-        HttpRouter router = new HttpRouter();
-        router.setHotDeploy(false);
-        int listenPort = 4000;
-
-        String protectedTargetHost = "www.google.de";
-        int protectedTargetPort = 80;
-
-        ServiceProxyKey authorizationServerKey = new ServiceProxyKey(listenPort);
-
-        ServiceProxy authorizationServerProxy = new ServiceProxy(authorizationServerKey, protectedTargetHost, protectedTargetPort);
-        router.add(authorizationServerProxy);
-
-        router.start();
-
-        log.info("running");
-
-        router.stop();
-        log.info("done");
     }
 
     @Disabled

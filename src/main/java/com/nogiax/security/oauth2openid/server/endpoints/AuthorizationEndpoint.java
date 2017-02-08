@@ -36,6 +36,8 @@ public class AuthorizationEndpoint extends Endpoint {
 
         if (exc.getRequest().getUri().getPath().endsWith(Constants.ENDPOINT_AUTHORIZATION)) {
             Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
+            if (params.isEmpty())
+                params = UriUtil.queryToParameters(exc.getRequest().getBody());
             params = Parameters.stripEmptyParams(params);
 
             if (redirectUriOrClientIdProblem(params)) {
@@ -56,6 +58,26 @@ public class AuthorizationEndpoint extends Endpoint {
             if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE))) {
                 exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_SCOPE, params.get(Constants.PARAMETER_STATE)));
                 return;
+            }
+            if (hasOpenIdScope(exc)) {
+                if (params.get(Constants.PARAMETER_PROMPT) != null) {
+                    String prompt = params.get(Constants.PARAMETER_PROMPT);
+                    if (prompt.equals(Constants.PARAMETER_VALUE_LOGIN))
+                        session.clear();
+                    if (prompt.equals(Constants.PARAMETER_VALUE_NONE))
+                        if (!isLoggedInAndHasGivenConsent(exc)) {
+                            exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INTERACTION_REQUIRED, params.get(Constants.PARAMETER_STATE)));
+                            return;
+                        }
+                }
+                if (params.containsKey(Constants.PARAMETER_REQUEST)) {
+                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_REQUEST_NOT_SUPPORTED, params.get(Constants.PARAMETER_STATE)));
+                    return;
+                }
+                if (params.containsKey(Constants.PARAMETER_REQUEST_URI)) {
+                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_REQUEST_URI_NOT_SUPPORTED, params.get(Constants.PARAMETER_STATE)));
+                    return;
+                }
             }
 
             copyParametersInSession(session, params);
@@ -97,8 +119,22 @@ public class AuthorizationEndpoint extends Endpoint {
         System.out.println("logged in and consent");
         String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
 
+        boolean useFragment = setToResponseModeOrUseDefault(exc, session, responseType.contains(Constants.PARAMETER_VALUE_TOKEN));
+
         Map<String, String> callbackParams = new CombinedResponseGenerator(serverServices, exc).invokeResponse(responseTypeToResponseGeneratorValue(responseType));
-        exc.setResponse(redirectToCallbackWithParams(session.getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams, session.getValue(Constants.PARAMETER_STATE), responseType.contains(Constants.PARAMETER_VALUE_TOKEN)));
+        exc.setResponse(redirectToCallbackWithParams(session.getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams, session.getValue(Constants.PARAMETER_STATE), useFragment));
+    }
+
+    private boolean setToResponseModeOrUseDefault(Exchange exc, Session session, boolean defaultValue) throws Exception {
+        if (hasOpenIdScope(exc))
+            if (session.getValue(Constants.PARAMETER_RESPONSE_MODE) != null) {
+                String responseMode = session.getValue(Constants.PARAMETER_RESPONSE_MODE);
+                if (responseMode.equals(Constants.PARAMETER_VALUE_QUERY))
+                    return false;
+                if (responseMode.equals(Constants.PARAMETER_VALUE_FRAGMENT))
+                    return true;
+            }
+        return defaultValue;
     }
 
     private String responseTypeToResponseGeneratorValue(String responseType) {

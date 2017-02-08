@@ -13,11 +13,11 @@ import java.util.Set;
 public class ClaimsParameter {
 
     Map<String, Object> userinfo;
-    Map<String,Object> id_token;
+    Map<String, Object> id_token;
 
     public ClaimsParameter(String claimsParameter) throws IOException {
         if (claimsParameter != null) {
-            Map<String,Object> claims = new ObjectMapper().readValue(claimsParameter, Map.class);
+            Map<String, Object> claims = new ObjectMapper().readValue(claimsParameter, Map.class);
             userinfo = (Map<String, Object>) claims.get("userinfo");
             id_token = (Map<String, Object>) claims.get("id_token");
         }
@@ -25,15 +25,15 @@ public class ClaimsParameter {
 
     public Set<String> getAllUserinfoClaimNames() {
         Set<String> result = new HashSet<>();
-        if(userinfo != null)
+        if (userinfo != null)
             result.addAll(userinfo.keySet());
         return result;
     }
 
-    public Set<String> getAllIdTokenClaimNames(){
+    public Set<String> getAllIdTokenClaimNames() {
         Set<String> result = new HashSet<>();
-        if(id_token != null)
-        result.addAll(id_token.keySet());
+        if (id_token != null)
+            result.addAll(id_token.keySet());
         return result;
     }
 }

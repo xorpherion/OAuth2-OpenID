@@ -2,6 +2,7 @@ package com.nogiax.security.oauth2openid.unit.tokenEndpoint;
 
 import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
+import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.MembraneServerFunctionality;
 import com.nogiax.security.oauth2openid.server.AuthorizationServer;
 import com.nogiax.security.oauth2openid.unit.Common;
@@ -46,7 +47,7 @@ public abstract class BaseTokenEndpointTests {
 
     @BeforeEach
     public void setUp() throws Exception {
-        server = new AuthorizationServer(new MembraneServerFunctionality());
+        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER));
     }
 
     @Test

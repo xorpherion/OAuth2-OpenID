@@ -1,7 +1,10 @@
 package com.nogiax.security.oauth2openid.token;
 
+import org.jose4j.lang.JoseException;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * Created by Xorpherion on 25.01.2017.
@@ -9,7 +12,7 @@ import java.time.LocalDateTime;
 public class CombinedTokenManager {
 
     private final BearerTokenProvider tokenProvider;
-    private final JwtTokenProvider jwtProvider;
+    private final IdTokenProvider idTokenProvider;
 
     TokenManager authorizationCodes;
     TokenManager accessTokens;
@@ -17,14 +20,18 @@ public class CombinedTokenManager {
     TokenManager idTokens;
 
 
-    public CombinedTokenManager() {
+    public CombinedTokenManager() throws JoseException {
         tokenProvider = new BearerTokenProvider();
-        jwtProvider = new JwtTokenProvider();
+        idTokenProvider = new IdTokenProvider();
 
         authorizationCodes = new TokenManager();
         accessTokens = new TokenManager();
         refreshTokens = new TokenManager();
         idTokens = new TokenManager();
+    }
+
+    public String getJwk() {
+        return idTokenProvider.getJwk();
     }
 
 //    public Token createAuthorizationCode(String user, String clientId, Duration validFor, String claims){
@@ -52,10 +59,10 @@ public class CombinedTokenManager {
 //        return createAccessToken(user,clientId,Token.getDefaultValidFor(),claims);
 //    }
 
-    public Token findToken(String value){
-        if(getRefreshTokens().tokenExists(value))
+    public Token findToken(String value) {
+        if (getRefreshTokens().tokenExists(value))
             return getRefreshTokens().getToken(value);
-        if(getAccessTokens().tokenExists(value))
+        if (getAccessTokens().tokenExists(value))
             return getAccessTokens().getToken(value);
         return null;
         // we wont search for other tokens as finding tokens is only needed with revocation endpoint
@@ -92,6 +99,25 @@ public class CombinedTokenManager {
         return createChildBearerToken(Token.defaultValidFor, parent);
     }
 
+    public Token createIdToken(String issuer, String subject, String clientId, Duration validFor, String authTime, String nonce, Map<String, String> claims, String username, String scope) throws JoseException {
+        String idToken = idTokenProvider.createIdToken(issuer, subject, clientId, validFor, authTime, nonce, claims);
+        String claimsString = compactMapClaimsToStringClaims(claims);
+        return createToken(idToken, username, clientId, validFor, claimsString, scope);
+    }
+
+    public Token createChildIdToken(String issuer, String subject, String clientId, Duration validFor, String authTime, String nonce, Map<String, String> claims, Token parent) throws JoseException {
+        Token result = createIdToken(issuer, subject, clientId, validFor, authTime, nonce, claims, parent.getUsername(), parent.getScope());
+        parent.addChild(result);
+        return result;
+    }
+
+    private String compactMapClaimsToStringClaims(Map<String, String> claims) {
+        StringBuilder builder = new StringBuilder();
+        for (String claim : claims.keySet())
+            builder.append(claim).append(" ");
+
+        return builder.toString().trim();
+    }
 
     public TokenManager getAuthorizationCodes() {
         return authorizationCodes;

@@ -10,4 +10,6 @@ public interface Session {
     void putValue(String key, String value) throws Exception;
 
     void removeValue(String sessionRedirectFromError) throws Exception;
+
+    void clear() throws Exception;
 }

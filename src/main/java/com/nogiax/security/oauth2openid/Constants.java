@@ -24,6 +24,13 @@ public class Constants {
     public static final String PARAMETER_USERNAME = "username";
     public static final String PARAMETER_PASSWORD = "password";
     public static final String PARAMETER_TOKEN = "token";
+    public static final String PARAMETER_PROMPT = "prompt";
+    public static final String PARAMETER_RESPONSE_MODE = "response_mode";
+    public static final String PARAMETER_REQUEST_URI = "request_uri";
+    public static final String PARAMETER_REQUEST = "request";
+    public static final String PARAMETER_AUTH_TIME = "auth_time";
+    public static final String PARAMETER_NONCE = "nonce";
+    public static final String PARAMETER_ID_TOKEN = "id_token";
 
     //Scope names
     public static final String SCOPE_OPENID = "openid";
@@ -41,6 +48,11 @@ public class Constants {
     public static final String PARAMETER_VALUE_CLIENT_CREDENTIALS = "client_credentials";
     public static final String PARAMETER_VALUE_BEARER = "Bearer";
     public static final String PARAMETER_VALUE_REFRESH_TOKEN = "refresh_token";
+    public static final String PARAMETER_VALUE_NONE = "none";
+    public static final String PARAMETER_VALUE_LOGIN = "login";
+    public static final String PARAMETER_VALUE_QUERY = "query";
+    public static final String PARAMETER_VALUE_FRAGMENT = "fragment";
+
 
     //Endpoint names
     public static final String ENDPOINT_AUTHORIZATION = "/auth";
@@ -50,6 +62,7 @@ public class Constants {
     public static final String ENDPOINT_AFTER_LOGIN = "/auth2";
     public static final String ENDPOINT_CONSENT = "/login/consent";
     public static final String ENDPOINT_REVOCATION = "/revoke";
+    public static final String ENDPOINT_JWK = "/jwk";
 
     public static final String ENDPOINT_CLIENT_CALLBACK = "/oauth2cb";
 
@@ -62,6 +75,9 @@ public class Constants {
     public static final String ERROR_INVALID_GRANT = "invalid_grant";
     public static final String ERROR_UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
     public static final String ERROR_UNSUPPORTED_TOKEN_TYPE = "unsupported_token_type";
+    public static final String ERROR_INTERACTION_REQUIRED = "interaction_required";
+    public static final String ERROR_REQUEST_URI_NOT_SUPPORTED = "request_uri_not_supported";
+    public static final String ERROR_REQUEST_NOT_SUPPORTED = "request_not_supported";
 
     public static final String ERROR_COULD_NOT_VALIDATE_USER = "Could not verify user. Please try again.";
     public static final String ERROR_POSSIBLE_CSRF = "Possible CSRF attack.";
@@ -90,10 +106,12 @@ public class Constants {
     public static final String HEADER_PRAGMA = "Pragma";
     public static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
     public static final String HEADER_SET_COOKIE = "Set-Cookie";
+    public static final String HEADER_X_FRAME_OPTIONS = "X-Frame-Options";
 
     //Header values
     public static final String HEADER_VALUE_NO_CACHE = "no-cache";
     public static final String HEADER_VALUE_NO_STORE = "no-store";
+    public static final String HEADER_VALUE_SAMEORIGIN = "SAMEORIGIN";
 
     // Response types
     public static final String TOKEN_TYPE_CODE = "code";
@@ -122,6 +140,12 @@ public class Constants {
     public static final String CLAIM_ADDRESS = "address";
     public static final String CLAIM_UPDATED_AT = "updated_at";
 
+    // ID Token claims
+    public static final String CLAIM_NONCE = "nonce";
+    public static final String CLAIM_AUTH_TIME = "auth_time";
+    public static final String CLAIM_AUTHORIZED_PARTY = "azp";
+    public static final String CLAIM_AT_HASH = "at_hash";
 
-
+    // Alg values
+    public static final String ALG_SHA_256 = "SHA-256";
 }

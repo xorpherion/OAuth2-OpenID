@@ -61,6 +61,11 @@ public class MembraneSessionProvider implements SessionProvider {
                 session.getUserAttributes().remove(prefixKey(key));
             }
 
+            @Override
+            public void clear() throws Exception {
+                session.clear();
+            }
+
             private String prefixKey(String key) {
                 return sessionKeyPrefix + "_" + key;
             }

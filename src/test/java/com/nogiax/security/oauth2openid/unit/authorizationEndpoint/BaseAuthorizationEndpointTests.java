@@ -24,7 +24,7 @@ public abstract class BaseAuthorizationEndpointTests {
 
     @BeforeEach
     public void setUp() throws Exception {
-        server = new AuthorizationServer(new MembraneServerFunctionality());
+        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER));
     }
 
     public abstract String getResponseType();

@@ -1,11 +1,13 @@
 package com.nogiax.security.oauth2openid.server;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nogiax.http.Exchange;
 import com.nogiax.http.ResponseBuilder;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ProvidedServices;
 import com.nogiax.security.oauth2openid.ServerServices;
 import com.nogiax.security.oauth2openid.server.endpoints.*;
+import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +22,7 @@ public class AuthorizationServer {
     private ArrayList<Endpoint> endpoints;
     ServerServices serverServices;
 
-    public AuthorizationServer(ProvidedServices providedServices) {
+    public AuthorizationServer(ProvidedServices providedServices) throws JoseException, JsonProcessingException {
         serverServices = new ServerServices(providedServices);
 
         endpoints = new ArrayList<>();
@@ -30,6 +32,7 @@ public class AuthorizationServer {
         endpoints.add(new TokenEndpoint(serverServices));
         endpoints.add(new UserinfoEndpoint(serverServices));
         endpoints.add(new RevocationEndpoint(serverServices));
+        endpoints.add(new JwkEndpoint(serverServices));
     }
 
     public Exchange invokeOn(Exchange exc) throws Exception {
@@ -47,6 +50,7 @@ public class AuthorizationServer {
         if (exc != null && exc.getResponse() != null) {
             exc.getResponse().getHeader().append(Constants.HEADER_CACHE_CONTROL, Constants.HEADER_VALUE_NO_STORE);
             exc.getResponse().getHeader().append(Constants.HEADER_PRAGMA, Constants.HEADER_VALUE_NO_CACHE);
+            exc.getResponse().getHeader().append(Constants.HEADER_X_FRAME_OPTIONS, Constants.HEADER_VALUE_SAMEORIGIN);
         }
     }
 

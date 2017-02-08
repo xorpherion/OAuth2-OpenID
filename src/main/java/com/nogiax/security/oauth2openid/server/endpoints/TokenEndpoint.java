@@ -163,7 +163,7 @@ public class TokenEndpoint extends Endpoint {
 
 
         String response = Constants.TOKEN_TYPE_TOKEN;
-        if (hasOpenIdScope(exc))
+        if (hasOpenIdScope(exc) && session.getValue(Constants.PARAMETER_SCOPE).contains(Constants.SCOPE_OPENID))
             response += " " + Constants.TOKEN_TYPE_ID_TOKEN;
 
         Map<String, String> responseBody = new CombinedResponseGenerator(serverServices, exc).invokeResponse(response);
@@ -200,6 +200,6 @@ public class TokenEndpoint extends Endpoint {
 
     @Override
     public String getScope(Exchange exc) throws Exception {
-        return null;
+        return serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_SCOPE);
     }
 }

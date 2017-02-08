@@ -26,7 +26,7 @@ public class UserinfoEndpoint {
 
     @BeforeEach
     public void setUp() throws Exception {
-        server = new AuthorizationServer(new MembraneServerFunctionality());
+        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER));
         accessToken = getAccessToken();
     }
 
@@ -115,9 +115,9 @@ public class UserinfoEndpoint {
                 () -> {
                     try {
                         Exchange exc = Common.createUserinfoRequest(accessToken, Constants.PARAMETER_VALUE_BEARER);
-                        assertEquals(200,server.invokeOn(exc).getResponse().getStatuscode());
+                        assertEquals(200, server.invokeOn(exc).getResponse().getStatuscode());
                         Exchange revoke = Common.createRevocationRequest(accessToken, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
-                        assertEquals(200,server.invokeOn(revoke).getResponse().getStatuscode());
+                        assertEquals(200, server.invokeOn(revoke).getResponse().getStatuscode());
                         exc.setResponse(null);
                         return exc;
                     } catch (Exception e) {
