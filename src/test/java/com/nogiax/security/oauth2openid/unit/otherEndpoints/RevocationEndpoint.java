@@ -51,4 +51,41 @@ public class RevocationEndpoint {
                     );
                 });
     }
+
+    @Test
+    public void badRefreshToken() throws Exception {
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.createRevocationRequest("4398753094738924908432z23907823529482370494028758940238749204", ConstantsTest.CLIENT_DEFAULT_ID,ConstantsTest.CLIENT_DEFAULT_SECRET);
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(200, exc.getResponse().getStatuscode())
+                    );
+                });
+    }
+
+    @Test
+    public void missingRefreshToken() throws Exception {
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.createRevocationRequest(null, ConstantsTest.CLIENT_DEFAULT_ID,ConstantsTest.CLIENT_DEFAULT_SECRET);
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                    );
+                });
+    }
 }

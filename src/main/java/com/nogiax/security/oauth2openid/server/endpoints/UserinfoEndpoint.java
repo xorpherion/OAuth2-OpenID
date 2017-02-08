@@ -27,6 +27,10 @@ public class UserinfoEndpoint extends Endpoint {
             return;
         }
         String[] authHeader = exc.getRequest().getHeader().getValue(Constants.HEADER_AUTHORIZATION).split(Pattern.quote(" "));
+        if(authHeader.length != 2){
+            exc.setResponse(this.answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+            return;
+        }
         if (!Constants.PARAMETER_VALUE_BEARER.equals(authHeader[0])) {
             exc.setResponse(this.answerWithError(400, Constants.ERROR_INVALID_REQUEST));
             return;

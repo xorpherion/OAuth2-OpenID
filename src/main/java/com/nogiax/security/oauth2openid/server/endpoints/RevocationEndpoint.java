@@ -21,9 +21,14 @@ public class RevocationEndpoint extends Endpoint {
         Map<String,String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);
 
+        if(params.get(Constants.PARAMETER_TOKEN) == null){
+            exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+            return;
+        }
+
         Token token = serverServices.getTokenManager().findToken(params.get(Constants.PARAMETER_TOKEN));
         if(token == null){
-            exc.setResponse(answerWithError(400, Constants.ERROR_UNSUPPORTED_TOKEN_TYPE));
+            exc.setResponse(new ResponseBuilder().statuscode(200).build());
             return;
         }
 

@@ -1,7 +1,9 @@
 package com.nogiax.security.oauth2openid.unit.otherEndpoints;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
+import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.MembraneServerFunctionality;
 import com.nogiax.security.oauth2openid.server.AuthorizationServer;
 import com.nogiax.security.oauth2openid.unit.Common;
@@ -63,7 +65,8 @@ public class UserinfoEndpoint {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(401, exc.getResponse().getStatuscode())
+                            () -> assertEquals(401, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_TOKEN, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }
@@ -81,7 +84,8 @@ public class UserinfoEndpoint {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(401, exc.getResponse().getStatuscode())
+                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }
@@ -99,7 +103,32 @@ public class UserinfoEndpoint {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(400, exc.getResponse().getStatuscode())
+                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                    );
+                });
+    }
+
+    @Test
+    public void goodRequestThenRevokeThanBadRequest() throws Exception {
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        Exchange exc = Common.createUserinfoRequest(accessToken, Constants.PARAMETER_VALUE_BEARER);
+                        assertEquals(200,server.invokeOn(exc).getResponse().getStatuscode());
+                        Exchange revoke = Common.createRevocationRequest(accessToken, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
+                        assertEquals(200,server.invokeOn(revoke).getResponse().getStatuscode());
+                        exc.setResponse(null);
+                        return exc;
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(401, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_TOKEN, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }

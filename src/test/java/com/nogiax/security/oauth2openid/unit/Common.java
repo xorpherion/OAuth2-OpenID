@@ -165,12 +165,18 @@ public class Common {
     }
 
     public static Exchange createUserinfoRequest(String accessToken, String tokenType) throws URISyntaxException {
-        return new RequestBuilder().uri(ConstantsTest.SERVER_USERINFO_ENDPOINT).method(Method.GET).header(Constants.HEADER_AUTHORIZATION, tokenType + " " + accessToken).buildExchange();
+        String authHeader = "";
+        if(tokenType != null)
+            authHeader += tokenType + " ";
+        if(accessToken != null)
+            authHeader += accessToken;
+        return new RequestBuilder().uri(ConstantsTest.SERVER_USERINFO_ENDPOINT).method(Method.GET).header(Constants.HEADER_AUTHORIZATION, authHeader).buildExchange();
     }
 
     public static Exchange createRevocationRequest(String accessToken, String clientId, String clientSecret) throws UnsupportedEncodingException, URISyntaxException {
         Map<String,String> params = new HashMap<>();
         params.put(Constants.PARAMETER_TOKEN,accessToken);
+        params = Parameters.stripEmptyParams(params);
 
         if(clientSecret == null)
             return new RequestBuilder().uri(ConstantsTest.SERVER_REVOCATION_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).buildExchange();
