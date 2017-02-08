@@ -67,6 +67,8 @@ public class TokenResponseGenerator extends ResponseGenerator {
             Map<String, String> idTokenClaims = getServerServices().getProvidedServices().getUserDataProvider().getClaims(username, idTokenClaimNames);
 
             idTokenClaims.put(Constants.CLAIM_AT_HASH, Util.atHashFromValue(Constants.ALG_SHA_256, accessToken.getValue()));
+            idTokenClaims.put(Constants.PARAMETER_NONCE,nonce);
+            idTokenClaims.put(Constants.PARAMETER_AUTH_TIME,authTime);
 
             Token idToken = getServerServices().getTokenManager().createChildIdToken(getIssuer(), getSubClaim(username), clientId, Token.getDefaultValidFor(), authTime, nonce, idTokenClaims, parentToken);
 

@@ -23,6 +23,8 @@ public class Util {
     }
 
     public static String atHashFromValue(String alg, String accessToken) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        if(accessToken == null)
+            return null;
         if (!alg.equals("SHA-256"))
             throw new RuntimeException("NYI");
         MessageDigest digest = MessageDigest.getInstance(alg);
@@ -30,6 +32,6 @@ public class Util {
         byte[] result = new byte[hash.length / 2];
         for (int i = 0; i < hash.length / 2; i++)
             result[i] = hash[i];
-        return new String(result);
+        return UriUtil.encode(Base64.getEncoder().encodeToString(result));
     }
 }

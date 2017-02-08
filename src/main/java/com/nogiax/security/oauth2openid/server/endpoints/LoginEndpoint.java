@@ -12,6 +12,9 @@ import com.nogiax.security.oauth2openid.Session;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -86,6 +89,7 @@ public class LoginEndpoint extends Endpoint {
         }
         session.putValue(Constants.LOGIN_USERNAME, username);
         session.putValue(Constants.SESSION_LOGGED_IN, Constants.VALUE_YES);
+        session.putValue(Constants.PARAMETER_AUTH_TIME, String.valueOf(new Date().getTime()));
         exc.setResponse(redirectToConsent(getConsentPageParams(session)));
     }
 
