@@ -38,8 +38,7 @@ public class TokenResponseGenerator extends ResponseGenerator {
         } else if (code == null) {
             Token fakeAuthToken = getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, scope, claims);
             getTokenManager().getAuthorizationCodes().addToken(fakeAuthToken);
-            code = fakeAuthToken.getValue();
-            parentToken = getTokenManager().getAuthorizationCodes().getToken(code);
+            parentToken = getTokenManager().getAuthorizationCodes().getToken(fakeAuthToken.getValue());
         } else {
             parentToken = getTokenManager().getAuthorizationCodes().getToken(code);
             getSession().removeValue(Constants.SESSION_AUTHORIZATION_CODE);
@@ -67,6 +66,7 @@ public class TokenResponseGenerator extends ResponseGenerator {
             Map<String, String> idTokenClaims = getServerServices().getProvidedServices().getUserDataProvider().getClaims(username, idTokenClaimNames);
 
             idTokenClaims.put(Constants.CLAIM_AT_HASH, Util.atHashFromValue(Constants.ALG_SHA_256, accessToken.getValue()));
+            idTokenClaims.put(Constants.CLAIM_C_HASH,Util.atHashFromValue(Constants.ALG_SHA_256,code));
             idTokenClaims.put(Constants.PARAMETER_NONCE,nonce);
             idTokenClaims.put(Constants.PARAMETER_AUTH_TIME,authTime);
 

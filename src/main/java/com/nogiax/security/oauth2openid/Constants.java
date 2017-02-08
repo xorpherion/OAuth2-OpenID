@@ -145,7 +145,9 @@ public class Constants {
     public static final String CLAIM_AUTH_TIME = "auth_time";
     public static final String CLAIM_AUTHORIZED_PARTY = "azp";
     public static final String CLAIM_AT_HASH = "at_hash";
+    public static final String CLAIM_C_HASH = "c_hash";
 
     // Alg values
     public static final String ALG_SHA_256 = "SHA-256";
+
 }
