@@ -116,7 +116,7 @@ public class AuthorizationCode extends BaseTokenEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), Constants.SCOPE_OPENID, getClientId(), getClientSecret(), getUsername(), getPassword());
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), Constants.SCOPE_PROFILE, getClientId(), getClientSecret(), getUsername(), getPassword());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
