@@ -11,10 +11,6 @@
 
 		</spring:bean>
 
-	<spring:bean id="ssl server" class="com.predic8.membrane.core.config.security.SSLParser">
-
-	</spring:bean>
-
 	<router>
 
 		<serviceProxy name="ssl auth server" port="1337">
