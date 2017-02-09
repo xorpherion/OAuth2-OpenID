@@ -49,7 +49,8 @@ public class Common {
                 Constants.PARAMETER_CLIENT_ID, clientId,
                 Constants.PARAMETER_REDIRECT_URI, redirectUrl,
                 Constants.PARAMETER_SCOPE, scope,
-                Constants.PARAMETER_STATE, state
+                Constants.PARAMETER_STATE, state,
+                Constants.PARAMETER_NONCE, state
         );
         params = Parameters.stripEmptyParams(params);
 
