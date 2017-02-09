@@ -23,6 +23,8 @@ public class IdTokenProvider {
     public IdTokenProvider() throws JoseException {
         rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
         rsaJsonWebKey.setKeyId("k1");
+        rsaJsonWebKey.setAlgorithm(AlgorithmIdentifiers.RSA_USING_SHA256);
+        rsaJsonWebKey.setUse("sig");
     }
 
     public String getJwk() {
