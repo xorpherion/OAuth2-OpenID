@@ -7,12 +7,20 @@ import com.nogiax.security.oauth2openid.client.OAuth2AuthorizationServerData;
 import com.nogiax.security.oauth2openid.client.OAuth2ClientData;
 import com.predic8.membrane.core.HttpRouter;
 import com.predic8.membrane.core.Router;
+import com.predic8.membrane.core.RuleManager;
+import com.predic8.membrane.core.config.security.KeyStore;
+import com.predic8.membrane.core.config.security.SSLParser;
+import com.predic8.membrane.core.config.security.TrustStore;
 import com.predic8.membrane.core.exchange.Exchange;
 import com.predic8.membrane.core.http.HeaderField;
 import com.predic8.membrane.core.interceptor.AbstractInterceptor;
+import com.predic8.membrane.core.resolver.ResolverMap;
 import com.predic8.membrane.core.rules.AbstractServiceProxy;
 import com.predic8.membrane.core.rules.ServiceProxy;
 import com.predic8.membrane.core.rules.ServiceProxyKey;
+import com.predic8.membrane.core.transport.ssl.GeneratingSSLContext;
+import com.predic8.membrane.core.transport.ssl.SSLContext;
+import com.predic8.membrane.core.transport.ssl.StaticSSLContext;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -88,7 +96,7 @@ public class UtilMembrane {
         router.setHotDeploy(false);
 
         for (ServiceProxy sp : sps)
-            router.add(sp);
+            router.getRuleManager().addProxy(sp, RuleManager.RuleDefinitionSource.MANUAL);
 
         router.start();
         return router;
@@ -97,8 +105,27 @@ public class UtilMembrane {
     private static ServiceProxy createServiceProxy(int spPort, AbstractServiceProxy.Target target, AbstractInterceptor... interceptors) {
         if (target == null)
             target = new AbstractServiceProxy.Target(null, -1);
+        if(ConstantsTest.PROTOCOL.equals("https") && target.getSslParser() == null) {
+            SSLParser parser = new SSLParser();
+            target.setSslParser(parser);
+        }
 
         ServiceProxy sp = new ServiceProxy(new ServiceProxyKey(spPort), target.getHost(), target.getPort());
+
+        if(ConstantsTest.PROTOCOL.equals("https")) {
+            SSLParser ssl = new SSLParser();
+            ssl.setKeyStore(new KeyStore());
+            ssl.getKeyStore().setLocation("classpath:/keystore.jks");
+            ssl.getKeyStore().setKeyPassword("secret");
+            ssl.getKeyStore().setPassword("secret");
+            ssl.setTrustStore(new TrustStore());
+            ssl.getTrustStore().setLocation("classpath:/keystore.jks");
+            ssl.getTrustStore().setPassword("secret");
+            ssl.setEndpointIdentificationAlgorithm("HTTPS");
+            sp.setSslInboundParser(ssl);
+        }
+
+        target.setSslParser(new SSLParser());
 
         for (AbstractInterceptor interceptor : interceptors)
             sp.getInterceptors().add(interceptor);
@@ -144,5 +171,22 @@ public class UtilMembrane {
 
     public static Client createDefaultClient2() {
         return new Client(ConstantsTest.CLIENT_DEFAULT_ID2, ConstantsTest.CLIENT_DEFAULT_SECRET2, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI);
+    }
+
+    public static SSLContext doNotValidateSSLCertificate() {
+        if(ConstantsTest.PROTOCOL.equals("https")) {
+            SSLParser parser = new SSLParser();
+            parser.setTrustStore(new TrustStore());
+            parser.getTrustStore().setLocation("classpath:/keystore.jks");
+            parser.getTrustStore().setPassword("secret");
+            parser.setKeyStore(new KeyStore());
+            parser.getKeyStore().setLocation("classpath:/keystore.jks");
+            parser.getKeyStore().setKeyPassword("secret");
+            parser.setIgnoreTimestampCheckFailure(true);
+            parser.setClientAuth(null);
+            SSLContext ctx = new StaticSSLContext(parser, new ResolverMap(), null);
+            return ctx;
+        }
+        return null;
     }
 }

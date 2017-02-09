@@ -5,6 +5,7 @@ import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.ExtendedHttpClient;
 import com.nogiax.security.oauth2openid.UtilMembrane;
 import com.nogiax.security.oauth2openid.unit.Common;
+import com.predic8.membrane.core.HttpRouter;
 import com.predic8.membrane.core.Router;
 import com.predic8.membrane.core.exchange.Exchange;
 import com.predic8.membrane.core.http.Request;
@@ -32,7 +33,10 @@ public class OAuth2 {
     @Disabled
     @Test
     void pseudoMain() throws Exception {
-
+        Router r = HttpRouter.init(getClass().getResource("/proxies.xml").toString());
+        boolean running = true;
+        while (running)
+            Thread.sleep(1000);
     }
 
     @Disabled
@@ -50,7 +54,7 @@ public class OAuth2 {
     @Test
     void testSuccessfulAuthorizationFlow() throws Exception {
         Router authorizationServer = UtilMembrane.startMembraneWithProxies(UtilMembrane.createAuthorizationServerProxy());
-        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target(ConstantsTest.HOST_AUTHORIZATION_SERVER.replace("http://", ""), ConstantsTest.PORT_AUTHORIZATION_SERVER)));
+        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target(ConstantsTest.HOST_AUTHORIZATION_SERVER.replace("https://", ""), ConstantsTest.PORT_AUTHORIZATION_SERVER)));
 
         ExtendedHttpClient client = new ExtendedHttpClient();
 
