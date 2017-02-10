@@ -4,6 +4,7 @@ import com.nogiax.security.oauth2openid.permissions.Scope;
 import com.nogiax.security.oauth2openid.server.SupportedClaims;
 import com.nogiax.security.oauth2openid.server.SupportedScopes;
 import com.nogiax.security.oauth2openid.token.CombinedTokenManager;
+import com.nogiax.security.oauth2openid.token.IdTokenProvider;
 import org.jose4j.lang.JoseException;
 
 /**
@@ -16,11 +17,14 @@ public class ServerServices {
     SupportedClaims supportedClaims;
 
     public ServerServices(ProvidedServices providedServices) throws JoseException {
+        this(providedServices,new IdTokenProvider());
+    }
+
+    public ServerServices(ProvidedServices providedServices, IdTokenProvider idTokenProvider){
         this.providedServices = providedServices;
-        this.tokenManager = new CombinedTokenManager();
+        this.tokenManager = new CombinedTokenManager(idTokenProvider);
         this.supportedScopes = new SupportedScopes(defaultScopes());
         this.supportedClaims = new SupportedClaims(supportedClaims());
-
     }
 
     private Scope[] defaultScopes() {

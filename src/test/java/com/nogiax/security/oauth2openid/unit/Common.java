@@ -10,6 +10,8 @@ import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.Util;
 import com.nogiax.security.oauth2openid.server.AuthorizationServer;
 import com.nogiax.security.oauth2openid.server.endpoints.Parameters;
+import com.nogiax.security.oauth2openid.token.IdTokenProvider;
+import org.jose4j.lang.JoseException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -26,6 +28,20 @@ import java.util.regex.Pattern;
  * Created by Xorpherion on 04.02.2017.
  */
 public class Common {
+
+    static IdTokenProvider idTokenProvider;
+
+    static {
+        try {
+            idTokenProvider = new IdTokenProvider();
+        } catch (JoseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static IdTokenProvider getIdTokenProvider(){
+        return idTokenProvider;
+    }
 
     public static String getMethodName() {
         return Thread.currentThread().getStackTrace()[2].getMethodName();

@@ -7,6 +7,7 @@ import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ProvidedServices;
 import com.nogiax.security.oauth2openid.ServerServices;
 import com.nogiax.security.oauth2openid.server.endpoints.*;
+import com.nogiax.security.oauth2openid.token.IdTokenProvider;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,11 @@ public class AuthorizationServer {
     ServerServices serverServices;
 
     public AuthorizationServer(ProvidedServices providedServices) throws JoseException, JsonProcessingException {
-        serverServices = new ServerServices(providedServices);
+        this(providedServices,new IdTokenProvider());
+    }
+
+    public AuthorizationServer(ProvidedServices providedServices, IdTokenProvider idTokenProvider) throws JsonProcessingException {
+        serverServices = new ServerServices(providedServices,idTokenProvider);
 
         endpoints = new ArrayList<>();
 

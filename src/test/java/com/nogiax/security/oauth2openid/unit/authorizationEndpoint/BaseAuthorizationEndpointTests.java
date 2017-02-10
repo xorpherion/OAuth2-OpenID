@@ -6,7 +6,9 @@ import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.MembraneServerFunctionality;
 import com.nogiax.security.oauth2openid.server.AuthorizationServer;
 import com.nogiax.security.oauth2openid.server.SupportedClaims;
+import com.nogiax.security.oauth2openid.token.IdTokenProvider;
 import com.nogiax.security.oauth2openid.unit.Common;
+import org.jose4j.lang.JoseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +29,7 @@ public abstract class BaseAuthorizationEndpointTests {
 
     @BeforeEach
     public void setUp() throws Exception {
-        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER));
+        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER),Common.getIdTokenProvider());
     }
 
     public abstract String getResponseType();

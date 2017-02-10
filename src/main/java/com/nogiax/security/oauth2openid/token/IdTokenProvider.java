@@ -21,7 +21,10 @@ public class IdTokenProvider {
     private final RsaJsonWebKey rsaJsonWebKey;
 
     public IdTokenProvider() throws JoseException {
+        long time = System.nanoTime();
         rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
+        time = System.nanoTime() - time;
+        System.out.println(time/1000000000d);
         rsaJsonWebKey.setKeyId("k1");
         rsaJsonWebKey.setAlgorithm(AlgorithmIdentifiers.RSA_USING_SHA256);
         rsaJsonWebKey.setUse("sig");

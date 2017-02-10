@@ -21,8 +21,12 @@ public class CombinedTokenManager {
 
 
     public CombinedTokenManager() throws JoseException {
+        this(new IdTokenProvider());
+    }
+
+    public CombinedTokenManager(IdTokenProvider idTokenProvider){
+        this.idTokenProvider = idTokenProvider;
         tokenProvider = new BearerTokenProvider();
-        idTokenProvider = new IdTokenProvider();
 
         authorizationCodes = new TokenManager();
         accessTokens = new TokenManager();
