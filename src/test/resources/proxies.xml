@@ -30,9 +30,6 @@
 				<truststore location="classpath://keystore.jks" password="secret" />
 			</ssl>
 			<spring:ref bean="webAppClient"/>
-			<target host="localhost" port="1337">
-				<ssl/>
-			</target>
 		</serviceProxy>
 
 	</router>

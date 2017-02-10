@@ -3,10 +3,7 @@ package com.nogiax.security.oauth2openid.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.nogiax.http.Exchange;
-import com.nogiax.http.Method;
-import com.nogiax.http.RequestBuilder;
-import com.nogiax.http.ResponseBuilder;
+import com.nogiax.http.*;
 import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.ClientProvider;
 import com.nogiax.security.oauth2openid.Constants;
@@ -17,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +47,7 @@ public class WebApplicationClient {
         Exchange result;
         Session session = clientProvider.getSessionProvider().getSession(exc);
         if (session != null && session.getValue(Constants.SESSION_LOGGED_IN) != null && session.getValue(Constants.SESSION_LOGGED_IN).equals(Constants.VALUE_YES)) {
-            exc.getRequest().getHeader().append(Constants.HEADER_AUTHORIZATION, session.getValue(Constants.PARAMETER_TOKEN_TYPE) + " " + session.getValue(Constants.PARAMETER_ACCESS_TOKEN));
+            exc.setResponse(doRequestWithToken(exc));
             return exc;
         }
 
@@ -63,6 +61,11 @@ public class WebApplicationClient {
             if (!exc.getProperties().isEmpty())
                 result.setProperties(exc.getProperties());
         return result;
+    }
+
+    private Response doRequestWithToken(Exchange exc) throws Exception {
+        exc.getRequest().getHeader().append(Constants.HEADER_AUTHORIZATION, clientProvider.getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_TOKEN_TYPE) + " " + clientProvider.getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_ACCESS_TOKEN));
+        return clientProvider.getHttpClient().sendExchange(exc).getResponse();
     }
 
     private Exchange invokeAuthRedirect(Exchange exc) throws Exception {
@@ -95,7 +98,8 @@ public class WebApplicationClient {
 
         Exchange origExc = originalRequestsForState.getIfPresent(params.get(Constants.PARAMETER_STATE));
         exc.setRequest(origExc.getRequest());
-        exc.getRequest().getHeader().append(Constants.HEADER_AUTHORIZATION, session.getValue(Constants.PARAMETER_TOKEN_TYPE) + " " + session.getValue(Constants.PARAMETER_ACCESS_TOKEN));
+        exc.getRequest().getHeader().append(Constants.HEADER_COOKIE,accessTokenRequest.getRequest().getHeader().getValue(Constants.HEADER_COOKIE));
+        exc.setResponse(doRequestWithToken(exc));
         return exc;
     }
 

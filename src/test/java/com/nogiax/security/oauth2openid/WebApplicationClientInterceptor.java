@@ -33,6 +33,7 @@ public class WebApplicationClientInterceptor extends AbstractInterceptor {
     @Override
     public Outcome handleRequest(Exchange exc) throws Exception {
         com.nogiax.http.Exchange newExc = new com.nogiax.http.Exchange(UtilMembrane.convertFromMembraneRequest(exc.getRequest()));
+        newExc.getRequest().setUri(new URI(getFixedDestination(exc)));
         newExc = client.invokeOn(newExc);
         exc.setRequest(UtilMembrane.convertToMembraneRequest(newExc.getRequest()));
         exc.setResponse(UtilMembrane.convertToMembraneResponse(newExc.getResponse()));
@@ -43,15 +44,20 @@ public class WebApplicationClientInterceptor extends AbstractInterceptor {
         return Outcome.CONTINUE;
     }
 
-    private void fixMembraneExchange(Exchange exc) throws URISyntaxException {
-        // this is only needed as the membrane exchange has additional meta data that is lost in converting only requests/responses
-        URI origUri = new URI(exc.getRequest().getUri());
-        exc.setOriginalRequestUri(exc.getRequest().getUri());
+    private String getFixedDestination(Exchange exc){
         String destination = exc.getDestinations().get(0);
         if(destination.contains("[") && destination.contains("]")){
             destination = destination.replace("http://[","");
             destination = destination.replace("]","");
         }
+        return destination;
+    }
+
+    private void fixMembraneExchange(Exchange exc) throws URISyntaxException {
+        // this is only needed as the membrane exchange has additional meta data that is lost in converting only requests/responses
+        URI origUri = new URI(exc.getRequest().getUri());
+        exc.setOriginalRequestUri(exc.getRequest().getUri());
+        String destination = getFixedDestination(exc);
         URI uri = new URI(destination);
         if (uri.getQuery() != null)
             destination = destination.replace(uri.getQuery(), origUri.getQuery() != null ? origUri.getQuery() : "");

@@ -142,7 +142,7 @@ public class UtilMembrane {
     }
 
     public static OAuth2ClientData getDefaultCodeGrantClientData() {
-        return new OAuth2ClientData(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET, Constants.PARAMETER_VALUE_CODE, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE);
+        return new OAuth2ClientData(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET, Constants.PARAMETER_VALUE_CODE, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE_OPENID);
     }
 
     public static OAuth2AuthorizationServerData getDefaultAuthorizationServerData() {

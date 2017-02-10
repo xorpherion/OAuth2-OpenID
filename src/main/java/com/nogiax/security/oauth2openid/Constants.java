@@ -113,6 +113,7 @@ public class Constants {
     public static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
     public static final String HEADER_SET_COOKIE = "Set-Cookie";
     public static final String HEADER_X_FRAME_OPTIONS = "X-Frame-Options";
+    public static final String HEADER_HOST = "Host";
 
     //Header values
     public static final String HEADER_VALUE_NO_CACHE = "no-cache";
