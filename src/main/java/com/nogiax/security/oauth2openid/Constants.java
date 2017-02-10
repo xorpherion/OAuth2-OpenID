@@ -31,6 +31,12 @@ public class Constants {
     public static final String PARAMETER_AUTH_TIME = "auth_time";
     public static final String PARAMETER_NONCE = "nonce";
     public static final String PARAMETER_ID_TOKEN = "id_token";
+    public static final String PARAMETER_MAX_AGE = "max_age";
+    public static final String PARAMETER_ID_TOKEN_HINT = "id_token_hint";
+    public static final String PARAMETER_LOGIN_HINT = "login_hin";
+    public static final String PARAMETER_ACR_VALUES = "acr_values";
+    public static final String PARAMETER_DISPLAY = "display";
+    public static final String PARAMETER_UI_LOCALES = "ui_locales";
 
     //Scope names
     public static final String SCOPE_OPENID = "openid";
@@ -149,5 +155,7 @@ public class Constants {
 
     // Alg values
     public static final String ALG_SHA_256 = "SHA-256";
+
+
 
 }

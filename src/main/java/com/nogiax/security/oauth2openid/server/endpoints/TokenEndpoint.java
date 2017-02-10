@@ -163,6 +163,7 @@ public class TokenEndpoint extends Endpoint {
 
 
         String response = Constants.TOKEN_TYPE_TOKEN;
+        session.putValue(Constants.PARAMETER_RESPONSE_TYPE,response);
         if (hasOpenIdScope(exc) && session.getValue(Constants.PARAMETER_SCOPE).contains(Constants.SCOPE_OPENID))
             response += " " + Constants.TOKEN_TYPE_ID_TOKEN;
 

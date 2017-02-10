@@ -8,16 +8,15 @@ import com.nogiax.security.oauth2openid.Util;
 import com.nogiax.security.oauth2openid.permissions.ClaimsParameter;
 import com.nogiax.security.oauth2openid.token.Token;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Created by Xorpherion on 28.01.2017.
  */
 public class TokenResponseGenerator extends ResponseGenerator {
     public TokenResponseGenerator(ServerServices serverServices, Exchange exc) {
-        super(Constants.TOKEN_TYPE_TOKEN, serverServices, exc);
+        super(serverServices, exc,Constants.TOKEN_TYPE_TOKEN, Constants.TOKEN_TYPE_ID_TOKEN);
     }
 
     @Override
@@ -29,7 +28,7 @@ public class TokenResponseGenerator extends ResponseGenerator {
         String code = getSession().getValue(Constants.SESSION_AUTHORIZATION_CODE);
         String grantType = getSession().getValue(Constants.PARAMETER_GRANT_TYPE);
         String refreshTokenValue = getSession().getValue(Constants.PARAMETER_REFRESH_TOKEN);
-
+        Set<String> responseTypes = new HashSet<String>(Arrays.asList(getSession().getValue(Constants.PARAMETER_RESPONSE_TYPE).split(Pattern.quote(" "))));
 
         Token parentToken = null;
         if (refreshTokenValue != null) {
@@ -44,20 +43,22 @@ public class TokenResponseGenerator extends ResponseGenerator {
             getSession().removeValue(Constants.SESSION_AUTHORIZATION_CODE);
         }
 
-
-        Token accessToken = getTokenManager().addTokenToManager(getTokenManager().getAccessTokens(), getTokenManager().createChildBearerTokenWithDefaultDuration(parentToken));
-        Token refreshToken = getTokenManager().addTokenToManager(getTokenManager().getRefreshTokens(), getTokenManager().createChildBearerToken(Token.getDefaultValidForLong(), parentToken));
-        parentToken.incrementUsage();
-
-
         Map<String, String> result = new HashMap<>();
-        result.put(Constants.PARAMETER_ACCESS_TOKEN, accessToken.getValue());
-        result.put(Constants.PARAMETER_TOKEN_TYPE, Constants.PARAMETER_VALUE_BEARER);
-        result.put(Constants.PARAMETER_EXPIRES_IN, String.valueOf(accessToken.getValidFor().getSeconds()));
-        if (grantType != null && !(grantType.equals(Constants.PARAMETER_VALUE_TOKEN) || grantType.equals(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS)))
-            result.put(Constants.PARAMETER_REFRESH_TOKEN, refreshToken.getValue());
+        String accessTokenValue = null;
+        if(responseTypes.contains(Constants.PARAMETER_VALUE_TOKEN)) {
+            Token accessToken = getTokenManager().addTokenToManager(getTokenManager().getAccessTokens(), getTokenManager().createChildBearerTokenWithDefaultDuration(parentToken));
+            Token refreshToken = getTokenManager().addTokenToManager(getTokenManager().getRefreshTokens(), getTokenManager().createChildBearerToken(Token.getDefaultValidForLong(), parentToken));
 
-        if (isOpenIdScope()) {
+            result.put(Constants.PARAMETER_ACCESS_TOKEN, accessToken.getValue());
+            result.put(Constants.PARAMETER_TOKEN_TYPE, Constants.PARAMETER_VALUE_BEARER);
+            result.put(Constants.PARAMETER_EXPIRES_IN, String.valueOf(accessToken.getValidFor().getSeconds()));
+            if (grantType != null && !(grantType.equals(Constants.PARAMETER_VALUE_TOKEN) || grantType.equals(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS)))
+                result.put(Constants.PARAMETER_REFRESH_TOKEN, refreshToken.getValue());
+
+            accessTokenValue = accessToken.getValue();
+        }
+
+        if (responseTypes.contains(Constants.PARAMETER_VALUE_ID_TOKEN) && isOpenIdScope()) {
             String authTime = getSession().getValue(Constants.PARAMETER_AUTH_TIME);
             String nonce = getSession().getValue(Constants.PARAMETER_NONCE);
             Set<String> idTokenClaimNames = new ClaimsParameter(claims).getAllIdTokenClaimNames();
@@ -65,7 +66,7 @@ public class TokenResponseGenerator extends ResponseGenerator {
             idTokenClaimNames = getServerServices().getSupportedClaims().getValidClaims(idTokenClaimNames);
             Map<String, String> idTokenClaims = getServerServices().getProvidedServices().getUserDataProvider().getClaims(username, idTokenClaimNames);
 
-            idTokenClaims.put(Constants.CLAIM_AT_HASH, Util.atHashFromValue(Constants.ALG_SHA_256, accessToken.getValue()));
+            idTokenClaims.put(Constants.CLAIM_AT_HASH, Util.atHashFromValue(Constants.ALG_SHA_256, accessTokenValue));
             idTokenClaims.put(Constants.CLAIM_C_HASH,Util.atHashFromValue(Constants.ALG_SHA_256,code));
             idTokenClaims.put(Constants.PARAMETER_NONCE,nonce);
             idTokenClaims.put(Constants.PARAMETER_AUTH_TIME,authTime);
@@ -74,6 +75,8 @@ public class TokenResponseGenerator extends ResponseGenerator {
 
             result.put(Constants.PARAMETER_ID_TOKEN, idToken.getValue());
         }
+
+        parentToken.incrementUsage();
 
         return result;
     }

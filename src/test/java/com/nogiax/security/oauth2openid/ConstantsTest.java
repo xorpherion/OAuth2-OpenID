@@ -29,11 +29,13 @@ public class ConstantsTest {
     public static final String CLIENT_DEFAULT_SCOPE = "profile phone";
     public static final String CLIENT_DEFAULT_SCOPE_OPENID = "openid profile phone";
     public static final String CLIENT_DEFAULT_STATE = "totallyRandomStateValue";
+    public static final String CLIENT_DEFAULT_NONCE = "totallyRandomNonceValue";
 
     public static final String URL_PROTECTED_RESOURCE = URL_CLIENT + Constants.ENDPOINT_USERINFO;
 
     public static final String USER_DEFAULT_NAME = "Till";
     public static final String USER_DEFAULT_PASSWORD = "Born";
+
 
 
 }

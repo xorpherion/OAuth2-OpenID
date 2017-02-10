@@ -14,7 +14,7 @@ import java.util.Map;
 public class CodeResponseGenerator extends ResponseGenerator {
 
     public CodeResponseGenerator(ServerServices serverServices, Exchange exc) {
-        super(Constants.TOKEN_TYPE_CODE, serverServices, exc);
+        super(serverServices, exc,Constants.TOKEN_TYPE_CODE);
     }
 
     @Override

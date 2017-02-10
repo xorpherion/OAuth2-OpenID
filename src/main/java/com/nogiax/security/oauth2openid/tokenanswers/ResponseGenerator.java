@@ -15,22 +15,23 @@ import java.util.regex.Pattern;
  */
 public abstract class ResponseGenerator {
 
-    private final String responseType;
+    private final String[] responseTypes;
     private final ServerServices serverServices;
     private final Exchange exc;
 
-    public ResponseGenerator(String responseType, ServerServices serverServices, Exchange exc) {
-        this.responseType = responseType;
+    public ResponseGenerator(ServerServices serverServices, Exchange exc, String... responseTypes) {
+        this.responseTypes = responseTypes;
         this.serverServices = serverServices;
         this.exc = exc;
     }
 
     public boolean isMyResponseType(String askedResponseType) throws Exception {
         if (askedResponseType != null) {
-            String[] askedFlows = askedResponseType.split(Pattern.quote("_"));
+            String[] askedFlows = askedResponseType.split(Pattern.quote(" "));
             for (String f : askedFlows)
-                if (f.equals(responseType))
-                    return true;
+                for(String r : responseTypes)
+                    if(f.equals(r))
+                        return true;
         }
         return false;
     }
@@ -55,8 +56,8 @@ public abstract class ResponseGenerator {
 
     public abstract Map<String, String> invokeResponse() throws Exception;
 
-    public String getResponseType() {
-        return responseType;
+    public String[] getResponseType() {
+        return responseTypes;
     }
 
     public ServerServices getServerServices() {

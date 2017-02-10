@@ -24,7 +24,6 @@ public class CombinedResponseGenerator {
         this.responseGenerators = new ArrayList<>();
         responseGenerators.add(new CodeResponseGenerator(serverServices, exc));
         responseGenerators.add(new TokenResponseGenerator(serverServices, exc));
-        responseGenerators.add(new IdTokenResponseGenerator(serverServices, exc));
     }
 
     public Map<String, String> invokeResponse(String responseType) throws Exception {

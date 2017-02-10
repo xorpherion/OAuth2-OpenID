@@ -5,15 +5,18 @@ import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.MembraneServerFunctionality;
 import com.nogiax.security.oauth2openid.server.AuthorizationServer;
+import com.nogiax.security.oauth2openid.server.SupportedClaims;
 import com.nogiax.security.oauth2openid.unit.Common;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Created by Xorpherion on 05.02.2017.
@@ -28,19 +31,52 @@ public abstract class BaseAuthorizationEndpointTests {
     }
 
     public abstract String getResponseType();
+    public abstract String getClientId();
+    public abstract String getRedirectUri();
+    public abstract String getScope();
+    public abstract String getState();
+
+    public abstract Consumer<Exchange> validateResultPostLogin();
 
     @Test
-    public abstract Exchange goodPreLoginRequest() throws Exception;
+    public Exchange goodPreLoginRequest() throws Exception {
+        return Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.createAuthRequest(getResponseType(),getClientId(),getRedirectUri(),getScope(),getState());
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(303, exc.getResponse().getStatuscode(), "Statuscode was not 303"),
+                            () -> assertEquals(Constants.ENDPOINT_LOGIN, Common.getResponseLocationHeaderAsUri(exc).getPath())
+                    );
+                });
+    }
 
     @Test
-    public abstract Exchange goodPostLoginRequest() throws Exception;
+    public Exchange goodPostLoginRequest() throws Exception {
+        return Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        Exchange exc = goodConsent();
+                        return Common.createPostLoginRequest(Common.extractSessionCookie(exc));
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                validateResultPostLogin());
+    }
 
     @Test
     public void badClientid() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(), ConstantsTest.CLIENT_DEFAULT_ID + "NoCorrectClientId", ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_STATE);
+                        return Common.createAuthRequest(getResponseType(),getClientId() + "NoCorrectClientId",getRedirectUri(),getScope(),getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -59,7 +95,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(), null, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_STATE);
+                        return Common.createAuthRequest(getResponseType(),null,getRedirectUri(),getScope(),getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -78,7 +114,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(), ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI + "somethingsomething", ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_STATE);
+                        return Common.createAuthRequest(getResponseType(),getClientId(),getRedirectUri()+"somethingsomething",getScope(),getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -97,7 +133,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(), ConstantsTest.CLIENT_DEFAULT_ID, null, ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_STATE);
+                        return Common.createAuthRequest(getResponseType(),getClientId(),null,getScope(),getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -116,7 +152,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType() + "123", ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_STATE);
+                        return Common.createAuthRequest(getResponseType()+123,getClientId(),getRedirectUri(),getScope(),getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -136,7 +172,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(null, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_STATE);
+                        return Common.createAuthRequest(null,getClientId(),getRedirectUri(),getScope(),getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -156,7 +192,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(), ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, "this is surely not a supported scope", ConstantsTest.CLIENT_DEFAULT_STATE);
+                        return Common.createAuthRequest(getResponseType(),getClientId(),getRedirectUri(),"this is surely not a valid scope",getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -176,7 +212,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(), ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI, null, ConstantsTest.CLIENT_DEFAULT_STATE);
+                        return Common.createAuthRequest(getResponseType(),getClientId(),getRedirectUri(),null,getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }

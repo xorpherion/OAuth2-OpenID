@@ -44,12 +44,26 @@ public class Common {
     }
 
     public static Exchange createAuthRequest(String responseType, String clientId, String redirectUrl, String scope, String state) throws URISyntaxException {
+        return createOpenIdAuthRequest(responseType,clientId,redirectUrl,scope,state,null,null,null,null,null,null,null,null);
+    }
+
+    public static Exchange createOpenIdAuthRequest(String responseType, String clientId, String redirectUrl, String scope, String state, String responseMode, String nonce, String prompt, String maxAge, String idTokenHint, String loginHint, String authenticationContextClass, String claims) throws URISyntaxException {
         Map<String, String> params = Parameters.createParams(
                 Constants.PARAMETER_RESPONSE_TYPE, responseType,
                 Constants.PARAMETER_CLIENT_ID, clientId,
                 Constants.PARAMETER_REDIRECT_URI, redirectUrl,
                 Constants.PARAMETER_SCOPE, scope,
-                Constants.PARAMETER_STATE, state
+                Constants.PARAMETER_STATE, state,
+                Constants.PARAMETER_RESPONSE_MODE, responseMode,
+                Constants.PARAMETER_NONCE, nonce,
+                Constants.PARAMETER_PROMPT, prompt,
+                Constants.PARAMETER_MAX_AGE,maxAge,
+                Constants.PARAMETER_ID_TOKEN_HINT,idTokenHint,
+                Constants.PARAMETER_LOGIN_HINT, loginHint,
+                Constants.PARAMETER_ACR_VALUES, authenticationContextClass,
+                Constants.PARAMETER_CLAIMS, claims,
+                Constants.PARAMETER_DISPLAY,"349872309482390489272390842075",
+                Constants.PARAMETER_UI_LOCALES, "38754385837"
         );
         params = Parameters.stripEmptyParams(params);
 
@@ -66,6 +80,12 @@ public class Common {
 
     public static Map<String, String> getFragmentParamsFromRedirectResponse(Exchange exc) throws URISyntaxException {
         return UriUtil.queryToParameters(new URI(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION)).getFragment());
+    }
+
+    public static Map<String,String> getParamsFromRedirectResponse(Exchange exc, boolean useFragment) throws URISyntaxException {
+        if(useFragment)
+            return getFragmentParamsFromRedirectResponse(exc);
+        return getQueryParamsFromRedirectResponse(exc);
     }
 
     public static Map<String, String> convertLoginPageParamsToMap(String dest) throws URISyntaxException, IOException {

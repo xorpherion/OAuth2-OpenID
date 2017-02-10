@@ -8,7 +8,9 @@ import com.nogiax.security.oauth2openid.Session;
 import com.nogiax.security.oauth2openid.tokenanswers.CombinedResponseGenerator;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Created by Xorpherion on 25.01.2017.
@@ -104,16 +106,16 @@ public class AuthorizationEndpoint extends Endpoint {
     }
 
     private boolean responseTypeIsSupported(String responseType) {
-        switch (responseType) {
-            case Constants.PARAMETER_VALUE_CODE:
-                ;
-            case Constants.PARAMETER_VALUE_TOKEN:
-                ;
-            case Constants.PARAMETER_VALUE_ID_TOKEN:
-                return true;
-            default:
+        HashSet<String> supported = new HashSet<>();
+        supported.add(Constants.PARAMETER_VALUE_CODE);
+        supported.add(Constants.PARAMETER_VALUE_TOKEN);
+        supported.add(Constants.PARAMETER_VALUE_ID_TOKEN);
+
+        String[] responseTypes = responseType.split(Pattern.quote(" "));
+        for(String rType : responseTypes)
+            if(!supported.contains(rType))
                 return false;
-        }
+        return true;
     }
 
     private void copyParametersInSession(Session session, Map<String, String> params) throws Exception {
@@ -146,12 +148,21 @@ public class AuthorizationEndpoint extends Endpoint {
     private String responseTypeToResponseGeneratorValue(String responseType) {
         StringBuilder builder = new StringBuilder();
 
-        if (responseType.contains(Constants.PARAMETER_VALUE_CODE))
+        String copy = responseType;
+
+        if (copy.contains(Constants.PARAMETER_VALUE_CODE)) {
+            copy = copy.replace(Constants.PARAMETER_VALUE_CODE,"").trim();
             builder.append(Constants.TOKEN_TYPE_CODE).append(" ");
-        if (responseType.contains(Constants.PARAMETER_VALUE_TOKEN))
+        }
+        if (copy.contains(Constants.PARAMETER_VALUE_ID_TOKEN)) {
+            copy = copy.replace(Constants.PARAMETER_VALUE_ID_TOKEN,"").trim();
             builder.append(Constants.TOKEN_TYPE_ID_TOKEN).append(" ");
-        if (responseType.contains(Constants.PARAMETER_VALUE_ID_TOKEN))
+        }
+        if (copy.contains(Constants.PARAMETER_VALUE_TOKEN)) {
+            copy = copy.replace(Constants.PARAMETER_VALUE_TOKEN,"").trim();
             builder.append(Constants.TOKEN_TYPE_ID_TOKEN).append(" ");
+        }
+
 
         return builder.toString().trim();
 
