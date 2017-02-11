@@ -37,6 +37,7 @@ public abstract class BaseAuthorizationEndpointTests {
     public abstract String getRedirectUri();
     public abstract String getScope();
     public abstract String getState();
+    public abstract boolean isImplicit();
 
     public abstract Consumer<Exchange> validateResultPostLogin();
 
@@ -162,7 +163,7 @@ public abstract class BaseAuthorizationEndpointTests {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(Constants.ERROR_UNSUPPORTED_RESPONSE_TYPE, Common.getQueryParamsFromRedirectResponse(exc).get(Constants.PARAMETER_ERROR)),
+                            () -> assertEquals(Constants.ERROR_UNSUPPORTED_RESPONSE_TYPE, Common.getParamsFromRedirectResponse(exc,false).get(Constants.PARAMETER_ERROR)),
                             () -> assertEquals(303, exc.getResponse().getStatuscode()),
                             () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath())
                     );
@@ -182,7 +183,7 @@ public abstract class BaseAuthorizationEndpointTests {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getQueryParamsFromRedirectResponse(exc).get(Constants.PARAMETER_ERROR)),
+                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getParamsFromRedirectResponse(exc,false).get(Constants.PARAMETER_ERROR)),
                             () -> assertEquals(303, exc.getResponse().getStatuscode()),
                             () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath())
                     );
@@ -202,7 +203,7 @@ public abstract class BaseAuthorizationEndpointTests {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(Constants.ERROR_INVALID_SCOPE, Common.getQueryParamsFromRedirectResponse(exc).get(Constants.PARAMETER_ERROR)),
+                            () -> assertEquals(Constants.ERROR_INVALID_SCOPE, Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_ERROR)),
                             () -> assertEquals(303, exc.getResponse().getStatuscode()),
                             () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath())
                     );
@@ -222,7 +223,7 @@ public abstract class BaseAuthorizationEndpointTests {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(Constants.ERROR_INVALID_SCOPE, Common.getQueryParamsFromRedirectResponse(exc).get(Constants.PARAMETER_ERROR)),
+                            () -> assertEquals(Constants.ERROR_INVALID_SCOPE, Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_ERROR)),
                             () -> assertEquals(303, exc.getResponse().getStatuscode()),
                             () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath())
                     );
@@ -328,7 +329,7 @@ public abstract class BaseAuthorizationEndpointTests {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(Constants.ERROR_ACCESS_DENIED, Common.getQueryParamsFromRedirectResponse(exc).get(Constants.PARAMETER_ERROR)),
+                            () -> assertEquals(Constants.ERROR_ACCESS_DENIED, Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_ERROR)),
                             () -> assertEquals(303, exc.getResponse().getStatuscode()),
                             () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath())
                     );

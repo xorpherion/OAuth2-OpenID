@@ -79,9 +79,13 @@ public abstract class Endpoint {
     }
 
     protected Response redirectToCallbackWithError(String callbackUrl, String error, String state) {
+        return redirectToCallbackWithError(callbackUrl,error,state,false);
+    }
+
+    protected Response redirectToCallbackWithError(String callbackUrl, String error, String state, boolean useFragment) {
         HashMap<String, String> params = new HashMap<>();
         params.put(Constants.PARAMETER_ERROR, error);
-        return redirectToCallbackWithParams(callbackUrl, params, state);
+        return redirectToCallbackWithParams(callbackUrl, params, state, useFragment);
     }
 
     protected Response redirectToCallbackWithParams(String callbackurl, Map<String, String> params, String state) {
@@ -177,5 +181,24 @@ public abstract class Endpoint {
         claims.addAll(tokenClaims.getAllIdTokenClaimNames());
         claims = serverServices.getSupportedClaims().getValidClaims(claims);
         return claims;
+    }
+
+    protected boolean setToResponseModeOrUseDefault(Exchange exc, Session session) throws Exception{
+        String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
+        if(responseType == null)
+            throw new RuntimeException();
+        return setToResponseModeOrUseDefault(exc,session,responseType.contains(Constants.PARAMETER_VALUE_TOKEN));
+    }
+
+    protected boolean setToResponseModeOrUseDefault(Exchange exc, Session session, boolean defaultValue) throws Exception {
+        if (hasOpenIdScope(exc))
+            if (session.getValue(Constants.PARAMETER_RESPONSE_MODE) != null) {
+                String responseMode = session.getValue(Constants.PARAMETER_RESPONSE_MODE);
+                if (responseMode.equals(Constants.PARAMETER_VALUE_QUERY))
+                    return false;
+                if (responseMode.equals(Constants.PARAMETER_VALUE_FRAGMENT))
+                    return true;
+            }
+        return defaultValue;
     }
 }

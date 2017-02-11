@@ -86,15 +86,41 @@ public class Common {
         return new RequestBuilder().uri(ConstantsTest.SERVER_AUTHORIZATION_ENDPOINT + "?" + UriUtil.parametersToQuery(params)).method(Method.GET).buildExchange();
     }
 
+    public static Exchange createOpenIdAuthRequest(Method method, String responseType, String clientId, String redirectUrl, String scope, String state, String responseMode, String nonce, String prompt, String maxAge, String idTokenHint, String loginHint, String authenticationContextClass, String claims) throws URISyntaxException {
+        Map<String, String> params = Parameters.createParams(
+                Constants.PARAMETER_RESPONSE_TYPE, responseType,
+                Constants.PARAMETER_CLIENT_ID, clientId,
+                Constants.PARAMETER_REDIRECT_URI, redirectUrl,
+                Constants.PARAMETER_SCOPE, scope,
+                Constants.PARAMETER_STATE, state,
+                Constants.PARAMETER_RESPONSE_MODE, responseMode,
+                Constants.PARAMETER_NONCE, nonce,
+                Constants.PARAMETER_PROMPT, prompt,
+                Constants.PARAMETER_MAX_AGE,maxAge,
+                Constants.PARAMETER_ID_TOKEN_HINT,idTokenHint,
+                Constants.PARAMETER_LOGIN_HINT, loginHint,
+                Constants.PARAMETER_ACR_VALUES, authenticationContextClass,
+                Constants.PARAMETER_CLAIMS, claims,
+                Constants.PARAMETER_DISPLAY,"349872309482390489272390842075",
+                Constants.PARAMETER_UI_LOCALES, "38754385837"
+        );
+        params = Parameters.stripEmptyParams(params);
+        if(method == Method.GET)
+            return new RequestBuilder().uri(ConstantsTest.SERVER_AUTHORIZATION_ENDPOINT + "?" + UriUtil.parametersToQuery(params)).method(method).buildExchange();
+        if(method == Method.POST)
+            return new RequestBuilder().uri(ConstantsTest.SERVER_AUTHORIZATION_ENDPOINT).body(UriUtil.parametersToQuery(params)).method(method).buildExchange();
+        throw new RuntimeException();
+    }
+
     public static Map<String, String> getBodyParamsFromResponse(Exchange exc) throws IOException {
         return new ObjectMapper().readValue(exc.getResponse().getBody(), Map.class);
     }
 
-    public static Map<String, String> getQueryParamsFromRedirectResponse(Exchange exc) throws URISyntaxException {
+    private static Map<String, String> getQueryParamsFromRedirectResponse(Exchange exc) throws URISyntaxException {
         return UriUtil.queryToParameters(new URI(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION)).getQuery());
     }
 
-    public static Map<String, String> getFragmentParamsFromRedirectResponse(Exchange exc) throws URISyntaxException {
+    private static Map<String, String> getFragmentParamsFromRedirectResponse(Exchange exc) throws URISyntaxException {
         return UriUtil.queryToParameters(new URI(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION)).getFragment());
     }
 

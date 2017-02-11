@@ -45,15 +45,20 @@ public class AuthorizationCode extends BaseAuthorizationEndpointTests {
     }
 
     @Override
+    public boolean isImplicit() {
+        return false;
+    }
+
+    @Override
     public Consumer<Exchange> validateResultPostLogin() {
         return exc -> assertAll(
                 Common.getMethodName(),
                 () -> assertEquals(303, exc.getResponse().getStatuscode()),
                 () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath()),
-                () -> assertNotNull(Common.getQueryParamsFromRedirectResponse(exc).get(Constants.PARAMETER_CODE)),
-                () -> assertNull(Common.getQueryParamsFromRedirectResponse(exc).get(Constants.PARAMETER_ACCESS_TOKEN)),
-                () -> assertNull(Common.getQueryParamsFromRedirectResponse(exc).get(Constants.PARAMETER_EXPIRES_IN)),
-                () -> assertEquals(ConstantsTest.CLIENT_DEFAULT_STATE, Common.getQueryParamsFromRedirectResponse(exc).get(Constants.PARAMETER_STATE))
+                () -> assertNotNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_CODE)),
+                () -> assertNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_ACCESS_TOKEN)),
+                () -> assertNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_EXPIRES_IN)),
+                () -> assertEquals(ConstantsTest.CLIENT_DEFAULT_STATE, Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_STATE))
         );
     }
 

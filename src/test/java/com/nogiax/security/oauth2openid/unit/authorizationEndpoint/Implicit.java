@@ -42,6 +42,11 @@ public class Implicit extends BaseAuthorizationEndpointTests {
         return ConstantsTest.CLIENT_DEFAULT_STATE;
     }
 
+    @Override
+    public boolean isImplicit() {
+        return true;
+    }
+
 
     @Override
     public Consumer<Exchange> validateResultPostLogin() {
@@ -50,11 +55,11 @@ public class Implicit extends BaseAuthorizationEndpointTests {
                     Common.getMethodName(),
                     () -> assertEquals(303, exc.getResponse().getStatuscode()),
                     () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath()),
-                    () -> assertNotNull(Common.getFragmentParamsFromRedirectResponse(exc).get(Constants.PARAMETER_ACCESS_TOKEN)),
-                    () -> assertNotNull(Common.getFragmentParamsFromRedirectResponse(exc).get(Constants.PARAMETER_EXPIRES_IN)),
-                    () -> assertNull(Common.getFragmentParamsFromRedirectResponse(exc).get(Constants.PARAMETER_CODE)),
-                    () -> assertNull(Common.getFragmentParamsFromRedirectResponse(exc).get(Constants.PARAMETER_REFRESH_TOKEN)),
-                    () -> assertEquals(ConstantsTest.CLIENT_DEFAULT_STATE, Common.getFragmentParamsFromRedirectResponse(exc).get(Constants.PARAMETER_STATE))
+                    () -> assertNotNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_ACCESS_TOKEN)),
+                    () -> assertNotNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_EXPIRES_IN)),
+                    () -> assertNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_CODE)),
+                    () -> assertNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_REFRESH_TOKEN)),
+                    () -> assertEquals(ConstantsTest.CLIENT_DEFAULT_STATE, Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_STATE))
             );
         };
     }
