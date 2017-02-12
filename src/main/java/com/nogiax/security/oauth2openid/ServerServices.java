@@ -25,6 +25,9 @@ public class ServerServices {
         this.tokenManager = new CombinedTokenManager(idTokenProvider);
         this.supportedScopes = new SupportedScopes(defaultScopes());
         this.supportedClaims = new SupportedClaims(supportedClaims());
+
+        for(String claim : providedServices.getSupportedClaims())
+            this.supportedClaims.addValidClaim(claim);
     }
 
     private Scope[] defaultScopes() {

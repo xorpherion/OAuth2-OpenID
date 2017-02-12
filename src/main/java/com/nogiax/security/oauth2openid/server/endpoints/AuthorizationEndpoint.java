@@ -7,6 +7,10 @@ import com.nogiax.security.oauth2openid.ServerServices;
 import com.nogiax.security.oauth2openid.Session;
 import com.nogiax.security.oauth2openid.tokenanswers.CombinedResponseGenerator;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -68,6 +72,12 @@ public class AuthorizationEndpoint extends Endpoint {
                 exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_SCOPE, params.get(Constants.PARAMETER_STATE),setToResponseModeOrUseDefault(exc,session)));
                 return;
             }
+            if(isLoggedIn(exc) && session.getValue(Constants.PARAMETER_MAX_AGE) != null){
+                Duration maxAge = Duration.ofSeconds(Integer.parseInt(session.getValue(Constants.PARAMETER_MAX_AGE))); // cant throw, is only in session when it is an int
+                if(Instant.now().isAfter(Instant.ofEpochSecond(Long.parseLong(session.getValue(Constants.PARAMETER_AUTH_TIME))).plus(maxAge)))
+                    session.clear();
+            }
+
             if (hasOpenIdScope(exc)) {
                 if (params.get(Constants.PARAMETER_PROMPT) != null) {
                     String prompt = params.get(Constants.PARAMETER_PROMPT);
@@ -79,6 +89,17 @@ public class AuthorizationEndpoint extends Endpoint {
                             return;
                         }
                 }
+                if(params.get(Constants.PARAMETER_MAX_AGE) != null){
+                    try {
+                        int maxAge = Integer.parseInt(params.get(Constants.PARAMETER_MAX_AGE));
+                        if(maxAge < 0)
+                            throw new RuntimeException(); // exception is used as control flow only because Integer.parseInt throws anyway on error
+                    }catch(Exception e){
+                        exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE),setToResponseModeOrUseDefault(exc,session)));
+                        return;
+                    }
+                }
+
                 if (params.containsKey(Constants.PARAMETER_REQUEST)) {
                     exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_REQUEST_NOT_SUPPORTED, params.get(Constants.PARAMETER_STATE),setToResponseModeOrUseDefault(exc,session)));
                     return;

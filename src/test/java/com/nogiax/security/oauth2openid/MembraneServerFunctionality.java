@@ -7,6 +7,9 @@ import com.nogiax.security.oauth2openid.providers.ClientDataProvider;
 import com.nogiax.security.oauth2openid.providers.SessionProvider;
 import com.nogiax.security.oauth2openid.providers.UserDataProvider;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by Xorpherion on 25.01.2017.
  */
@@ -42,5 +45,12 @@ public class MembraneServerFunctionality implements ProvidedServices {
     @Override
     public String getIssuer() {
         return issuer;
+    }
+
+    @Override
+    public Set<String> getSupportedClaims() {
+        HashSet<String> result = new HashSet<>();
+        result.add(ConstantsTest.CUSTOM_CLAIM_NAME);
+        return result;
     }
 }

@@ -28,6 +28,7 @@ public class TokenResponseGenerator extends ResponseGenerator {
         String code = getSession().getValue(Constants.SESSION_AUTHORIZATION_CODE);
         String grantType = getSession().getValue(Constants.PARAMETER_GRANT_TYPE);
         String refreshTokenValue = getSession().getValue(Constants.PARAMETER_REFRESH_TOKEN);
+        String state = getSession().getValue(Constants.PARAMETER_STATE);
         Set<String> responseTypes = new HashSet<String>(Arrays.asList(getSession().getValue(Constants.PARAMETER_RESPONSE_TYPE).split(Pattern.quote(" "))));
 
         Token parentToken = null;
@@ -44,6 +45,7 @@ public class TokenResponseGenerator extends ResponseGenerator {
         }
 
         Map<String, String> result = new HashMap<>();
+        result.put(Constants.PARAMETER_STATE,state);
         String accessTokenValue = null;
         if(responseTypes.contains(Constants.PARAMETER_VALUE_TOKEN)) {
             Token accessToken = getTokenManager().addTokenToManager(getTokenManager().getAccessTokens(), getTokenManager().createChildBearerTokenWithDefaultDuration(parentToken));

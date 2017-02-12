@@ -157,14 +157,11 @@ public class UtilMembrane {
         return new Client(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET, ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI);
     }
 
-
-    static int usercounter = 0;
-
     public static UserMembrane createDefaultUser() {
         UserMembrane userMembrane = new UserMembrane(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD);
-        userMembrane.getClaims().put(Constants.CLAIM_SUB, String.valueOf(usercounter++));
+        userMembrane.getClaims().put(Constants.CLAIM_SUB, String.valueOf(0));
         userMembrane.getClaims().put(Constants.CLAIM_WEBSITE, "https://github.com/xorpherion/OAuth2-OpenID");
-        userMembrane.getClaims().put("CustomClaim", "CustomValue");
+        userMembrane.getClaims().put(ConstantsTest.CUSTOM_CLAIM_NAME, ConstantsTest.CUSTOM_CLAIM_VALUE);
 
         return userMembrane;
     }

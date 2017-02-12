@@ -30,6 +30,8 @@ public class CodeResponseGenerator extends ResponseGenerator {
         result.put(Constants.PARAMETER_CODE, authCode.getValue());
         result.put(Constants.PARAMETER_STATE, state);
 
+        getSession().putValue(Constants.SESSION_AUTHORIZATION_CODE,authCode.getValue());
+
         return result;
     }
 }

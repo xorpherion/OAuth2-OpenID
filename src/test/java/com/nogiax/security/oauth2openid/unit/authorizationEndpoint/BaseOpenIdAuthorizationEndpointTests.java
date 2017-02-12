@@ -25,7 +25,9 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
     public abstract String getMaxAge();
     public abstract String getIdTokenHint();
     public abstract String getLoginHint();
-    public abstract String getAuthenticationContextClass();
+    public String getAuthenticationContextClass(){
+        return "43078u29ß41238930574z3432ß89437ß4ur80j9uiege";
+    }
     public abstract String getClaims();
 
     @Override
@@ -218,6 +220,68 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
                         Exchange exc = goodPostLoginRequest();
                         String cookie = Common.extractSessionCookie(exc);
                         exc = Common.createOpenIdAuthRequest(getResponseType(),getClientId(),getRedirectUri(),getScope(),getState(),getResponseMode(),getNonce(),Constants.PARAMETER_VALUE_NONE,getMaxAge(),getIdTokenHint(),getLoginHint(),getAuthenticationContextClass(),getClaims());
+                        exc.getRequest().getHeader().append(Constants.HEADER_COOKIE,cookie);
+                        return exc;
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(303, exc.getResponse().getStatuscode(), "Statuscode was not 303"),
+                            () -> assertEquals(Constants.ENDPOINT_CLIENT_CALLBACK, Common.getResponseLocationHeaderAsUri(exc).getPath())
+                    );
+                });
+    }
+
+    @Test
+    public Exchange elapsedMaxAgeForcesLogin() throws Exception {
+        return Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        Exchange exc = Common.createOpenIdAuthRequest(getResponseType(),getClientId(),getRedirectUri(),getScope(),getState(),getResponseMode(),getNonce(),getPrompt(), String.valueOf(0),getIdTokenHint(),getLoginHint(),getAuthenticationContextClass(),getClaims());
+                        exc = server.invokeOn(exc);
+                        Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
+                        exc = Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc));
+                        exc = server.invokeOn(exc);
+                        loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
+                        exc = Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc));
+                        exc = server.invokeOn(exc);
+                        exc = Common.createPostLoginRequest(Common.extractSessionCookie(exc));
+                        String cookie = Common.extractSessionCookie(exc);
+                        exc = Common.createOpenIdAuthRequest(getResponseType(),getClientId(),getRedirectUri(),getScope(),getState(),getResponseMode(),getNonce(),getPrompt(), String.valueOf(0),getIdTokenHint(),getLoginHint(),getAuthenticationContextClass(),getClaims());
+                        exc.getRequest().getHeader().append(Constants.HEADER_COOKIE,cookie);
+                        return exc;
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(303, exc.getResponse().getStatuscode(), "Statuscode was not 303"),
+                            () -> assertEquals(Constants.ENDPOINT_LOGIN, Common.getResponseLocationHeaderAsUri(exc).getPath())
+                    );
+                });
+    }
+
+    @Test
+    public Exchange notElapsedMaxAgeIsOk() throws Exception {
+        return Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        Exchange exc = Common.createOpenIdAuthRequest(getResponseType(),getClientId(),getRedirectUri(),getScope(),getState(),getResponseMode(),getNonce(),getPrompt(), String.valueOf(100),getIdTokenHint(),getLoginHint(),getAuthenticationContextClass(),getClaims());
+                        exc = server.invokeOn(exc);
+                        Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
+                        exc = Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc));
+                        exc = server.invokeOn(exc);
+                        loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
+                        exc = Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc));
+                        exc = server.invokeOn(exc);
+                        exc = Common.createPostLoginRequest(Common.extractSessionCookie(exc));
+                        String cookie = Common.extractSessionCookie(exc);
+                        exc = Common.createOpenIdAuthRequest(getResponseType(),getClientId(),getRedirectUri(),getScope(),getState(),getResponseMode(),getNonce(),getPrompt(), String.valueOf(0),getIdTokenHint(),getLoginHint(),getAuthenticationContextClass(),getClaims());
                         exc.getRequest().getHeader().append(Constants.HEADER_COOKIE,cookie);
                         return exc;
                     } catch (Exception e) {

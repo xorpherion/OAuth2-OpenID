@@ -36,6 +36,6 @@ public class ConstantsTest {
     public static final String USER_DEFAULT_NAME = "Till";
     public static final String USER_DEFAULT_PASSWORD = "Born";
 
-
-
+    public static final String CUSTOM_CLAIM_NAME = "CustomClaim";
+    public static final String CUSTOM_CLAIM_VALUE = "CustomValue";
 }

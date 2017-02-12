@@ -24,4 +24,8 @@ public class SupportedClaims {
                 result.add(claim);
         return result;
     }
+
+    public void addValidClaim(String claim) {
+        claims.add(claim);
+    }
 }

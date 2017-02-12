@@ -31,7 +31,7 @@ public class IdTokenProvider {
     }
 
     public String getJwk() {
-        return rsaJsonWebKey.toJson();
+        return "{\"keys\": [ " + rsaJsonWebKey.toJson() + "]}";
     }
 
     public String createIdToken(String issuer, String subject, String clientidOfRecipient, Duration validFor, String authTime, String nonce, Map<String, String> claims) throws JoseException {
