@@ -31,8 +31,6 @@ public class RefreshToken {
     @BeforeEach
     public void setUp() throws Exception {
         server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER),Common.getIdTokenProvider());
-        System.out.println("refresh");
-        System.out.println(System.identityHashCode(server));
     }
 
     public Supplier<Exchange> getPreStep() throws Exception {

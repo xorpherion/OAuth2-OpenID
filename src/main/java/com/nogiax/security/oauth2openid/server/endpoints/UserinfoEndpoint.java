@@ -20,7 +20,7 @@ public class UserinfoEndpoint extends Endpoint {
 
     @Override
     public void invokeOn(Exchange exc) throws Exception {
-        log.info("Userinfo endpoint");
+        //log.info("Userinfo endpoint");
         if (!exc.getRequest().getHeader().getRawHeaders().containsKey(Constants.HEADER_AUTHORIZATION)) {
             exc.setResponse(this.answerWithBody(401, ""));
             exc.getResponse().getHeader().append(Constants.HEADER_WWW_AUTHENTICATE, "Bearer realm=\"token\"");

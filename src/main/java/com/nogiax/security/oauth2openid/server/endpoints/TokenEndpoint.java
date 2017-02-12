@@ -23,7 +23,7 @@ public class TokenEndpoint extends Endpoint {
 
     @Override
     public void invokeOn(Exchange exc) throws Exception {
-        log.info("Token endpoint");
+        //log.info("Token endpoint");
 
         boolean clientIsAuthorized = false;
         String clientId = null;
@@ -160,7 +160,7 @@ public class TokenEndpoint extends Endpoint {
 
         // request is now valid
 
-        log.info("Valid Token Request");
+        //log.info("Valid Token Request");
         session.putValue(Constants.SESSION_ENDPOINT, Constants.ENDPOINT_TOKEN);
 
         String response = Constants.TOKEN_TYPE_TOKEN;

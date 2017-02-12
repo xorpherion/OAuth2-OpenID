@@ -43,7 +43,7 @@ public class WebApplicationClient {
     }
 
     public Exchange invokeOn(Exchange exc) throws Exception {
-        log.info("Client connect");
+        //log.info("Client connect");
         Exchange result;
         Session session = clientProvider.getSessionProvider().getSession(exc);
         if (session != null && session.getValue(Constants.SESSION_LOGGED_IN) != null && session.getValue(Constants.SESSION_LOGGED_IN).equals(Constants.VALUE_YES)) {
@@ -69,13 +69,13 @@ public class WebApplicationClient {
     }
 
     private Exchange invokeAuthRedirect(Exchange exc) throws Exception {
-        log.info("Client auth redirect");
+        //log.info("Client auth redirect");
         return createAuthorizationEndpointRedirectForResourceOwner(exc);
     }
 
     private Exchange invokeWhenCallback(Exchange exc) throws Exception {
         // callback impl
-        log.info("Client callback");
+        //log.info("Client callback");
 
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
 

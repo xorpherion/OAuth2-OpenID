@@ -41,7 +41,7 @@ public class AuthorizationServer {
     }
 
     public Exchange invokeOn(Exchange exc) throws Exception {
-        log.info("Authorization server connect");
+        //log.info("Authorization server connect");
         for (Endpoint endpoint : endpoints)
             if (exc.getResponse() == null)
                 endpoint.useIfResponsible(exc);

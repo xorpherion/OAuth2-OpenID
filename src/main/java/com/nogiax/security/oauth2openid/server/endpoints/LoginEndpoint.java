@@ -30,7 +30,7 @@ public class LoginEndpoint extends Endpoint {
 
     @Override
     public void invokeOn(Exchange exc) throws Exception {
-        log.info("Login endpoint");
+        //log.info("Login endpoint");
         if (exc.getRequest().getUri().getPath().endsWith(Constants.ENDPOINT_LOGIN)) {
             if (!wasRedirectFromError(exc) && hasSentLoginData(exc))
                 checkLogin(exc);

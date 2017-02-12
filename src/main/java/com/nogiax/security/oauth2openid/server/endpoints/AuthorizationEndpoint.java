@@ -37,7 +37,7 @@ public class AuthorizationEndpoint extends Endpoint {
 
     @Override
     public void invokeOn(Exchange exc) throws Exception {
-        log.info("Authorization endpoint oauth2");
+        //log.info("Authorization endpoint oauth2");
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
 
         if (exc.getRequest().getUri().getPath().endsWith(Constants.ENDPOINT_AUTHORIZATION)) {
@@ -147,7 +147,7 @@ public class AuthorizationEndpoint extends Endpoint {
     }
 
     private void anserWithAuthorizationCode(Exchange exc, Session session) throws Exception {
-        System.out.println("logged in and consent");
+        //System.out.println("logged in and consent");
         session.putValue(Constants.SESSION_ENDPOINT, Constants.ENDPOINT_AUTHORIZATION);
         String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
 
