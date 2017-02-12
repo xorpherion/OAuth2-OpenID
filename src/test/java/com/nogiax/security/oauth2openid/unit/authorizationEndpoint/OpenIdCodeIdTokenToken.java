@@ -9,6 +9,7 @@ import com.nogiax.security.oauth2openid.Util;
 import com.nogiax.security.oauth2openid.token.IdTokenVerifier;
 import com.nogiax.security.oauth2openid.unit.Common;
 import org.jose4j.lang.JoseException;
+import org.junit.jupiter.api.DisplayName;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Created by Xorpherion on 09.02.2017.
  */
+@DisplayName("AuthorizationEndpoint.OpenIdCodeIdTokenToken")
 public class OpenIdCodeIdTokenToken extends BaseOpenIdAuthorizationEndpointTests {
 
     @Override

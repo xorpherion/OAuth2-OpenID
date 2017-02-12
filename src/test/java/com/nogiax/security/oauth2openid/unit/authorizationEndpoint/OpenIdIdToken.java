@@ -4,6 +4,7 @@ import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.unit.Common;
+import org.junit.jupiter.api.DisplayName;
 
 import java.net.URI;
 import java.util.function.Consumer;
@@ -13,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Created by Xorpherion on 09.02.2017.
  */
+@DisplayName("AuthorizationEndpoint.OpenIdIdToken")
 public class OpenIdIdToken extends BaseOpenIdAuthorizationEndpointTests {
     @Override
     public String getResponseType() {
