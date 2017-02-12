@@ -47,6 +47,11 @@ public abstract class BaseAuthorizationEndpointTests {
 
 
 
+    public BaseAuthorizationEndpointTests init(AuthorizationServer server) {
+        this.server = server;
+        return this;
+    }
+
     @Test
     public Exchange goodPreLoginRequest() throws Exception {
         return Common.testExchangeOn(server,

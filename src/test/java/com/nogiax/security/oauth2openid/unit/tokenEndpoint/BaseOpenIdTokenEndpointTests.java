@@ -8,6 +8,7 @@ import com.nogiax.security.oauth2openid.unit.authorizationEndpoint.BaseOpenIdAut
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,6 +65,8 @@ public abstract class BaseOpenIdTokenEndpointTests<T extends BaseOpenIdAuthoriza
         return ConstantsTest.USER_DEFAULT_PASSWORD;
     }
 
+    public Consumer<Exchange> additionalValidation = null;
+
     @Override
     public Supplier<Exchange> getPreStep() throws Exception {
         return new Supplier<Exchange>() {
@@ -79,8 +82,8 @@ public abstract class BaseOpenIdTokenEndpointTests<T extends BaseOpenIdAuthoriza
     }
 
     @Test
-    public void goodRequest() throws Exception {
-        Common.testExchangeOn(server,
+    public Exchange goodRequest() throws Exception {
+        return Common.testExchangeOn(server,
                 () -> {
                     try {
                         return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(),endpoint.isImplicit());
@@ -98,6 +101,8 @@ public abstract class BaseOpenIdTokenEndpointTests<T extends BaseOpenIdAuthoriza
                             () -> assertNotNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ID_TOKEN)),
                             () -> assertNotNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_REFRESH_TOKEN))
                     );
+                    if(additionalValidation != null)
+                        additionalValidation.accept(exc);
                 });
     }
 

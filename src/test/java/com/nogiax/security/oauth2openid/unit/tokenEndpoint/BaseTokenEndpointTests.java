@@ -45,6 +45,11 @@ public abstract class BaseTokenEndpointTests {
         this.server = null;
     }
 
+    public BaseTokenEndpointTests init(AuthorizationServer server) {
+        this.server = server;
+        return this;
+    }
+
     @BeforeEach
     public void setUp() throws Exception {
         server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER),Common.getIdTokenProvider());

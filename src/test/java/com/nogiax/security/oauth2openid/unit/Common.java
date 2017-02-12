@@ -214,8 +214,10 @@ public class Common {
     }
 
     public static Exchange preStepAndRefreshTokenRequest(Supplier<Exchange> preStep, String scope, String clientId, String clientSecret) throws IOException, URISyntaxException {
+        return preStepAndRefreshTokenRequest(preStep.get(),scope,clientId,clientSecret);}
+    public static Exchange preStepAndRefreshTokenRequest(Exchange preStep, String scope, String clientId, String clientSecret) throws IOException, URISyntaxException {
 
-        Exchange exc = preStep.get();
+        Exchange exc = preStep;
         String cookie = extractSessionCookie(exc);
         String refreshToken = String.valueOf(new ObjectMapper().readValue(exc.getResponse().getBody(), Map.class).get(Constants.PARAMETER_REFRESH_TOKEN));
 

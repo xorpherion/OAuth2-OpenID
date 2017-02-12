@@ -23,9 +23,16 @@ public class RefreshToken {
 
     protected AuthorizationServer server;
 
+
+    protected String getClientDefaultScope() {
+        return ConstantsTest.CLIENT_DEFAULT_SCOPE;
+    }
+
     @BeforeEach
     public void setUp() throws Exception {
         server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER),Common.getIdTokenProvider());
+        System.out.println("refresh");
+        System.out.println(System.identityHashCode(server));
     }
 
     public Supplier<Exchange> getPreStep() throws Exception {
@@ -33,7 +40,7 @@ public class RefreshToken {
             @Override
             public Exchange get() {
                 try {
-                    return new AuthorizationCode().init(server).goodRequest();
+                    return ((AuthorizationCode)new AuthorizationCode().init(server)).goodRequest();
                 } catch (Exception e) {
                     return null;
                 }
@@ -46,7 +53,7 @@ public class RefreshToken {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndRefreshTokenRequest(getPreStep(), ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
+                        return Common.preStepAndRefreshTokenRequest(getPreStep(), getClientDefaultScope(), ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -63,12 +70,13 @@ public class RefreshToken {
                 });
     }
 
+
     @Test
     public void missingRefreshToken() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        Exchange exc = Common.preStepAndRefreshTokenRequest(getPreStep(), ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
+                        Exchange exc = Common.preStepAndRefreshTokenRequest(getPreStep(), getClientDefaultScope(), ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
                         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
                         params.remove(Constants.PARAMETER_REFRESH_TOKEN);
                         exc.getRequest().setBody(UriUtil.parametersToQuery(params));
@@ -91,7 +99,7 @@ public class RefreshToken {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        Exchange exc = Common.preStepAndRefreshTokenRequest(getPreStep(), ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
+                        Exchange exc = Common.preStepAndRefreshTokenRequest(getPreStep(), getClientDefaultScope(), ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
                         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
                         params.remove(Constants.PARAMETER_REFRESH_TOKEN);
                         params.put(Constants.PARAMETER_REFRESH_TOKEN, "3409580743543574390849230");
@@ -115,7 +123,7 @@ public class RefreshToken {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        Exchange exc = Common.preStepAndRefreshTokenRequest(getPreStep(), ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
+                        Exchange exc = Common.preStepAndRefreshTokenRequest(getPreStep(), getClientDefaultScope(), ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
                         server.invokeOn(exc);
                         exc.setResponse(null);
                         return exc;
@@ -137,7 +145,7 @@ public class RefreshToken {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        Exchange exc = Common.preStepAndRefreshTokenRequest(getPreStep(), ConstantsTest.CLIENT_DEFAULT_SCOPE, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
+                        Exchange exc = Common.preStepAndRefreshTokenRequest(getPreStep(), getClientDefaultScope(), ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
                         exc.getRequest().getHeader().getRawHeaders().replace(Constants.HEADER_AUTHORIZATION, Util.encodeToBasicAuthValue(ConstantsTest.CLIENT_DEFAULT_ID2, ConstantsTest.CLIENT_DEFAULT_SECRET2));
                         return exc;
                     } catch (Exception e) {

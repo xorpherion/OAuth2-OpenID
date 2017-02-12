@@ -147,6 +147,10 @@ public class Constants {
     public static final String CLAIM_PHONE_NUMBER_VERIFIED = "phone_number_verified";
     public static final String CLAIM_ADDRESS = "address";
     public static final String CLAIM_UPDATED_AT = "updated_at";
+    public static final String CLAIM_ISS = "iss";
+    public static final String CLAIM_AZP = "azp";
+    public static final String CLAIM_IAT = "iat";
+    public static final String CLAIM_AUD = "aud";
 
     // ID Token claims
     public static final String CLAIM_NONCE = "nonce";

@@ -62,9 +62,4 @@ public class AuthorizationCode extends BaseAuthorizationEndpointTests {
         );
     }
 
-
-    public BaseAuthorizationEndpointTests init(AuthorizationServer server) {
-        this.server = server;
-        return this;
-    }
 }
