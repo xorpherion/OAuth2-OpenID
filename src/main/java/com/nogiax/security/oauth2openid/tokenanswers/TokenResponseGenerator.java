@@ -35,7 +35,7 @@ public class TokenResponseGenerator extends ResponseGenerator {
         if (refreshTokenValue != null) {
             parentToken = getTokenManager().getRefreshTokens().getToken(refreshTokenValue);
             getSession().removeValue(Constants.PARAMETER_REFRESH_TOKEN);
-        } else if (code == null) {
+        } else if (getSession().getValue(Constants.SESSION_ENDPOINT).equals(Constants.ENDPOINT_AUTHORIZATION) || code == null) {
             Token fakeAuthToken = getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, scope, claims);
             getTokenManager().getAuthorizationCodes().addToken(fakeAuthToken);
             parentToken = getTokenManager().getAuthorizationCodes().getToken(fakeAuthToken.getValue());

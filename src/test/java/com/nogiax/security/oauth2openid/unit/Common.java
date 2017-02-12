@@ -172,12 +172,18 @@ public class Common {
     }
 
     public static Exchange preStepAndTokenRequest(Supplier<Exchange> preStep, String grantType, String redirectUri, String scope, String clientId, String clientSecret, String username, String password) throws Exception {
+        return preStepAndTokenRequest(preStep,grantType,redirectUri,scope,clientId,clientSecret,username,password,false);
+    }
+
+    public static Exchange preStepAndTokenRequest(Supplier<Exchange> preStep, String grantType, String redirectUri, String scope, String clientId, String clientSecret, String username, String password,boolean useFragment) throws Exception {
         String cookie = null;
         String code = null;
         if (preStep != null) {
             Exchange exc = preStep.get();
             cookie = extractSessionCookie(exc);
-            code = Common.getQueryParamsFromRedirectResponse(exc).get(Constants.PARAMETER_CODE);
+            code = Common.getParamsFromRedirectResponse(exc,useFragment).get(Constants.PARAMETER_CODE);
+            if(code == null)
+                code = Common.getParamsFromRedirectResponse(exc,!useFragment).get(Constants.PARAMETER_CODE);
         }
 
 

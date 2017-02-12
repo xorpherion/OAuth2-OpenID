@@ -25,6 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 public abstract class BaseAuthorizationEndpointTests {
 
+    public AuthorizationServer getServer() {
+        return server;
+    }
+
     protected AuthorizationServer server;
 
     @BeforeEach
@@ -40,6 +44,8 @@ public abstract class BaseAuthorizationEndpointTests {
     public abstract boolean isImplicit();
 
     public abstract Consumer<Exchange> validateResultPostLogin();
+
+
 
     @Test
     public Exchange goodPreLoginRequest() throws Exception {

@@ -6,6 +6,7 @@ import com.nogiax.security.oauth2openid.*;
 import com.nogiax.security.oauth2openid.token.Token;
 import com.nogiax.security.oauth2openid.tokenanswers.CombinedResponseGenerator;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -160,12 +161,12 @@ public class TokenEndpoint extends Endpoint {
         // request is now valid
 
         log.info("Valid Token Request");
-
+        session.putValue(Constants.SESSION_ENDPOINT, Constants.ENDPOINT_TOKEN);
 
         String response = Constants.TOKEN_TYPE_TOKEN;
-        session.putValue(Constants.PARAMETER_RESPONSE_TYPE,response);
         if (hasOpenIdScope(exc) && session.getValue(Constants.PARAMETER_SCOPE).contains(Constants.SCOPE_OPENID))
             response += " " + Constants.TOKEN_TYPE_ID_TOKEN;
+        session.putValue(Constants.PARAMETER_RESPONSE_TYPE,response);
 
         Map<String, String> responseBody = new CombinedResponseGenerator(serverServices, exc).invokeResponse(response);
         exc.setResponse(okWithJSONBody(responseBody));
@@ -185,18 +186,12 @@ public class TokenEndpoint extends Endpoint {
     }
 
     private boolean grantTypeIsSupported(String grantType) {
-        switch (grantType) {
-            case Constants.PARAMETER_VALUE_AUTHORIZATION_CODE:
-                ;
-            case Constants.PARAMETER_VALUE_PASSWORD:
-                ;
-            case Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS:
-                ;
-            case Constants.PARAMETER_VALUE_REFRESH_TOKEN:
-                return true;
-            default:
-                return false;
-        }
+        HashSet<String> supportedGrantTypes = new HashSet<String>();
+        supportedGrantTypes.add(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE);
+        supportedGrantTypes.add(Constants.PARAMETER_VALUE_PASSWORD);
+        supportedGrantTypes.add(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS);
+        supportedGrantTypes.add(Constants.PARAMETER_VALUE_REFRESH_TOKEN);
+        return supportedGrantTypes.contains(grantType);
     }
 
     @Override

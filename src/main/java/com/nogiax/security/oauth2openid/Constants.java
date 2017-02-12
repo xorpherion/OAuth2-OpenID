@@ -37,6 +37,7 @@ public class Constants {
     public static final String PARAMETER_ACR_VALUES = "acr_values";
     public static final String PARAMETER_DISPLAY = "display";
     public static final String PARAMETER_UI_LOCALES = "ui_locales";
+    public static final String SESSION_ENDPOINT = "current_endpoint";
 
     //Scope names
     public static final String SCOPE_OPENID = "openid";

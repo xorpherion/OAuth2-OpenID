@@ -35,7 +35,7 @@ public abstract class BaseTokenEndpointTests {
 
     public abstract String getPassword();
 
-    public abstract Supplier<Exchange> getPreStep();
+    public abstract Supplier<Exchange> getPreStep() throws Exception;
 
     public BaseTokenEndpointTests(AuthorizationServer server) {
         this.server = server;

@@ -148,6 +148,7 @@ public class AuthorizationEndpoint extends Endpoint {
 
     private void anserWithAuthorizationCode(Exchange exc, Session session) throws Exception {
         System.out.println("logged in and consent");
+        session.putValue(Constants.SESSION_ENDPOINT, Constants.ENDPOINT_AUTHORIZATION);
         String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
 
         boolean useFragment = setToResponseModeOrUseDefault(exc, session, responseType.contains(Constants.PARAMETER_VALUE_TOKEN));
