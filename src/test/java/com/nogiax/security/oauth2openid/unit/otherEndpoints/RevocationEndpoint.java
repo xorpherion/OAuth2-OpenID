@@ -26,12 +26,12 @@ public class RevocationEndpoint {
 
     @BeforeEach
     public void setUp() throws Exception {
-        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER),Common.getIdTokenProvider());
+        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER), Common.getIdTokenProvider());
         accessToken = getAccessToken();
     }
 
     public String getAccessToken() throws Exception {
-        return String.valueOf(new ObjectMapper().readValue(((AuthorizationCode)new AuthorizationCode().init(server)).goodRequest().getResponse().getBody(), Map.class).get(Constants.PARAMETER_ACCESS_TOKEN));
+        return String.valueOf(new ObjectMapper().readValue(((AuthorizationCode) new AuthorizationCode().init(server)).goodRequest().getResponse().getBody(), Map.class).get(Constants.PARAMETER_ACCESS_TOKEN));
     }
 
     @Test

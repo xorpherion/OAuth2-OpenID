@@ -17,16 +17,16 @@ public class ServerServices {
     SupportedClaims supportedClaims;
 
     public ServerServices(ProvidedServices providedServices) throws JoseException {
-        this(providedServices,new IdTokenProvider());
+        this(providedServices, new IdTokenProvider());
     }
 
-    public ServerServices(ProvidedServices providedServices, IdTokenProvider idTokenProvider){
+    public ServerServices(ProvidedServices providedServices, IdTokenProvider idTokenProvider) {
         this.providedServices = providedServices;
         this.tokenManager = new CombinedTokenManager(idTokenProvider);
         this.supportedScopes = new SupportedScopes(defaultScopes());
         this.supportedClaims = new SupportedClaims(supportedClaims());
 
-        for(String claim : providedServices.getSupportedClaims())
+        for (String claim : providedServices.getSupportedClaims())
             this.supportedClaims.addValidClaim(claim);
     }
 

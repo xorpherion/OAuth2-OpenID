@@ -14,7 +14,7 @@ import java.util.Map;
 public class CodeResponseGenerator extends ResponseGenerator {
 
     public CodeResponseGenerator(ServerServices serverServices, Exchange exc) {
-        super(serverServices, exc,Constants.TOKEN_TYPE_CODE);
+        super(serverServices, exc, Constants.TOKEN_TYPE_CODE);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class CodeResponseGenerator extends ResponseGenerator {
         result.put(Constants.PARAMETER_CODE, authCode.getValue());
         result.put(Constants.PARAMETER_STATE, state);
 
-        getSession().putValue(Constants.SESSION_AUTHORIZATION_CODE,authCode.getValue());
+        getSession().putValue(Constants.SESSION_AUTHORIZATION_CODE, authCode.getValue());
 
         return result;
     }

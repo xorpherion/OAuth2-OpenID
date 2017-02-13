@@ -24,11 +24,11 @@ public class AuthorizationServer {
     ServerServices serverServices;
 
     public AuthorizationServer(ProvidedServices providedServices) throws JoseException, JsonProcessingException {
-        this(providedServices,new IdTokenProvider());
+        this(providedServices, new IdTokenProvider());
     }
 
     public AuthorizationServer(ProvidedServices providedServices, IdTokenProvider idTokenProvider) throws JsonProcessingException {
-        serverServices = new ServerServices(providedServices,idTokenProvider);
+        serverServices = new ServerServices(providedServices, idTokenProvider);
 
         endpoints = new ArrayList<>();
 

@@ -79,7 +79,7 @@ public abstract class Endpoint {
     }
 
     protected Response redirectToCallbackWithError(String callbackUrl, String error, String state) {
-        return redirectToCallbackWithError(callbackUrl,error,state,false);
+        return redirectToCallbackWithError(callbackUrl, error, state, false);
     }
 
     protected Response redirectToCallbackWithError(String callbackUrl, String error, String state, boolean useFragment) {
@@ -183,11 +183,11 @@ public abstract class Endpoint {
         return claims;
     }
 
-    protected boolean setToResponseModeOrUseDefault(Exchange exc, Session session) throws Exception{
+    protected boolean setToResponseModeOrUseDefault(Exchange exc, Session session) throws Exception {
         String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
-        if(responseType == null)
+        if (responseType == null)
             throw new RuntimeException();
-        return setToResponseModeOrUseDefault(exc,session,responseType.contains(Constants.PARAMETER_VALUE_TOKEN));
+        return setToResponseModeOrUseDefault(exc, session, responseType.contains(Constants.PARAMETER_VALUE_TOKEN));
     }
 
     protected boolean setToResponseModeOrUseDefault(Exchange exc, Session session, boolean defaultValue) throws Exception {

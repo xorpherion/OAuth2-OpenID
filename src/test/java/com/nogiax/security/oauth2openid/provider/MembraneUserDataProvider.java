@@ -49,7 +49,7 @@ public class MembraneUserDataProvider implements UserDataProvider {
 
     @Override
     public void badLogin(String username) {
-        if(users.containsKey(username))
+        if (users.containsKey(username))
             System.out.println("Bad login for " + username + ". Sending email to user.");
     }
 }

@@ -12,7 +12,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Created by Xorpherion on 12.02.2017.
@@ -24,7 +23,7 @@ public abstract class BaseOpenIdTokenEndpointTests<T extends BaseOpenIdAuthoriza
     T endpoint;
 
     @BeforeEach
-    public void setUp() throws Exception{
+    public void setUp() throws Exception {
         endpoint = getPreClass().newInstance();
         endpoint.setUp();
         this.server = endpoint.getServer();
@@ -86,7 +85,7 @@ public abstract class BaseOpenIdTokenEndpointTests<T extends BaseOpenIdAuthoriza
         return Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(),endpoint.isImplicit());
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), endpoint.isImplicit());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -101,7 +100,7 @@ public abstract class BaseOpenIdTokenEndpointTests<T extends BaseOpenIdAuthoriza
                             () -> assertNotNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ID_TOKEN)),
                             () -> assertNotNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_REFRESH_TOKEN))
                     );
-                    if(additionalValidation != null)
+                    if (additionalValidation != null)
                         additionalValidation.accept(exc);
                 });
     }

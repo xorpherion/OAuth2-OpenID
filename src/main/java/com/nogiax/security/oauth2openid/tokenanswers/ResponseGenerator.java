@@ -29,8 +29,8 @@ public abstract class ResponseGenerator {
         if (askedResponseType != null) {
             String[] askedFlows = askedResponseType.split(Pattern.quote(" "));
             for (String f : askedFlows)
-                for(String r : responseTypes)
-                    if(f.equals(r))
+                for (String r : responseTypes)
+                    if (f.equals(r))
                         return true;
         }
         return false;

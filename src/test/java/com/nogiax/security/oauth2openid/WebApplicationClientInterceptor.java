@@ -2,14 +2,10 @@ package com.nogiax.security.oauth2openid;
 
 import com.nogiax.security.oauth2openid.client.WebApplicationClient;
 import com.nogiax.security.oauth2openid.provider.MembraneSessionProvider;
-import com.predic8.membrane.annot.MCElement;
 import com.predic8.membrane.core.Router;
-import com.predic8.membrane.core.config.security.SSLParser;
 import com.predic8.membrane.core.exchange.Exchange;
 import com.predic8.membrane.core.interceptor.AbstractInterceptor;
 import com.predic8.membrane.core.interceptor.Outcome;
-import com.predic8.membrane.core.resolver.ResolverMap;
-import com.predic8.membrane.core.transport.ssl.StaticSSLContext;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -44,11 +40,11 @@ public class WebApplicationClientInterceptor extends AbstractInterceptor {
         return Outcome.CONTINUE;
     }
 
-    private String getFixedDestination(Exchange exc){
+    private String getFixedDestination(Exchange exc) {
         String destination = exc.getDestinations().get(0);
-        if(destination.contains("[") && destination.contains("]")){
-            destination = destination.replace("http://[","");
-            destination = destination.replace("]","");
+        if (destination.contains("[") && destination.contains("]")) {
+            destination = destination.replace("http://[", "");
+            destination = destination.replace("]", "");
         }
         return destination;
     }

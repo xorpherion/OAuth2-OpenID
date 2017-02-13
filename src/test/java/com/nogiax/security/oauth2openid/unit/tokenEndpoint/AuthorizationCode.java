@@ -5,9 +5,7 @@ import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.Util;
-import com.nogiax.security.oauth2openid.server.AuthorizationServer;
 import com.nogiax.security.oauth2openid.unit.Common;
-import com.nogiax.security.oauth2openid.unit.authorizationEndpoint.BaseAuthorizationEndpointTests;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -69,7 +67,6 @@ public class AuthorizationCode extends BaseTokenEndpointTests {
             }
         };
     }
-
 
 
     @Test

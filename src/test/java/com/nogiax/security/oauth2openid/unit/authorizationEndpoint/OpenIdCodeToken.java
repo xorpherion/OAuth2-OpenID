@@ -77,11 +77,11 @@ public class OpenIdCodeToken extends BaseOpenIdAuthorizationEndpointTests {
                 Common.getMethodName(),
                 () -> assertEquals(303, exc.getResponse().getStatuscode()),
                 () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath()),
-                () -> assertNotNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_CODE)),
-                () -> assertNotNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_ACCESS_TOKEN)),
-                () -> assertNotNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_EXPIRES_IN)),
-                () -> assertNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_ID_TOKEN)),
-                () -> assertEquals(ConstantsTest.CLIENT_DEFAULT_STATE, Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_STATE))
+                () -> assertNotNull(Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_CODE)),
+                () -> assertNotNull(Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_ACCESS_TOKEN)),
+                () -> assertNotNull(Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_EXPIRES_IN)),
+                () -> assertNull(Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_ID_TOKEN)),
+                () -> assertEquals(ConstantsTest.CLIENT_DEFAULT_STATE, Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_STATE))
         );
     }
 }

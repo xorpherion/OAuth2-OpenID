@@ -39,7 +39,7 @@ public class Common {
         }
     }
 
-    public static IdTokenProvider getIdTokenProvider(){
+    public static IdTokenProvider getIdTokenProvider() {
         return idTokenProvider;
     }
 
@@ -60,7 +60,7 @@ public class Common {
     }
 
     public static Exchange createAuthRequest(String responseType, String clientId, String redirectUrl, String scope, String state) throws URISyntaxException {
-        return createOpenIdAuthRequest(responseType,clientId,redirectUrl,scope,state,null,null,null,null,null,null,null,null);
+        return createOpenIdAuthRequest(responseType, clientId, redirectUrl, scope, state, null, null, null, null, null, null, null, null);
     }
 
     public static Exchange createOpenIdAuthRequest(String responseType, String clientId, String redirectUrl, String scope, String state, String responseMode, String nonce, String prompt, String maxAge, String idTokenHint, String loginHint, String authenticationContextClass, String claims) throws URISyntaxException {
@@ -73,12 +73,12 @@ public class Common {
                 Constants.PARAMETER_RESPONSE_MODE, responseMode,
                 Constants.PARAMETER_NONCE, nonce,
                 Constants.PARAMETER_PROMPT, prompt,
-                Constants.PARAMETER_MAX_AGE,maxAge,
-                Constants.PARAMETER_ID_TOKEN_HINT,idTokenHint,
+                Constants.PARAMETER_MAX_AGE, maxAge,
+                Constants.PARAMETER_ID_TOKEN_HINT, idTokenHint,
                 Constants.PARAMETER_LOGIN_HINT, loginHint,
                 Constants.PARAMETER_ACR_VALUES, authenticationContextClass,
                 Constants.PARAMETER_CLAIMS, claims,
-                Constants.PARAMETER_DISPLAY,"349872309482390489272390842075",
+                Constants.PARAMETER_DISPLAY, "349872309482390489272390842075",
                 Constants.PARAMETER_UI_LOCALES, "38754385837"
         );
         params = Parameters.stripEmptyParams(params);
@@ -96,18 +96,18 @@ public class Common {
                 Constants.PARAMETER_RESPONSE_MODE, responseMode,
                 Constants.PARAMETER_NONCE, nonce,
                 Constants.PARAMETER_PROMPT, prompt,
-                Constants.PARAMETER_MAX_AGE,maxAge,
-                Constants.PARAMETER_ID_TOKEN_HINT,idTokenHint,
+                Constants.PARAMETER_MAX_AGE, maxAge,
+                Constants.PARAMETER_ID_TOKEN_HINT, idTokenHint,
                 Constants.PARAMETER_LOGIN_HINT, loginHint,
                 Constants.PARAMETER_ACR_VALUES, authenticationContextClass,
                 Constants.PARAMETER_CLAIMS, claims,
-                Constants.PARAMETER_DISPLAY,"349872309482390489272390842075",
+                Constants.PARAMETER_DISPLAY, "349872309482390489272390842075",
                 Constants.PARAMETER_UI_LOCALES, "38754385837"
         );
         params = Parameters.stripEmptyParams(params);
-        if(method == Method.GET)
+        if (method == Method.GET)
             return new RequestBuilder().uri(ConstantsTest.SERVER_AUTHORIZATION_ENDPOINT + "?" + UriUtil.parametersToQuery(params)).method(method).buildExchange();
-        if(method == Method.POST)
+        if (method == Method.POST)
             return new RequestBuilder().uri(ConstantsTest.SERVER_AUTHORIZATION_ENDPOINT).body(UriUtil.parametersToQuery(params)).method(method).buildExchange();
         throw new RuntimeException();
     }
@@ -124,8 +124,8 @@ public class Common {
         return UriUtil.queryToParameters(new URI(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION)).getFragment());
     }
 
-    public static Map<String,String> getParamsFromRedirectResponse(Exchange exc, boolean useFragment) throws URISyntaxException {
-        if(useFragment)
+    public static Map<String, String> getParamsFromRedirectResponse(Exchange exc, boolean useFragment) throws URISyntaxException {
+        if (useFragment)
             return getFragmentParamsFromRedirectResponse(exc);
         return getQueryParamsFromRedirectResponse(exc);
     }
@@ -172,18 +172,18 @@ public class Common {
     }
 
     public static Exchange preStepAndTokenRequest(Supplier<Exchange> preStep, String grantType, String redirectUri, String scope, String clientId, String clientSecret, String username, String password) throws Exception {
-        return preStepAndTokenRequest(preStep,grantType,redirectUri,scope,clientId,clientSecret,username,password,false);
+        return preStepAndTokenRequest(preStep, grantType, redirectUri, scope, clientId, clientSecret, username, password, false);
     }
 
-    public static Exchange preStepAndTokenRequest(Supplier<Exchange> preStep, String grantType, String redirectUri, String scope, String clientId, String clientSecret, String username, String password,boolean useFragment) throws Exception {
+    public static Exchange preStepAndTokenRequest(Supplier<Exchange> preStep, String grantType, String redirectUri, String scope, String clientId, String clientSecret, String username, String password, boolean useFragment) throws Exception {
         String cookie = null;
         String code = null;
         if (preStep != null) {
             Exchange exc = preStep.get();
             cookie = extractSessionCookie(exc);
-            code = Common.getParamsFromRedirectResponse(exc,useFragment).get(Constants.PARAMETER_CODE);
-            if(code == null)
-                code = Common.getParamsFromRedirectResponse(exc,!useFragment).get(Constants.PARAMETER_CODE);
+            code = Common.getParamsFromRedirectResponse(exc, useFragment).get(Constants.PARAMETER_CODE);
+            if (code == null)
+                code = Common.getParamsFromRedirectResponse(exc, !useFragment).get(Constants.PARAMETER_CODE);
         }
 
 
@@ -214,7 +214,9 @@ public class Common {
     }
 
     public static Exchange preStepAndRefreshTokenRequest(Supplier<Exchange> preStep, String scope, String clientId, String clientSecret) throws IOException, URISyntaxException {
-        return preStepAndRefreshTokenRequest(preStep.get(),scope,clientId,clientSecret);}
+        return preStepAndRefreshTokenRequest(preStep.get(), scope, clientId, clientSecret);
+    }
+
     public static Exchange preStepAndRefreshTokenRequest(Exchange preStep, String scope, String clientId, String clientSecret) throws IOException, URISyntaxException {
 
         Exchange exc = preStep;

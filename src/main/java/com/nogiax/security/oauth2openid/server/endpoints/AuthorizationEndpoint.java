@@ -9,8 +9,6 @@ import com.nogiax.security.oauth2openid.tokenanswers.CombinedResponseGenerator;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,29 +50,29 @@ public class AuthorizationEndpoint extends Endpoint {
             }
 
             if (params.get(Constants.PARAMETER_RESPONSE_TYPE) == null || params.get(Constants.PARAMETER_CLIENT_ID) == null || params.get(Constants.PARAMETER_REDIRECT_URI) == null) {
-                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE),false));
+                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE), false));
                 return;
             }
 
             if (!responseTypeIsSupported(params.get(Constants.PARAMETER_RESPONSE_TYPE))) {
-                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_UNSUPPORTED_RESPONSE_TYPE, params.get(Constants.PARAMETER_STATE),false));
+                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_UNSUPPORTED_RESPONSE_TYPE, params.get(Constants.PARAMETER_STATE), false));
                 return;
             }
-            session.putValue(Constants.PARAMETER_RESPONSE_TYPE,params.get(Constants.PARAMETER_RESPONSE_TYPE));
+            session.putValue(Constants.PARAMETER_RESPONSE_TYPE, params.get(Constants.PARAMETER_RESPONSE_TYPE));
 
-            if(hasOpenIdScope(exc))
-                if(params.get(Constants.PARAMETER_RESPONSE_TYPE).equals(Constants.PARAMETER_VALUE_TOKEN) && params.get(Constants.PARAMETER_NONCE) == null){
-                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE),setToResponseModeOrUseDefault(exc,session)));
+            if (hasOpenIdScope(exc))
+                if (params.get(Constants.PARAMETER_RESPONSE_TYPE).equals(Constants.PARAMETER_VALUE_TOKEN) && params.get(Constants.PARAMETER_NONCE) == null) {
+                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                     return;
                 }
 
             if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE))) {
-                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_SCOPE, params.get(Constants.PARAMETER_STATE),setToResponseModeOrUseDefault(exc,session)));
+                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_SCOPE, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                 return;
             }
-            if(isLoggedIn(exc) && session.getValue(Constants.PARAMETER_MAX_AGE) != null){
+            if (isLoggedIn(exc) && session.getValue(Constants.PARAMETER_MAX_AGE) != null) {
                 Duration maxAge = Duration.ofSeconds(Integer.parseInt(session.getValue(Constants.PARAMETER_MAX_AGE))); // cant throw, is only in session when it is an int
-                if(Instant.now().isAfter(Instant.ofEpochSecond(Long.parseLong(session.getValue(Constants.PARAMETER_AUTH_TIME))).plus(maxAge)))
+                if (Instant.now().isAfter(Instant.ofEpochSecond(Long.parseLong(session.getValue(Constants.PARAMETER_AUTH_TIME))).plus(maxAge)))
                     session.clear();
             }
 
@@ -85,27 +83,27 @@ public class AuthorizationEndpoint extends Endpoint {
                         session.clear();
                     if (prompt.equals(Constants.PARAMETER_VALUE_NONE))
                         if (!isLoggedInAndHasGivenConsent(exc)) {
-                            exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INTERACTION_REQUIRED, params.get(Constants.PARAMETER_STATE),setToResponseModeOrUseDefault(exc,session)));
+                            exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INTERACTION_REQUIRED, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                             return;
                         }
                 }
-                if(params.get(Constants.PARAMETER_MAX_AGE) != null){
+                if (params.get(Constants.PARAMETER_MAX_AGE) != null) {
                     try {
                         int maxAge = Integer.parseInt(params.get(Constants.PARAMETER_MAX_AGE));
-                        if(maxAge < 0)
+                        if (maxAge < 0)
                             throw new RuntimeException(); // exception is used as control flow only because Integer.parseInt throws anyway on error
-                    }catch(Exception e){
-                        exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE),setToResponseModeOrUseDefault(exc,session)));
+                    } catch (Exception e) {
+                        exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                         return;
                     }
                 }
 
                 if (params.containsKey(Constants.PARAMETER_REQUEST)) {
-                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_REQUEST_NOT_SUPPORTED, params.get(Constants.PARAMETER_STATE),setToResponseModeOrUseDefault(exc,session)));
+                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_REQUEST_NOT_SUPPORTED, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                     return;
                 }
                 if (params.containsKey(Constants.PARAMETER_REQUEST_URI)) {
-                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_REQUEST_URI_NOT_SUPPORTED, params.get(Constants.PARAMETER_STATE),setToResponseModeOrUseDefault(exc,session)));
+                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_REQUEST_URI_NOT_SUPPORTED, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                     return;
                 }
             }
@@ -135,8 +133,8 @@ public class AuthorizationEndpoint extends Endpoint {
         supported.add(Constants.PARAMETER_VALUE_NONE);
 
         String[] responseTypes = responseType.split(Pattern.quote(" "));
-        for(String rType : responseTypes)
-            if(!supported.contains(rType))
+        for (String rType : responseTypes)
+            if (!supported.contains(rType))
                 return false;
         return true;
     }
@@ -158,22 +156,21 @@ public class AuthorizationEndpoint extends Endpoint {
     }
 
 
-
     private String responseTypeToResponseGeneratorValue(String responseType) {
         StringBuilder builder = new StringBuilder();
 
         String copy = responseType;
 
         if (copy.contains(Constants.PARAMETER_VALUE_CODE)) {
-            copy = copy.replace(Constants.PARAMETER_VALUE_CODE,"").trim();
+            copy = copy.replace(Constants.PARAMETER_VALUE_CODE, "").trim();
             builder.append(Constants.TOKEN_TYPE_CODE).append(" ");
         }
         if (copy.contains(Constants.PARAMETER_VALUE_ID_TOKEN)) {
-            copy = copy.replace(Constants.PARAMETER_VALUE_ID_TOKEN,"").trim();
+            copy = copy.replace(Constants.PARAMETER_VALUE_ID_TOKEN, "").trim();
             builder.append(Constants.TOKEN_TYPE_ID_TOKEN).append(" ");
         }
         if (copy.contains(Constants.PARAMETER_VALUE_TOKEN)) {
-            copy = copy.replace(Constants.PARAMETER_VALUE_TOKEN,"").trim();
+            copy = copy.replace(Constants.PARAMETER_VALUE_TOKEN, "").trim();
             builder.append(Constants.TOKEN_TYPE_ID_TOKEN).append(" ");
         }
 
@@ -186,7 +183,7 @@ public class AuthorizationEndpoint extends Endpoint {
     @Override
     public String getScope(Exchange exc) throws Exception {
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
-        if(!params.isEmpty() && params.get(Constants.PARAMETER_SCOPE) != null)
+        if (!params.isEmpty() && params.get(Constants.PARAMETER_SCOPE) != null)
             return params.get(Constants.PARAMETER_SCOPE);
         return serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_SCOPE);
     }

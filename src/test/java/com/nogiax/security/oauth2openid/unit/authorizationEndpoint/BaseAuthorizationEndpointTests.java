@@ -5,20 +5,16 @@ import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.MembraneServerFunctionality;
 import com.nogiax.security.oauth2openid.server.AuthorizationServer;
-import com.nogiax.security.oauth2openid.server.SupportedClaims;
-import com.nogiax.security.oauth2openid.token.IdTokenProvider;
 import com.nogiax.security.oauth2openid.unit.Common;
-import org.jose4j.lang.JoseException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Created by Xorpherion on 05.02.2017.
@@ -33,18 +29,22 @@ public abstract class BaseAuthorizationEndpointTests {
 
     @BeforeEach
     public void setUp() throws Exception {
-        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER),Common.getIdTokenProvider());
+        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER), Common.getIdTokenProvider());
     }
 
     public abstract String getResponseType();
+
     public abstract String getClientId();
+
     public abstract String getRedirectUri();
+
     public abstract String getScope();
+
     public abstract String getState();
+
     public abstract boolean isImplicit();
 
     public abstract Consumer<Exchange> validateResultPostLogin();
-
 
 
     public BaseAuthorizationEndpointTests init(AuthorizationServer server) {
@@ -57,7 +57,7 @@ public abstract class BaseAuthorizationEndpointTests {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(),getClientId(),getRedirectUri(),getScope(),getState());
+                        return Common.createAuthRequest(getResponseType(), getClientId(), getRedirectUri(), getScope(), getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -90,7 +90,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(),getClientId() + "NoCorrectClientId",getRedirectUri(),getScope(),getState());
+                        return Common.createAuthRequest(getResponseType(), getClientId() + "NoCorrectClientId", getRedirectUri(), getScope(), getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -109,7 +109,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(),null,getRedirectUri(),getScope(),getState());
+                        return Common.createAuthRequest(getResponseType(), null, getRedirectUri(), getScope(), getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -128,7 +128,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(),getClientId(),getRedirectUri()+"somethingsomething",getScope(),getState());
+                        return Common.createAuthRequest(getResponseType(), getClientId(), getRedirectUri() + "somethingsomething", getScope(), getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -147,7 +147,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(),getClientId(),null,getScope(),getState());
+                        return Common.createAuthRequest(getResponseType(), getClientId(), null, getScope(), getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -166,7 +166,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType()+123,getClientId(),getRedirectUri(),getScope(),getState());
+                        return Common.createAuthRequest(getResponseType() + 123, getClientId(), getRedirectUri(), getScope(), getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -174,7 +174,7 @@ public abstract class BaseAuthorizationEndpointTests {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(Constants.ERROR_UNSUPPORTED_RESPONSE_TYPE, Common.getParamsFromRedirectResponse(exc,false).get(Constants.PARAMETER_ERROR)),
+                            () -> assertEquals(Constants.ERROR_UNSUPPORTED_RESPONSE_TYPE, Common.getParamsFromRedirectResponse(exc, false).get(Constants.PARAMETER_ERROR)),
                             () -> assertEquals(303, exc.getResponse().getStatuscode()),
                             () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath())
                     );
@@ -186,7 +186,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(null,getClientId(),getRedirectUri(),getScope(),getState());
+                        return Common.createAuthRequest(null, getClientId(), getRedirectUri(), getScope(), getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -194,7 +194,7 @@ public abstract class BaseAuthorizationEndpointTests {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getParamsFromRedirectResponse(exc,false).get(Constants.PARAMETER_ERROR)),
+                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getParamsFromRedirectResponse(exc, false).get(Constants.PARAMETER_ERROR)),
                             () -> assertEquals(303, exc.getResponse().getStatuscode()),
                             () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath())
                     );
@@ -206,7 +206,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(),getClientId(),getRedirectUri(),"this is surely not a valid scope",getState());
+                        return Common.createAuthRequest(getResponseType(), getClientId(), getRedirectUri(), "this is surely not a valid scope", getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -214,7 +214,7 @@ public abstract class BaseAuthorizationEndpointTests {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(Constants.ERROR_INVALID_SCOPE, Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_ERROR)),
+                            () -> assertEquals(Constants.ERROR_INVALID_SCOPE, Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_ERROR)),
                             () -> assertEquals(303, exc.getResponse().getStatuscode()),
                             () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath())
                     );
@@ -226,7 +226,7 @@ public abstract class BaseAuthorizationEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.createAuthRequest(getResponseType(),getClientId(),getRedirectUri(),null,getState());
+                        return Common.createAuthRequest(getResponseType(), getClientId(), getRedirectUri(), null, getState());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -234,7 +234,7 @@ public abstract class BaseAuthorizationEndpointTests {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(Constants.ERROR_INVALID_SCOPE, Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_ERROR)),
+                            () -> assertEquals(Constants.ERROR_INVALID_SCOPE, Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_ERROR)),
                             () -> assertEquals(303, exc.getResponse().getStatuscode()),
                             () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath())
                     );
@@ -340,7 +340,7 @@ public abstract class BaseAuthorizationEndpointTests {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(Constants.ERROR_ACCESS_DENIED, Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_ERROR)),
+                            () -> assertEquals(Constants.ERROR_ACCESS_DENIED, Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_ERROR)),
                             () -> assertEquals(303, exc.getResponse().getStatuscode()),
                             () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath())
                     );

@@ -24,7 +24,7 @@ public class CombinedTokenManager {
         this(new IdTokenProvider());
     }
 
-    public CombinedTokenManager(IdTokenProvider idTokenProvider){
+    public CombinedTokenManager(IdTokenProvider idTokenProvider) {
         this.idTokenProvider = idTokenProvider;
         tokenProvider = new BearerTokenProvider();
 

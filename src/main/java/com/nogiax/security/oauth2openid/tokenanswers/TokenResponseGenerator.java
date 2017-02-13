@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  */
 public class TokenResponseGenerator extends ResponseGenerator {
     public TokenResponseGenerator(ServerServices serverServices, Exchange exc) {
-        super(serverServices, exc,Constants.TOKEN_TYPE_TOKEN, Constants.TOKEN_TYPE_ID_TOKEN);
+        super(serverServices, exc, Constants.TOKEN_TYPE_TOKEN, Constants.TOKEN_TYPE_ID_TOKEN);
     }
 
     @Override
@@ -45,9 +45,9 @@ public class TokenResponseGenerator extends ResponseGenerator {
         }
 
         Map<String, String> result = new HashMap<>();
-        result.put(Constants.PARAMETER_STATE,state);
+        result.put(Constants.PARAMETER_STATE, state);
         String accessTokenValue = null;
-        if(responseTypes.contains(Constants.PARAMETER_VALUE_TOKEN)) {
+        if (responseTypes.contains(Constants.PARAMETER_VALUE_TOKEN)) {
             Token accessToken = getTokenManager().addTokenToManager(getTokenManager().getAccessTokens(), getTokenManager().createChildBearerTokenWithDefaultDuration(parentToken));
             Token refreshToken = getTokenManager().addTokenToManager(getTokenManager().getRefreshTokens(), getTokenManager().createChildBearerToken(Token.getDefaultValidForLong(), parentToken));
 
@@ -69,9 +69,9 @@ public class TokenResponseGenerator extends ResponseGenerator {
             Map<String, String> idTokenClaims = getServerServices().getProvidedServices().getUserDataProvider().getClaims(username, idTokenClaimNames);
 
             idTokenClaims.put(Constants.CLAIM_AT_HASH, Util.atHashFromValue(Constants.ALG_SHA_256, accessTokenValue));
-            idTokenClaims.put(Constants.CLAIM_C_HASH,Util.atHashFromValue(Constants.ALG_SHA_256,code));
-            idTokenClaims.put(Constants.PARAMETER_NONCE,nonce);
-            idTokenClaims.put(Constants.PARAMETER_AUTH_TIME,authTime);
+            idTokenClaims.put(Constants.CLAIM_C_HASH, Util.atHashFromValue(Constants.ALG_SHA_256, code));
+            idTokenClaims.put(Constants.PARAMETER_NONCE, nonce);
+            idTokenClaims.put(Constants.PARAMETER_AUTH_TIME, authTime);
 
             Token idToken = getServerServices().getTokenManager().createChildIdToken(getIssuer(), getSubClaim(username), clientId, Token.getDefaultValidFor(), authTime, nonce, idTokenClaims, parentToken);
 

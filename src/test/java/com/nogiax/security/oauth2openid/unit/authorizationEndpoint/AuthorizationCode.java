@@ -3,10 +3,8 @@ package com.nogiax.security.oauth2openid.unit.authorizationEndpoint;
 import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
-import com.nogiax.security.oauth2openid.server.AuthorizationServer;
 import com.nogiax.security.oauth2openid.unit.Common;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.function.Consumer;
@@ -55,10 +53,10 @@ public class AuthorizationCode extends BaseAuthorizationEndpointTests {
                 Common.getMethodName(),
                 () -> assertEquals(303, exc.getResponse().getStatuscode()),
                 () -> assertEquals(new URI(ConstantsTest.CLIENT_DEFAULT_REDIRECT_URI).getPath(), Common.getResponseLocationHeaderAsUri(exc).getPath()),
-                () -> assertNotNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_CODE)),
-                () -> assertNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_ACCESS_TOKEN)),
-                () -> assertNull(Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_EXPIRES_IN)),
-                () -> assertEquals(ConstantsTest.CLIENT_DEFAULT_STATE, Common.getParamsFromRedirectResponse(exc,isImplicit()).get(Constants.PARAMETER_STATE))
+                () -> assertNotNull(Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_CODE)),
+                () -> assertNull(Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_ACCESS_TOKEN)),
+                () -> assertNull(Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_EXPIRES_IN)),
+                () -> assertEquals(ConstantsTest.CLIENT_DEFAULT_STATE, Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_STATE))
         );
     }
 

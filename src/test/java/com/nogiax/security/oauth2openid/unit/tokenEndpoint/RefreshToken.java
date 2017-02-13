@@ -30,7 +30,7 @@ public class RefreshToken {
 
     @BeforeEach
     public void setUp() throws Exception {
-        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER),Common.getIdTokenProvider());
+        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER), Common.getIdTokenProvider());
     }
 
     public Supplier<Exchange> getPreStep() throws Exception {
@@ -38,7 +38,7 @@ public class RefreshToken {
             @Override
             public Exchange get() {
                 try {
-                    return ((AuthorizationCode)new AuthorizationCode().init(server)).goodRequest();
+                    return ((AuthorizationCode) new AuthorizationCode().init(server)).goodRequest();
                 } catch (Exception e) {
                     return null;
                 }

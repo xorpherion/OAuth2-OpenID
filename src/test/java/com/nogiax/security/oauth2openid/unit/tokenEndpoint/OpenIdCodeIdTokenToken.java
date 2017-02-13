@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * Created by Xorpherion on 12.02.2017.
@@ -33,13 +32,13 @@ public class OpenIdCodeIdTokenToken extends BaseOpenIdTokenEndpointTests<com.nog
                     IdTokenVerifier verifier = new IdTokenVerifier(jwk);
                     String idToken = Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ID_TOKEN);
                     String accessToken = Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ACCESS_TOKEN);
-                    Map<String,String> claims = verifier.verifyAndGetClaims(idToken,server.getServerServices().getProvidedServices().getIssuer(),getClientId());
+                    Map<String, String> claims = verifier.verifyAndGetClaims(idToken, server.getServerServices().getProvidedServices().getIssuer(), getClientId());
 
                     assertEquals(ConstantsTest.CLIENT_DEFAULT_NONCE, claims.get(Constants.PARAMETER_NONCE));
-                    assertEquals(Util.atHashFromValue(Constants.ALG_SHA_256,accessToken), claims.get(Constants.CLAIM_AT_HASH));
+                    assertEquals(Util.atHashFromValue(Constants.ALG_SHA_256, accessToken), claims.get(Constants.CLAIM_AT_HASH));
                     assertEquals(ConstantsTest.CUSTOM_CLAIM_VALUE, claims.get(ConstantsTest.CUSTOM_CLAIM_NAME));
                 } catch (Exception e) {
-                    assertEquals(1,0,e.getMessage());
+                    assertEquals(1, 0, e.getMessage());
                 }
             }
         };

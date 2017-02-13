@@ -1,37 +1,37 @@
 <spring:beans xmlns="http://membrane-soa.org/proxies/1/"
-	xmlns:spring="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+              xmlns:spring="http://www.springframework.org/schema/beans"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
 					    http://membrane-soa.org/proxies/1/ http://membrane-soa.org/schemas/proxies-1.xsd">
 
-		<spring:bean id="authServer" class="com.nogiax.security.oauth2openid.AuthorizationServerInterceptor">
+    <spring:bean id="authServer" class="com.nogiax.security.oauth2openid.AuthorizationServerInterceptor">
 
-		</spring:bean>
-		<spring:bean id="webAppClient" class="com.nogiax.security.oauth2openid.WebApplicationClientInterceptor">
+    </spring:bean>
+    <spring:bean id="webAppClient" class="com.nogiax.security.oauth2openid.WebApplicationClientInterceptor">
 
-		</spring:bean>
+    </spring:bean>
 
-	<router>
+    <router>
 
-		<serviceProxy name="ssl auth server" port="1337">
-			<ssl>
-				<keystore location="classpath://keystore.jks" password="secret" keyPassword="secret" />
-				<truststore location="classpath://keystore.jks" password="secret" />
-			</ssl>
-			<spring:ref bean="authServer"/>
-		</serviceProxy>
-	</router>
+        <serviceProxy name="ssl auth server" port="1337">
+            <ssl>
+                <keystore location="classpath://keystore.jks" password="secret" keyPassword="secret"/>
+                <truststore location="classpath://keystore.jks" password="secret"/>
+            </ssl>
+            <spring:ref bean="authServer"/>
+        </serviceProxy>
+    </router>
 
-	<router>
+    <router>
 
-		<serviceProxy name="ssl client" port="1338">
-			<ssl>
-				<keystore location="classpath://keystore.jks" password="secret" keyPassword="secret" />
-				<truststore location="classpath://keystore.jks" password="secret" />
-			</ssl>
-			<spring:ref bean="webAppClient"/>
-		</serviceProxy>
+        <serviceProxy name="ssl client" port="1338">
+            <ssl>
+                <keystore location="classpath://keystore.jks" password="secret" keyPassword="secret"/>
+                <truststore location="classpath://keystore.jks" password="secret"/>
+            </ssl>
+            <spring:ref bean="webAppClient"/>
+        </serviceProxy>
 
-	</router>
-	
+    </router>
+
 </spring:beans>

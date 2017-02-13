@@ -1,9 +1,6 @@
 package com.nogiax.security.oauth2openid.unit.tokenEndpoint;
 
-import com.nogiax.http.Exchange;
 import org.junit.jupiter.api.DisplayName;
-
-import java.util.function.Supplier;
 
 /**
  * Created by Xorpherion on 12.02.2017.

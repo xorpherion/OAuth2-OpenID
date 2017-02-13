@@ -23,7 +23,7 @@ public class Util {
     }
 
     public static String atHashFromValue(String alg, String accessToken) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        if(accessToken == null)
+        if (accessToken == null)
             return null;
         if (!alg.equals("SHA-256"))
             throw new RuntimeException("NYI");

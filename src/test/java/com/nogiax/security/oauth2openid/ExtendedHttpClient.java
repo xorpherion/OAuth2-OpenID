@@ -1,11 +1,7 @@
 package com.nogiax.security.oauth2openid;
 
-import com.predic8.membrane.core.config.security.SSLParser;
-import com.predic8.membrane.core.config.security.TrustStore;
 import com.predic8.membrane.core.exchange.Exchange;
 import com.predic8.membrane.core.transport.http.HttpClient;
-import com.predic8.membrane.core.transport.http.client.HttpClientConfiguration;
-import com.predic8.membrane.core.transport.http.client.ProxyConfiguration;
 import com.predic8.membrane.core.transport.ssl.SSLContext;
 
 import java.net.URI;
@@ -33,7 +29,7 @@ public class ExtendedHttpClient {
     public Exchange call(Exchange exc) throws Exception {
 
         exc.getRequest().getHeader().add("Cookie", foldCookies());
-        exc.setProperty(Exchange.SSL_CONTEXT,ctx);
+        exc.setProperty(Exchange.SSL_CONTEXT, ctx);
         Exchange res = client.call(exc);
         if (res.getResponse().getHeader().getFirstValue("Set-Cookie") != null)
             cookies.add(res.getResponse().getHeader().getFirstValue("Set-Cookie"));
@@ -51,7 +47,7 @@ public class ExtendedHttpClient {
             res.getDestinations().add(responseProtectedResource.getResponse().getHeader().getFirstValue(Constants.HEADER_LOCATION));
             return res;
         } else {
-            uri = new URI(ConstantsTest.PROTOCOL+"://" + responseProtectedResource.getRequest().getHeader().getHost() + responseProtectedResource.getResponse().getHeader().getFirstValue(Constants.HEADER_LOCATION));
+            uri = new URI(ConstantsTest.PROTOCOL + "://" + responseProtectedResource.getRequest().getHeader().getHost() + responseProtectedResource.getResponse().getHeader().getFirstValue(Constants.HEADER_LOCATION));
             Exchange res = new com.predic8.membrane.core.http.Request.Builder().get(uri.toString()).buildExchange();
             responseProtectedResource.setOriginalRequestUri(uri.toString());
             res.getDestinations().clear();

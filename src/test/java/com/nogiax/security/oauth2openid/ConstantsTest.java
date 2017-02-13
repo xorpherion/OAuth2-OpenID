@@ -5,7 +5,7 @@ package com.nogiax.security.oauth2openid;
  */
 public class ConstantsTest {
     public static final String PROTOCOL = "https";
-    public static final String HOST_LOCALHOST = PROTOCOL+"://localhost";
+    public static final String HOST_LOCALHOST = PROTOCOL + "://localhost";
 
     public static final String HOST_AUTHORIZATION_SERVER = HOST_LOCALHOST;
     public static final int PORT_AUTHORIZATION_SERVER = 1337;

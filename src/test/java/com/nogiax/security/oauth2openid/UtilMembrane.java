@@ -18,7 +18,6 @@ import com.predic8.membrane.core.resolver.ResolverMap;
 import com.predic8.membrane.core.rules.AbstractServiceProxy;
 import com.predic8.membrane.core.rules.ServiceProxy;
 import com.predic8.membrane.core.rules.ServiceProxyKey;
-import com.predic8.membrane.core.transport.ssl.GeneratingSSLContext;
 import com.predic8.membrane.core.transport.ssl.SSLContext;
 import com.predic8.membrane.core.transport.ssl.StaticSSLContext;
 
@@ -105,14 +104,14 @@ public class UtilMembrane {
     private static ServiceProxy createServiceProxy(int spPort, AbstractServiceProxy.Target target, AbstractInterceptor... interceptors) {
         if (target == null)
             target = new AbstractServiceProxy.Target(null, -1);
-        if(ConstantsTest.PROTOCOL.equals("https") && target.getSslParser() == null) {
+        if (ConstantsTest.PROTOCOL.equals("https") && target.getSslParser() == null) {
             SSLParser parser = new SSLParser();
             target.setSslParser(parser);
         }
 
         ServiceProxy sp = new ServiceProxy(new ServiceProxyKey(spPort), target.getHost(), target.getPort());
 
-        if(ConstantsTest.PROTOCOL.equals("https")) {
+        if (ConstantsTest.PROTOCOL.equals("https")) {
             SSLParser ssl = new SSLParser();
             ssl.setKeyStore(new KeyStore());
             ssl.getKeyStore().setLocation("classpath:/keystore.jks");
@@ -171,7 +170,7 @@ public class UtilMembrane {
     }
 
     public static SSLContext doNotValidateSSLCertificate() {
-        if(ConstantsTest.PROTOCOL.equals("https")) {
+        if (ConstantsTest.PROTOCOL.equals("https")) {
             SSLParser parser = new SSLParser();
             parser.setTrustStore(new TrustStore());
             parser.getTrustStore().setLocation("classpath:/keystore.jks");

@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
@@ -98,7 +97,7 @@ public class WebApplicationClient {
 
         Exchange origExc = originalRequestsForState.getIfPresent(params.get(Constants.PARAMETER_STATE));
         exc.setRequest(origExc.getRequest());
-        exc.getRequest().getHeader().append(Constants.HEADER_COOKIE,accessTokenRequest.getRequest().getHeader().getValue(Constants.HEADER_COOKIE));
+        exc.getRequest().getHeader().append(Constants.HEADER_COOKIE, accessTokenRequest.getRequest().getHeader().getValue(Constants.HEADER_COOKIE));
         exc.setResponse(doRequestWithToken(exc));
         return exc;
     }

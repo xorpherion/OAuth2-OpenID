@@ -13,9 +13,6 @@ import com.nogiax.security.oauth2openid.Session;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,7 +45,7 @@ public class LoginEndpoint extends Endpoint {
         Map<String, String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         if (!params.containsKey(Constants.LOGIN_CONSENT) || params.get(Constants.LOGIN_CONSENT).equals(Constants.VALUE_NO)) {
-            exc.setResponse(redirectToCallbackWithError(session.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED, session.getValue(Constants.SESSION_LOGIN_STATE),setToResponseModeOrUseDefault(exc,session)));
+            exc.setResponse(redirectToCallbackWithError(session.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED, session.getValue(Constants.SESSION_LOGIN_STATE), setToResponseModeOrUseDefault(exc, session)));
             return;
         }
 
