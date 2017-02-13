@@ -46,4 +46,10 @@ public class MembraneUserDataProvider implements UserDataProvider {
             return "N/A";
         return users.get(username).getClaims().get(Constants.CLAIM_SUB);
     }
+
+    @Override
+    public void badLogin(String username) {
+        if(users.containsKey(username))
+            System.out.println("Bad login for " + username + ". Sending email to user.");
+    }
 }

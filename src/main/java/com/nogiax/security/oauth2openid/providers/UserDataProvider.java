@@ -12,4 +12,6 @@ public interface UserDataProvider {
     Map<String, String> getClaims(String username, Set<String> claims);
 
     String getSubClaim(String username);
+
+    void badLogin(String username);
 }

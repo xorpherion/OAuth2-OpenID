@@ -77,6 +77,7 @@ public class LoginEndpoint extends Endpoint {
         String username = params.get(Constants.LOGIN_USERNAME);
         String password = params.get(Constants.LOGIN_PASSWORD);
         if (!serverServices.getProvidedServices().getUserDataProvider().verifyUser(username, password)) {
+            serverServices.getProvidedServices().getUserDataProvider().badLogin(username);
             Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
             session.putValue(Constants.SESSION_REDIRECT_FROM_ERROR, Constants.VALUE_YES);
             exc.setResponse(redirectToLogin(couldNotVerifyUserError(session)));
@@ -84,6 +85,7 @@ public class LoginEndpoint extends Endpoint {
         }
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         if (params.get(Constants.SESSION_LOGIN_STATE) == null || !params.get(Constants.SESSION_LOGIN_STATE).equals(session.getValue(Constants.SESSION_LOGIN_STATE))) {
+            serverServices.getProvidedServices().getUserDataProvider().badLogin(username);
             session.putValue(Constants.SESSION_REDIRECT_FROM_ERROR, Constants.VALUE_YES);
             exc.setResponse(redirectToLogin(possibleCSRFError(session)));
             return;
