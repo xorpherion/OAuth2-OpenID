@@ -3,9 +3,9 @@ package com.nogiax.security.oauth2openid.server.endpoints;
 import com.nogiax.http.Exchange;
 import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
-import com.nogiax.security.oauth2openid.ServerServices;
-import com.nogiax.security.oauth2openid.Session;
-import com.nogiax.security.oauth2openid.tokenanswers.CombinedResponseGenerator;
+import com.nogiax.security.oauth2openid.server.ServerServices;
+import com.nogiax.security.oauth2openid.providers.Session;
+import com.nogiax.security.oauth2openid.responsegenerators.CombinedResponseGenerator;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -38,18 +38,15 @@ public class AuthorizationEndpoint extends Endpoint {
         //log.info("Authorization endpoint oauth2");
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
 
-        if (exc.getRequest().getUri().getPath().endsWith(Constants.ENDPOINT_AUTHORIZATION)) {
-            Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
-            if (params.isEmpty())
-                params = UriUtil.queryToParameters(exc.getRequest().getBody());
-            params = Parameters.stripEmptyParams(params);
+        if (requestTargetsTheAuthorizationEndpoint(exc)) {
+            Map<String, String> params = getParams(exc);
 
             if (redirectUriOrClientIdProblem(params)) {
                 exc.setResponse(informResourceOwnerError(Constants.ERROR_INVALID_REQUEST));
                 return;
             }
 
-            if (params.get(Constants.PARAMETER_RESPONSE_TYPE) == null || params.get(Constants.PARAMETER_CLIENT_ID) == null || params.get(Constants.PARAMETER_REDIRECT_URI) == null) {
+            if (params.get(Constants.PARAMETER_RESPONSE_TYPE) == null) {
                 exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE), false));
                 return;
             }
@@ -59,9 +56,11 @@ public class AuthorizationEndpoint extends Endpoint {
                 return;
             }
             session.putValue(Constants.PARAMETER_RESPONSE_TYPE, params.get(Constants.PARAMETER_RESPONSE_TYPE));
+            if(params.get(Constants.PARAMETER_RESPONSE_MODE) != null)
+                session.putValue(Constants.PARAMETER_RESPONSE_MODE, params.get(Constants.PARAMETER_RESPONSE_MODE));
 
             if (hasOpenIdScope(exc))
-                if (params.get(Constants.PARAMETER_RESPONSE_TYPE).equals(Constants.PARAMETER_VALUE_TOKEN) && params.get(Constants.PARAMETER_NONCE) == null) {
+                if (isImplicitFlowAndHasNoNonceValue(params)) {
                     exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                     return;
                 }
@@ -70,7 +69,8 @@ public class AuthorizationEndpoint extends Endpoint {
                 exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_SCOPE, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                 return;
             }
-            if (isLoggedIn(exc) && session.getValue(Constants.PARAMETER_MAX_AGE) != null) {
+
+            if (isLoggedIn(exc) && hasAMaximumAuthenticationAgeFromBefore(session)) {
                 Duration maxAge = Duration.ofSeconds(Integer.parseInt(session.getValue(Constants.PARAMETER_MAX_AGE))); // cant throw, is only in session when it is an int
                 if (Instant.now().isAfter(Instant.ofEpochSecond(Long.parseLong(session.getValue(Constants.PARAMETER_AUTH_TIME))).plus(maxAge)))
                     session.clear();
@@ -114,15 +114,35 @@ public class AuthorizationEndpoint extends Endpoint {
                 exc.setResponse(redirectToLogin(jsParams));
                 return;
             }
-            anserWithAuthorizationCode(exc, session);
+            answerWithToken(exc, session);
         } else {
             // this is ENDPOINT_AFTER_LOGIN
             if (isLoggedInAndHasGivenConsent(exc)) {
-                anserWithAuthorizationCode(exc, session);
+                answerWithToken(exc, session);
             } else
-                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+                exc.setResponse(redirectToCallbackWithError(session.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED, session.getValue(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
         }
 
+    }
+
+    private boolean isImplicitFlowAndHasNoNonceValue(Map<String, String> params) {
+        return params.get(Constants.PARAMETER_RESPONSE_TYPE).equals(Constants.PARAMETER_VALUE_TOKEN) && params.get(Constants.PARAMETER_NONCE) == null;
+    }
+
+    private boolean hasAMaximumAuthenticationAgeFromBefore(Session session) throws Exception {
+        return session.getValue(Constants.PARAMETER_MAX_AGE) != null;
+    }
+
+    private Map<String, String> getParams(Exchange exc) {
+        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
+        if (params.isEmpty())
+            params = UriUtil.queryToParameters(exc.getRequest().getBody());
+        params = Parameters.stripEmptyParams(params);
+        return params;
+    }
+
+    private boolean requestTargetsTheAuthorizationEndpoint(Exchange exc) {
+        return exc.getRequest().getUri().getPath().endsWith(Constants.ENDPOINT_AUTHORIZATION);
     }
 
     private boolean responseTypeIsSupported(String responseType) {
@@ -144,7 +164,7 @@ public class AuthorizationEndpoint extends Endpoint {
             session.putValue(param, params.get(param));
     }
 
-    private void anserWithAuthorizationCode(Exchange exc, Session session) throws Exception {
+    private void answerWithToken(Exchange exc, Session session) throws Exception {
         //System.out.println("logged in and consent");
         session.putValue(Constants.SESSION_ENDPOINT, Constants.ENDPOINT_AUTHORIZATION);
         String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);

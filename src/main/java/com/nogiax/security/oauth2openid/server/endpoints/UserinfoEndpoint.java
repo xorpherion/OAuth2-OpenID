@@ -2,7 +2,7 @@ package com.nogiax.security.oauth2openid.server.endpoints;
 
 import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
-import com.nogiax.security.oauth2openid.ServerServices;
+import com.nogiax.security.oauth2openid.server.ServerServices;
 import com.nogiax.security.oauth2openid.token.Token;
 
 import java.util.HashMap;

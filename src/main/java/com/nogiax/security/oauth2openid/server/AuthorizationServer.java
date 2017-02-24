@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nogiax.http.Exchange;
 import com.nogiax.http.ResponseBuilder;
 import com.nogiax.security.oauth2openid.Constants;
-import com.nogiax.security.oauth2openid.ProvidedServices;
-import com.nogiax.security.oauth2openid.ServerServices;
 import com.nogiax.security.oauth2openid.server.endpoints.*;
 import com.nogiax.security.oauth2openid.token.IdTokenProvider;
 import org.jose4j.lang.JoseException;

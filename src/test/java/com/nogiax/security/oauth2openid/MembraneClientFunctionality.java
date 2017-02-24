@@ -1,5 +1,6 @@
 package com.nogiax.security.oauth2openid;
 
+import com.nogiax.security.oauth2openid.client.ClientProvider;
 import com.nogiax.security.oauth2openid.provider.MembraneHttpClientProvider;
 import com.nogiax.security.oauth2openid.provider.MembraneSessionProvider;
 import com.nogiax.security.oauth2openid.providers.HttpClientProvider;

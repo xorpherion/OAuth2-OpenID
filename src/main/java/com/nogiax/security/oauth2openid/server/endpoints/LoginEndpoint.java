@@ -7,8 +7,8 @@ import com.nogiax.http.Response;
 import com.nogiax.http.ResponseBuilder;
 import com.nogiax.http.util.BodyUtil;
 import com.nogiax.security.oauth2openid.Constants;
-import com.nogiax.security.oauth2openid.ServerServices;
-import com.nogiax.security.oauth2openid.Session;
+import com.nogiax.security.oauth2openid.server.ServerServices;
+import com.nogiax.security.oauth2openid.providers.Session;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

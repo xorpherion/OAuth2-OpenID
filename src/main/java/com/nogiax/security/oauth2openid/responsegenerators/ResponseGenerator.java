@@ -1,9 +1,9 @@
-package com.nogiax.security.oauth2openid.tokenanswers;
+package com.nogiax.security.oauth2openid.responsegenerators;
 
 import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
-import com.nogiax.security.oauth2openid.ServerServices;
-import com.nogiax.security.oauth2openid.Session;
+import com.nogiax.security.oauth2openid.server.ServerServices;
+import com.nogiax.security.oauth2openid.providers.Session;
 import com.nogiax.security.oauth2openid.token.CombinedTokenManager;
 
 import java.util.HashMap;
@@ -42,6 +42,8 @@ public abstract class ResponseGenerator {
         return result;
     }
 
+    public abstract Map<String, String> invokeResponse() throws Exception;
+
     protected Map<String, String> invalidScopeError() {
         return errorParams(Constants.ERROR_INVALID_SCOPE);
     }
@@ -53,8 +55,6 @@ public abstract class ResponseGenerator {
     protected Session getSession() {
         return serverServices.getProvidedServices().getSessionProvider().getSession(exc);
     }
-
-    public abstract Map<String, String> invokeResponse() throws Exception;
 
     public String[] getResponseType() {
         return responseTypes;

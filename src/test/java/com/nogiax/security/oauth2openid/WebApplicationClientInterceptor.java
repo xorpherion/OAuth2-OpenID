@@ -1,5 +1,6 @@
 package com.nogiax.security.oauth2openid;
 
+import com.nogiax.security.oauth2openid.client.ClientProvider;
 import com.nogiax.security.oauth2openid.client.WebApplicationClient;
 import com.nogiax.security.oauth2openid.provider.MembraneSessionProvider;
 import com.predic8.membrane.core.Router;

@@ -2,6 +2,7 @@ package com.nogiax.security.oauth2openid;
 
 import com.nogiax.security.oauth2openid.provider.MembraneSessionProvider;
 import com.nogiax.security.oauth2openid.server.AuthorizationServer;
+import com.nogiax.security.oauth2openid.server.ProvidedServices;
 import com.predic8.membrane.core.Router;
 import com.predic8.membrane.core.exchange.Exchange;
 import com.predic8.membrane.core.interceptor.AbstractInterceptor;

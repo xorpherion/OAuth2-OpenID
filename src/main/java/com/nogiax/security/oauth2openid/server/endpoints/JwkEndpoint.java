@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nogiax.http.Exchange;
 import com.nogiax.http.ResponseBuilder;
 import com.nogiax.security.oauth2openid.Constants;
-import com.nogiax.security.oauth2openid.ServerServices;
+import com.nogiax.security.oauth2openid.server.ServerServices;
 
 /**
  * Created by Xorpherion on 08.02.2017.

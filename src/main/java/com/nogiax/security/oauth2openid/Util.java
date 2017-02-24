@@ -22,7 +22,7 @@ public class Util {
         return new User(UriUtil.decode(userAndPass[0]), UriUtil.decode(userAndPass[1]));
     }
 
-    public static String atHashFromValue(String alg, String accessToken) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+    public static String halfHashFromValue(String alg, String accessToken) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         if (accessToken == null)
             return null;
         if (!alg.equals("SHA-256"))

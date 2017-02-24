@@ -1,8 +1,7 @@
-package com.nogiax.security.oauth2openid;
+package com.nogiax.security.oauth2openid.server;
 
+import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.permissions.Scope;
-import com.nogiax.security.oauth2openid.server.SupportedClaims;
-import com.nogiax.security.oauth2openid.server.SupportedScopes;
 import com.nogiax.security.oauth2openid.token.CombinedTokenManager;
 import com.nogiax.security.oauth2openid.token.IdTokenProvider;
 import org.jose4j.lang.JoseException;

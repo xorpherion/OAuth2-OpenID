@@ -6,6 +6,7 @@ import com.nogiax.security.oauth2openid.provider.MembraneUserDataProvider;
 import com.nogiax.security.oauth2openid.providers.ClientDataProvider;
 import com.nogiax.security.oauth2openid.providers.SessionProvider;
 import com.nogiax.security.oauth2openid.providers.UserDataProvider;
+import com.nogiax.security.oauth2openid.server.ProvidedServices;
 
 import java.util.HashSet;
 import java.util.Set;

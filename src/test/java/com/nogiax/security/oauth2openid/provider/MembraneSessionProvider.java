@@ -2,7 +2,7 @@ package com.nogiax.security.oauth2openid.provider;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nogiax.http.Exchange;
-import com.nogiax.security.oauth2openid.Session;
+import com.nogiax.security.oauth2openid.providers.Session;
 import com.nogiax.security.oauth2openid.UtilMembrane;
 import com.nogiax.security.oauth2openid.providers.SessionProvider;
 import com.predic8.membrane.core.interceptor.authentication.session.SessionManager;

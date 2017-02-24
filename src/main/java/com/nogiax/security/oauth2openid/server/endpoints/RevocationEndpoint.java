@@ -4,7 +4,7 @@ import com.nogiax.http.Exchange;
 import com.nogiax.http.ResponseBuilder;
 import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.Constants;
-import com.nogiax.security.oauth2openid.ServerServices;
+import com.nogiax.security.oauth2openid.server.ServerServices;
 import com.nogiax.security.oauth2openid.User;
 import com.nogiax.security.oauth2openid.Util;
 import com.nogiax.security.oauth2openid.token.Token;

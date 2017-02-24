@@ -3,8 +3,10 @@ package com.nogiax.security.oauth2openid.server.endpoints;
 import com.nogiax.http.Exchange;
 import com.nogiax.http.util.UriUtil;
 import com.nogiax.security.oauth2openid.*;
+import com.nogiax.security.oauth2openid.providers.Session;
+import com.nogiax.security.oauth2openid.server.ServerServices;
 import com.nogiax.security.oauth2openid.token.Token;
-import com.nogiax.security.oauth2openid.tokenanswers.CombinedResponseGenerator;
+import com.nogiax.security.oauth2openid.responsegenerators.CombinedResponseGenerator;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -67,13 +69,18 @@ public class TokenEndpoint extends Endpoint {
         }
         session.putValue(Constants.PARAMETER_GRANT_TYPE, grantType);
 
+        if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE)) || scopeIsSuperior(session.getValue(Constants.PARAMETER_SCOPE), params.get(Constants.PARAMETER_SCOPE))) {
+            exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_SCOPE));
+            return;
+        }
+        session.putValue(Constants.PARAMETER_SCOPE, params.get(Constants.PARAMETER_SCOPE));
 
         if (grantType.equals(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE)) {
-            String code = params.get(Constants.PARAMETER_CODE);
             if (params.get(Constants.PARAMETER_REDIRECT_URI) == null || !session.getValue(Constants.PARAMETER_REDIRECT_URI).equals(params.get(Constants.PARAMETER_REDIRECT_URI)) || params.get(Constants.PARAMETER_CODE) == null) {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
                 return;
             }
+            String code = params.get(Constants.PARAMETER_CODE);
             if (!serverServices.getTokenManager().getAuthorizationCodes().tokenExists(code)) {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
@@ -87,7 +94,7 @@ public class TokenEndpoint extends Endpoint {
                 return;
             }
 
-            if (authorizationCodeToken.isExpired() || authorizationCodeToken.getUsages() > 1) {
+            if (authorizationCodeToken.isExpired()) {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
@@ -108,8 +115,12 @@ public class TokenEndpoint extends Endpoint {
         }
 
         if (grantType.equals(Constants.PARAMETER_VALUE_PASSWORD)) {
-            if (params.get(Constants.PARAMETER_USERNAME) == null || params.get(Constants.PARAMETER_PASSWORD) == null || !serverServices.getProvidedServices().getUserDataProvider().verifyUser(params.get(Constants.PARAMETER_USERNAME), params.get(Constants.PARAMETER_PASSWORD))) {
+            if (params.get(Constants.PARAMETER_USERNAME) == null || params.get(Constants.PARAMETER_PASSWORD) == null) {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+                return;
+            }
+            if(!serverServices.getProvidedServices().getUserDataProvider().verifyUser(params.get(Constants.PARAMETER_USERNAME), params.get(Constants.PARAMETER_PASSWORD))){
+                exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
                 return;
             }
             session.putValue(Constants.PARAMETER_USERNAME, params.get(Constants.PARAMETER_USERNAME));
@@ -121,12 +132,11 @@ public class TokenEndpoint extends Endpoint {
                 return;
             }
         if (grantType.equals(Constants.PARAMETER_VALUE_REFRESH_TOKEN)) {
-            String refreshToken = params.get(Constants.PARAMETER_REFRESH_TOKEN);
             if (params.get(Constants.PARAMETER_REFRESH_TOKEN) == null) {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
                 return;
             }
-
+            String refreshToken = params.get(Constants.PARAMETER_REFRESH_TOKEN);
             if (!serverServices.getTokenManager().getRefreshTokens().tokenExists(refreshToken)) {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
@@ -152,11 +162,8 @@ public class TokenEndpoint extends Endpoint {
             session.putValue(Constants.PARAMETER_REFRESH_TOKEN, refreshToken);
         }
 
-        if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE)) || scopeIsSuperior(session.getValue(Constants.PARAMETER_SCOPE), params.get(Constants.PARAMETER_SCOPE))) {
-            exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_SCOPE));
-            return;
-        }
-        session.putValue(Constants.PARAMETER_SCOPE, params.get(Constants.PARAMETER_SCOPE));
+
+
 
         // request is now valid
 

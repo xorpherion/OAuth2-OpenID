@@ -121,8 +121,8 @@ public class Password extends BaseTokenEndpointTests {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                            () -> assertEquals(401, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_ACCESS_DENIED, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }
@@ -168,8 +168,8 @@ public class Password extends BaseTokenEndpointTests {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                            () -> assertEquals(401, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_ACCESS_DENIED, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }

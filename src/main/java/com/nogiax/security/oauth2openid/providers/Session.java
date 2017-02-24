@@ -1,4 +1,4 @@
-package com.nogiax.security.oauth2openid;
+package com.nogiax.security.oauth2openid.providers;
 
 /**
  * Created by Xorpherion on 26.01.2017.

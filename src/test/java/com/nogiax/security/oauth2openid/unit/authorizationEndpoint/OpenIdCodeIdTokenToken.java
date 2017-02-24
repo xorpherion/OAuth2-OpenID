@@ -109,8 +109,8 @@ public class OpenIdCodeIdTokenToken extends BaseOpenIdAuthorizationEndpointTests
                 Map<String, String> claims = verifier.verifyAndGetClaims(idToken, server.getServerServices().getProvidedServices().getIssuer(), getClientId());
 
                 assertEquals(getNonce(), claims.get(Constants.PARAMETER_NONCE));
-                assertEquals(Util.atHashFromValue(Constants.ALG_SHA_256, accessToken), claims.get(Constants.CLAIM_AT_HASH));
-                assertEquals(Util.atHashFromValue(Constants.ALG_SHA_256, code), claims.get(Constants.CLAIM_C_HASH));
+                assertEquals(Util.halfHashFromValue(Constants.ALG_SHA_256, accessToken), claims.get(Constants.CLAIM_AT_HASH));
+                assertEquals(Util.halfHashFromValue(Constants.ALG_SHA_256, code), claims.get(Constants.CLAIM_C_HASH));
                 assertEquals(ConstantsTest.CUSTOM_CLAIM_VALUE, claims.get(ConstantsTest.CUSTOM_CLAIM_NAME));
             } catch (Exception e) {
                 assertEquals(1, 0, e.getMessage());

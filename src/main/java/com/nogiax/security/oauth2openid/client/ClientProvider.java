@@ -1,4 +1,4 @@
-package com.nogiax.security.oauth2openid;
+package com.nogiax.security.oauth2openid.client;
 
 import com.nogiax.security.oauth2openid.providers.HttpClientProvider;
 import com.nogiax.security.oauth2openid.providers.SessionProvider;

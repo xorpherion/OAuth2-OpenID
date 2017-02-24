@@ -1,8 +1,8 @@
-package com.nogiax.security.oauth2openid.tokenanswers;
+package com.nogiax.security.oauth2openid.responsegenerators;
 
 import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
-import com.nogiax.security.oauth2openid.ServerServices;
+import com.nogiax.security.oauth2openid.server.ServerServices;
 import com.nogiax.security.oauth2openid.token.Token;
 
 import java.util.HashMap;
