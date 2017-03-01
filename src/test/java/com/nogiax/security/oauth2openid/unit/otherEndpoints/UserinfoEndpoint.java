@@ -84,8 +84,8 @@ public class UserinfoEndpoint {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                            () -> assertEquals(401, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_TOKEN, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }
@@ -103,8 +103,8 @@ public class UserinfoEndpoint {
                 (exc) -> {
                     assertAll(
                             Common.getMethodName(),
-                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                            () -> assertEquals(401, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_TOKEN, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
                     );
                 });
     }

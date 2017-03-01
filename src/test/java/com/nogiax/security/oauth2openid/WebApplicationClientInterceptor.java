@@ -29,12 +29,12 @@ public class WebApplicationClientInterceptor extends AbstractInterceptor {
 
     @Override
     public Outcome handleRequest(Exchange exc) throws Exception {
-        com.nogiax.http.Exchange newExc = new com.nogiax.http.Exchange(UtilMembrane.convertFromMembraneRequest(exc.getRequest()));
+        com.nogiax.http.Exchange newExc = new com.nogiax.http.Exchange(Convert.convertFromMembraneRequest(exc.getRequest()));
         newExc.getRequest().setUri(new URI(getFixedDestination(exc)));
         newExc = client.invokeOn(newExc);
-        exc.setRequest(UtilMembrane.convertToMembraneRequest(newExc.getRequest()));
-        exc.setResponse(UtilMembrane.convertToMembraneResponse(newExc.getResponse()));
-        fixMembraneExchange(exc);
+        exc.setRequest(Convert.convertToMembraneRequest(newExc.getRequest()));
+        exc.setResponse(Convert.convertToMembraneResponse(newExc.getResponse()));
+        //fixMembraneExchange(exc);
         ((MembraneSessionProvider) clientProvider.getSessionProvider()).postProcessSession(newExc, exc);
         if (exc.getResponse() != null)
             return Outcome.RETURN;

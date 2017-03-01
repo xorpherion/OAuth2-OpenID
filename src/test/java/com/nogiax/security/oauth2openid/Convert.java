@@ -1,0 +1,64 @@
+package com.nogiax.security.oauth2openid;
+
+import com.nogiax.http.Method;
+import com.nogiax.http.Request;
+import com.nogiax.http.Response;
+import com.predic8.membrane.core.http.HeaderField;
+
+import java.net.URI;
+import java.nio.charset.Charset;
+
+/**
+ * Created by Xorpherion on 26.02.2017.
+ */
+public class Convert {
+    public static Response convertFromMembraneResponse(com.predic8.membrane.core.http.Response membraneResponse) {
+        if (membraneResponse != null) {
+            Response result = new Response();
+            result.setStatuscode(membraneResponse.getStatusCode());
+            result.setBody(membraneResponse.getBodyAsStringDecoded());
+            for (HeaderField header : membraneResponse.getHeader().getAllHeaderFields())
+                result.getHeader().append(header.getHeaderName().toString(), header.getValue());
+            return result;
+        }
+        return null;
+    }
+
+    public static Request convertFromMembraneRequest(com.predic8.membrane.core.http.Request membraneRequest) {
+        if (membraneRequest != null) {
+            Request result = new Request();
+            result.setUri(URI.create(membraneRequest.getUri()));
+            result.setMethod(Method.fromString(membraneRequest.getMethod()));
+            result.setBody(membraneRequest.getBodyAsStringDecoded());
+            for (HeaderField header : membraneRequest.getHeader().getAllHeaderFields())
+                result.getHeader().append(header.getHeaderName().toString(), header.getValue());
+            return result;
+        }
+        return null;
+    }
+
+    public static com.predic8.membrane.core.http.Request convertToMembraneRequest(Request request) {
+        if (request != null) {
+            com.predic8.membrane.core.http.Request result = new com.predic8.membrane.core.http.Request();
+            result.setUri(request.getUri().toString());
+            result.setMethod(request.getMethod().toString());
+            result.setBodyContent(request.getBody().getBytes(Charset.defaultCharset()));
+            for (String headername : request.getHeader().getHeaderNames())
+                result.getHeader().add(headername, request.getHeader().getValue(headername));
+            return result;
+        }
+        return null;
+    }
+
+    public static com.predic8.membrane.core.http.Response convertToMembraneResponse(Response response) {
+        if (response != null) {
+            com.predic8.membrane.core.http.Response result = new com.predic8.membrane.core.http.Response();
+            result.setStatusCode(response.getStatuscode());
+            result.setBodyContent(response.getBody().getBytes(Charset.defaultCharset()));
+            for (String headername : response.getHeader().getHeaderNames())
+                result.getHeader().add(headername, response.getHeader().getValue(headername));
+            return result;
+        }
+        return null;
+    }
+}

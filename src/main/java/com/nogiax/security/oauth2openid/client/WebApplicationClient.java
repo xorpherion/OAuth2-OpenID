@@ -84,6 +84,9 @@ public class WebApplicationClient {
             return new ResponseBuilder().statuscode(400).body(Constants.ERROR_POSSIBLE_CSRF).buildExchange();
         }
 
+        if(params.containsKey("error")){
+            return new ResponseBuilder().statuscode(400).body(params.get("error")).buildExchange();
+        }
 
         Exchange accessTokenRequest = createAccessTokenRequest(exc, params.get(Constants.PARAMETER_CODE));
         Exchange accessTokenResponse = clientProvider.getHttpClient().sendExchange(accessTokenRequest);

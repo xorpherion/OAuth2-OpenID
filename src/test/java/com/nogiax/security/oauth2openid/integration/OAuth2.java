@@ -30,14 +30,14 @@ public class OAuth2 {
     Logger log = LoggerFactory.getLogger(OAuth2.class);
     Lock l = new ReentrantLock();
 
-    @Disabled
+    /*@Disabled
     @Test
     void pseudoMain() throws Exception {
         Router r = HttpRouter.init(getClass().getResource("/proxies.xml").toString());
         boolean running = true;
         while (running)
             Thread.sleep(1000);
-    }
+    }*/
 
     @Disabled
     @Test
@@ -57,6 +57,12 @@ public class OAuth2 {
         Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target(ConstantsTest.HOST_AUTHORIZATION_SERVER.replace("https://", ""), ConstantsTest.PORT_AUTHORIZATION_SERVER)));
 
         ExtendedHttpClient client = new ExtendedHttpClient();
+
+        Exchange requestDirectCallToProtectedResource = new Request.Builder().get(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_USERINFO).buildExchange();
+        Exchange responseDirectCallToProtectedResource = client.call(requestDirectCallToProtectedResource);
+
+        assertAll("Direct access of resource server",
+                () -> assertEquals(401, responseDirectCallToProtectedResource.getResponse().getStatusCode(), "Statuscode was not OK"));
 
         Exchange requestProtectedResource = new Request.Builder().get(ConstantsTest.URL_PROTECTED_RESOURCE).buildExchange();
         Exchange responseProtectedResource = client.call(requestProtectedResource);

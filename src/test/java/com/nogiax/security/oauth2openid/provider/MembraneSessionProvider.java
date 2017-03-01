@@ -2,8 +2,8 @@ package com.nogiax.security.oauth2openid.provider;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nogiax.http.Exchange;
+import com.nogiax.security.oauth2openid.Convert;
 import com.nogiax.security.oauth2openid.providers.Session;
-import com.nogiax.security.oauth2openid.UtilMembrane;
 import com.nogiax.security.oauth2openid.providers.SessionProvider;
 import com.predic8.membrane.core.interceptor.authentication.session.SessionManager;
 import com.predic8.membrane.core.rules.NullRule;
@@ -29,7 +29,7 @@ public class MembraneSessionProvider implements SessionProvider {
     @Override
     public Session getSession(Exchange exc) {
         com.predic8.membrane.core.exchange.Exchange memExc = new com.predic8.membrane.core.exchange.Exchange(null);
-        memExc.setRequest(UtilMembrane.convertToMembraneRequest(exc.getRequest()));
+        memExc.setRequest(Convert.convertToMembraneRequest(exc.getRequest()));
         memExc.setRule(new NullRule());
 
         if (exc.getProperties().containsKey(excSessionPropertyName))

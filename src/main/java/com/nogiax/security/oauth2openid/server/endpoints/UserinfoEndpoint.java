@@ -1,6 +1,7 @@
 package com.nogiax.security.oauth2openid.server.endpoints;
 
 import com.nogiax.http.Exchange;
+import com.nogiax.http.Response;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.server.ServerServices;
 import com.nogiax.security.oauth2openid.token.Token;
@@ -28,11 +29,11 @@ public class UserinfoEndpoint extends Endpoint {
         }
         String[] authHeader = exc.getRequest().getHeader().getValue(Constants.HEADER_AUTHORIZATION).split(Pattern.quote(" "));
         if (authHeader.length != 2) {
-            exc.setResponse(this.answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+            exc.setResponse(this.answerWithError(401, Constants.ERROR_INVALID_TOKEN));
             return;
         }
         if (!Constants.PARAMETER_VALUE_BEARER.equals(authHeader[0])) {
-            exc.setResponse(this.answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+            exc.setResponse(this.answerWithError(401, Constants.ERROR_INVALID_TOKEN));
             return;
         }
 
@@ -58,7 +59,11 @@ public class UserinfoEndpoint extends Endpoint {
         exc.setResponse(okWithJSONBody(resp));
     }
 
-
+    private Response createErrorResponse(String error){
+        Response res = this.answerWithBody(401, "");
+        res.getHeader().append(Constants.HEADER_WWW_AUTHENTICATE, "Bearer realm=\"token\", error=" + error);
+        return res;
+    }
     @Override
     public String getScope(Exchange exc) throws Exception {
         return null;

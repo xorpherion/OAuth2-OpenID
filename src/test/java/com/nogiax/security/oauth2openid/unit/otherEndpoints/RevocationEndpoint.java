@@ -53,7 +53,7 @@ public class RevocationEndpoint {
     }
 
     @Test
-    public void badRefreshToken() throws Exception {
+    public void badToken() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
@@ -71,7 +71,7 @@ public class RevocationEndpoint {
     }
 
     @Test
-    public void missingRefreshToken() throws Exception {
+    public void missingToken() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {

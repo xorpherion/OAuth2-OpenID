@@ -3,6 +3,7 @@ package com.nogiax.security.oauth2openid.provider;
 import com.nogiax.http.Exchange;
 import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
+import com.nogiax.security.oauth2openid.Convert;
 import com.nogiax.security.oauth2openid.UtilMembrane;
 import com.nogiax.security.oauth2openid.providers.HttpClientProvider;
 import com.predic8.membrane.core.transport.http.HttpClient;
@@ -26,7 +27,7 @@ public class MembraneHttpClientProvider implements HttpClientProvider {
     @Override
     public Exchange sendExchange(Exchange exc) throws Exception {
         com.predic8.membrane.core.exchange.Exchange memExc = new com.predic8.membrane.core.exchange.Exchange(null);
-        memExc.setRequest(UtilMembrane.convertToMembraneRequest(exc.getRequest()));
+        memExc.setRequest(Convert.convertToMembraneRequest(exc.getRequest()));
         String uri = "";
         if (!new URI(memExc.getRequest().getUri()).isAbsolute())
             uri = ConstantsTest.PROTOCOL + "://" + exc.getRequest().getHeader().getValue(Constants.HEADER_HOST);
@@ -34,7 +35,7 @@ public class MembraneHttpClientProvider implements HttpClientProvider {
         memExc.getDestinations().add(uri);
         memExc.setProperty(com.predic8.membrane.core.exchange.Exchange.SSL_CONTEXT, ctx);
         com.predic8.membrane.core.exchange.Exchange memRespExc = client.call(memExc);
-        exc.setResponse(UtilMembrane.convertFromMembraneResponse(memRespExc.getResponse()));
+        exc.setResponse(Convert.convertFromMembraneResponse(memRespExc.getResponse()));
         return exc;
     }
 }
