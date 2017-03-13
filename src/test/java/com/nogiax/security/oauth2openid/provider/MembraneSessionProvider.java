@@ -47,22 +47,22 @@ public class MembraneSessionProvider implements SessionProvider {
             SessionManager.Session session = memSession;
 
             @Override
-            public String getValue(String key) {
+            public synchronized String getValue(String key) {
                 return session.getUserAttributes().get(prefixKey(key));
             }
 
             @Override
-            public void putValue(String key, String value) throws JsonProcessingException {
+            public synchronized void putValue(String key, String value) throws JsonProcessingException {
                 session.getUserAttributes().put(prefixKey(key), value);
             }
 
             @Override
-            public void removeValue(String key) throws Exception {
+            public synchronized void removeValue(String key) throws Exception {
                 session.getUserAttributes().remove(prefixKey(key));
             }
 
             @Override
-            public void clear() throws Exception {
+            public synchronized void clear() throws Exception {
                 session.clear();
             }
 

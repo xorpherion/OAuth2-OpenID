@@ -73,7 +73,9 @@ public class CombinedTokenManager {
     }
 
     public Token addTokenToManager(TokenManager manager, Token token) {
-        manager.addToken(token);
+        synchronized(manager) {
+            manager.addToken(token);
+        }
         return token;
     }
 

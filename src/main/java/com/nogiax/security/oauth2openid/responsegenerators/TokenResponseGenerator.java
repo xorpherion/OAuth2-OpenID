@@ -59,7 +59,7 @@ public class TokenResponseGenerator extends ResponseGenerator {
             idTokenClaims.put(Constants.PARAMETER_NONCE, nonce);
             idTokenClaims.put(Constants.PARAMETER_AUTH_TIME, authTime);
 
-            Token idToken = getServerServices().getTokenManager().createChildIdToken(getIssuer(), getSubClaim(username), clientId, Token.getDefaultValidFor(), authTime, nonce, idTokenClaims, parentToken);
+            Token idToken = getTokenManager().addTokenToManager(getTokenManager().getIdTokens(),getServerServices().getTokenManager().createChildIdToken(getIssuer(), getSubClaim(username), clientId, Token.getDefaultValidFor(), authTime, nonce, idTokenClaims, parentToken));
 
             result.put(Constants.PARAMETER_ID_TOKEN, idToken.getValue());
         }
