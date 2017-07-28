@@ -20,4 +20,6 @@ public interface ProvidedServices {
     String getIssuer();
 
     Set<String> getSupportedClaims();
+
+    String getContextPath();
 }

@@ -29,9 +29,14 @@ public class TokenResponseGenerator extends ResponseGenerator {
         String grantType = getSession().getValue(Constants.PARAMETER_GRANT_TYPE);
         String refreshTokenValue = getSession().getValue(Constants.PARAMETER_REFRESH_TOKEN);
         String state = getSession().getValue(Constants.PARAMETER_STATE);
+        String redirectUri = getSession().getValue(Constants.PARAMETER_REDIRECT_URI);
         Set<String> responseTypes = new HashSet<String>(Arrays.asList(getSession().getValue(Constants.PARAMETER_RESPONSE_TYPE).split(Pattern.quote(" "))));
 
-        Token parentToken = getOrCreateParentToken(username, clientId, scope, claims, code, refreshTokenValue);
+        Token parentToken = getOrCreateParentToken(username, clientId, scope, claims, code, refreshTokenValue,redirectUri);
+        if(username == null && parentToken.getUsername() != null)
+            username = parentToken.getUsername();
+        if(claims == null && parentToken.getClaims() != null)
+            claims = parentToken.getClaims();
 
         Map<String, String> result = new HashMap<>();
 
@@ -82,13 +87,13 @@ public class TokenResponseGenerator extends ResponseGenerator {
         return accessTokenValue;
     }
 
-    private Token getOrCreateParentToken(String username, String clientId, String scope, String claims, String code, String refreshTokenValue) throws Exception {
+    private Token getOrCreateParentToken(String username, String clientId, String scope, String claims, String code, String refreshTokenValue, String redirectUri) throws Exception {
         Token parentToken = null;
         if (refreshTokenValue != null) {
             parentToken = getTokenManager().getRefreshTokens().getToken(refreshTokenValue);
             getSession().removeValue(Constants.PARAMETER_REFRESH_TOKEN);
         } else if (invokingEndpointIsAuthorizationEndpoint() || code == null) {
-            Token fakeAuthToken = getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, scope, claims);
+            Token fakeAuthToken = getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, claims, scope, redirectUri);
             getTokenManager().getAuthorizationCodes().addToken(fakeAuthToken);
             parentToken = getTokenManager().getAuthorizationCodes().getToken(fakeAuthToken.getValue());
         } else {

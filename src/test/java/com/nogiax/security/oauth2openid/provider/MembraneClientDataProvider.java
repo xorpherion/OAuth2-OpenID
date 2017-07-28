@@ -5,8 +5,7 @@ import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.UtilMembrane;
 import com.nogiax.security.oauth2openid.providers.ClientDataProvider;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Xorpherion on 26.01.2017.
@@ -43,10 +42,10 @@ public class MembraneClientDataProvider implements ClientDataProvider {
     }
 
     @Override
-    public String getRedirectUri(String clientId) {
+    public Set<String> getRedirectUris(String clientId) {
         if (!clientExists(clientId))
-            return null;
-        return clients.get(clientId).getRedirectUri();
+            return new HashSet<>();
+        return Collections.singleton(clients.get(clientId).getRedirectUri());
 
     }
 }

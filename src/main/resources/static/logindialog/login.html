@@ -5,6 +5,8 @@
     <title>Title</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script>
+
+        var params;
         var decodeFragmentValue = function(part){
             return decodeURIComponent(part).replace(/\+/g, ' ')
         }
@@ -18,7 +20,7 @@
         }
         $(document).ready(function(){
             if(window.location.hash){
-                var params = getSingleEncodedFragmentAsJson(window.location.hash.split('=')[1]);
+                params = getSingleEncodedFragmentAsJson(window.location.hash.split('=')[1]);
                 if(params.error)
                     document.getElementById("error").appendChild(document.createTextNode(params.error));
                 if(params.state)
@@ -27,20 +29,18 @@
             }
         });
 
-
-
-
-
-
-
-
+        var calcEndpoint = function(){
+        console.log(document.login)
+            document.login.action = params["context-path"] + "/login/login"
+            return true;
+        }
 
     </script>
 </head>
 <body>
 <div id="loginpage" class="container">
     <p>Login page</p>
-    <form name="login" action="/login/login" method="post" accept-charset="utf-8">
+    <form name="login" onsubmit="return calcEndpoint()" method="post" accept-charset="utf-8">
         <p id="error"></p>
         <ul>
             <li><label for="username">Username</label>

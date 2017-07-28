@@ -20,11 +20,12 @@ public class Token {
     private final Duration validFor;
     private final String claims;
     private final String scope;
+    private final String redirectUri;
     private final ArrayList<Token> children;
     private int usages;
     private boolean manuallyRevoked = false;
 
-    public Token(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, String scope, Token... children) {
+    public Token(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, String scope, String redirectUri, Token... children) {
         this.value = value;
         this.username = username;
         this.clientId = clientId;
@@ -32,6 +33,7 @@ public class Token {
         this.validFor = validFor;
         this.claims = claims;
         this.scope = scope;
+        this.redirectUri = redirectUri;
         this.children = new ArrayList<>();
         Collections.addAll(this.children, children);
         usages = 0;
@@ -102,4 +104,9 @@ public class Token {
     public boolean isManuallyRevoked() {
         return manuallyRevoked;
     }
+
+    public String getRedirectUri() {
+        return redirectUri;
+    }
+
 }

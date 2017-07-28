@@ -22,11 +22,11 @@ public class Header {
     }
 
     public void add(String name, String value) {
-        rawHeaders.put(name, value);
+        rawHeaders.put(name.toLowerCase(), value);
     }
 
     public String getValue(String name) {
-        return rawHeaders.get(name);
+        return rawHeaders.get(name.toLowerCase());
     }
 
     public void append(String name, String value) {
@@ -39,7 +39,7 @@ public class Header {
     }
 
     public String remove(String name) {
-        return rawHeaders.remove(name);
+        return rawHeaders.remove(name.toLowerCase());
     }
 
     public Set<String> getHeaderNames() {
@@ -57,4 +57,11 @@ public class Header {
         return null;
     }
 
+    public void append(Header other) {
+        other.getRawHeaders().keySet().stream().forEach(s -> this.append(s,other.getValue(s)));
+    }
+
+    public void add(Header other){
+        this.setRawHeaders(other.getRawHeaders());
+    }
 }

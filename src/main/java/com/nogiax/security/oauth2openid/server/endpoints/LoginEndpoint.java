@@ -60,7 +60,7 @@ public class LoginEndpoint extends Endpoint {
 
     private Response redirectToAfterLoginEndpoint() {
         return new ResponseBuilder()
-                .redirectTempWithGet(Constants.ENDPOINT_AFTER_LOGIN).build();
+                .redirectTempWithGet(this.serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_AFTER_LOGIN).build();
     }
 
     private void checkLogin(Exchange exc) throws Exception {

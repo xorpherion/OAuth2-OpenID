@@ -144,7 +144,7 @@ public class RefreshToken {
                 () -> {
                     try {
                         Exchange exc = Common.preStepAndRefreshTokenRequest(getPreStep(), getClientDefaultScope(), ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
-                        exc.getRequest().getHeader().getRawHeaders().replace(Constants.HEADER_AUTHORIZATION, Util.encodeToBasicAuthValue(ConstantsTest.CLIENT_DEFAULT_ID2, ConstantsTest.CLIENT_DEFAULT_SECRET2));
+                        exc.getRequest().getHeader().getRawHeaders().replace(Constants.HEADER_AUTHORIZATION.toLowerCase(), Util.encodeToBasicAuthValue(ConstantsTest.CLIENT_DEFAULT_ID2, ConstantsTest.CLIENT_DEFAULT_SECRET2));
                         return exc;
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);

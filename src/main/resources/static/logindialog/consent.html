@@ -45,13 +45,10 @@
             }
         });
 
-
-
-
-
-
-
-
+        var calcEndpoint = function(){
+            document.login.action = params["context-path"] + "/login/login"
+            return true;
+        }
 
     </script>
 </head>
@@ -62,7 +59,7 @@
     <p id="scopes">Please accept following scopes: </p>
     <p id="claims">Please accept following claims: </p>
     <p>(Descriptions for scopes and claims can be found at http://openid.net/specs/openid-connect-core-1_0.html</p>
-    <form name="consent" action="/login/consent" method="post" accept-charset="utf-8">
+    <form name="consent" onsubmit="return calcEndpoint()" method="post" accept-charset="utf-8">
         <ul>
             <li>
                 <input id="accept" type="submit" value="Accept"></li>

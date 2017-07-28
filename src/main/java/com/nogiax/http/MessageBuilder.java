@@ -16,6 +16,11 @@ public class MessageBuilder<T extends Message, S extends MessageBuilder<T, S>> {
         return (S) this;
     }
 
+    public S header(Header header){
+        message.setHeader(header);
+        return (S) this;
+    }
+
     public S body(String body) {
         message.setBody(body);
         return (S) this;

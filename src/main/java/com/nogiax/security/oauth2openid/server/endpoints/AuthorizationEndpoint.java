@@ -28,7 +28,7 @@ public class AuthorizationEndpoint extends Endpoint {
         return params.get(Constants.PARAMETER_REDIRECT_URI) == null
                 || !Parameters.redirectUriIsAbsolute(params.get(Constants.PARAMETER_REDIRECT_URI))
                 || params.get(Constants.PARAMETER_CLIENT_ID) == null
-                || !params.get(Constants.PARAMETER_REDIRECT_URI).equals(serverServices.getProvidedServices().getClientDataProvider().getRedirectUri(params.get(Constants.PARAMETER_CLIENT_ID)))
+                || !serverServices.getProvidedServices().getClientDataProvider().getRedirectUris(params.get(Constants.PARAMETER_CLIENT_ID)).contains(params.get(Constants.PARAMETER_REDIRECT_URI))
                 || !clientExists(params.get(Constants.PARAMETER_CLIENT_ID));
     }
 
@@ -134,7 +134,7 @@ public class AuthorizationEndpoint extends Endpoint {
     }
 
     private Map<String, String> getParams(Exchange exc) {
-        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
+        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getRawQuery());
         if (params.isEmpty())
             params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);

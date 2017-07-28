@@ -23,11 +23,11 @@ public class MembraneUserDataProvider implements UserDataProvider {
     }
 
     @Override
-    public boolean verifyUser(String username, String secret) {
+    public boolean verifyUser(String username, String password) {
         if (!users.containsKey(username))
             return false;
         UserMembrane user = users.get(username);
-        return secret.equals(user.getPassword());
+        return password.equals(user.getPassword());
 
     }
 

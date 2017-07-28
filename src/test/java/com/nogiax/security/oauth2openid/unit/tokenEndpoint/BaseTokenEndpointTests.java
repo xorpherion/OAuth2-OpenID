@@ -6,6 +6,7 @@ import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.MembraneServerFunctionality;
 import com.nogiax.security.oauth2openid.server.AuthorizationServer;
 import com.nogiax.security.oauth2openid.unit.Common;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -93,7 +94,7 @@ public abstract class BaseTokenEndpointTests {
                 });
     }
 
-    @Test
+    /*@Test
     public void unsupportedScope() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
@@ -112,6 +113,7 @@ public abstract class BaseTokenEndpointTests {
                 });
     }
 
+
     @Test
     public void missingScope() throws Exception {
         Common.testExchangeOn(server,
@@ -129,7 +131,7 @@ public abstract class BaseTokenEndpointTests {
                             () -> assertEquals(400, exc.getResponse().getStatuscode())
                     );
                 });
-    }
+    }*/
 
     @Test
     public void wrongAuthentication() throws Exception {

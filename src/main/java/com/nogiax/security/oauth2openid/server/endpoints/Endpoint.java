@@ -114,7 +114,7 @@ public abstract class Endpoint {
     }
 
     protected Response redirectToLogin(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {
-        return redirectToUrl(Constants.ENDPOINT_LOGIN + "#params=" + prepareJSParams(params), null);
+        return redirectToUrl(serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_LOGIN + "#params=" + prepareJSParams(params), null);
     }
 
     protected String prepareJSParams(Map<String, String> params) throws JsonProcessingException, UnsupportedEncodingException {
@@ -139,7 +139,7 @@ public abstract class Endpoint {
     }
 
     protected Response redirectToConsent(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {
-        return redirectToUrl(Constants.ENDPOINT_CONSENT + "#params=" + prepareJSParams(params), null);
+        return redirectToUrl(serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_CONSENT + "#params=" + prepareJSParams(params), null);
     }
 
     protected HashMap<String, String> prepareJsStateParameter(Session session) throws Exception {
@@ -147,6 +147,7 @@ public abstract class Endpoint {
         session.putValue(Constants.SESSION_LOGIN_STATE, stateToken);
         HashMap<String, String> jsParams = new HashMap<>();
         jsParams.put(Constants.PARAMETER_STATE, stateToken);
+        jsParams.put(Constants.CONTEXT_PATH,this.serverServices.getProvidedServices().getContextPath());
         return jsParams;
     }
 

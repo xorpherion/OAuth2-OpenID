@@ -1,5 +1,7 @@
 package com.nogiax.security.oauth2openid.providers;
 
+import java.util.Set;
+
 /**
  * Created by Xorpherion on 26.01.2017.
  */
@@ -10,5 +12,5 @@ public interface ClientDataProvider {
 
     boolean verify(String clientId, String secret);
 
-    String getRedirectUri(String clientId);
+    Set<String> getRedirectUris(String clientId);
 }

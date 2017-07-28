@@ -79,16 +79,16 @@ public class CombinedTokenManager {
         return token;
     }
 
-    public Token createToken(String value, String username, String clientId, Duration validFor, String claims, String scope) {
-        return new Token(value, username, clientId, LocalDateTime.now(), validFor, claims, scope);
+    public Token createToken(String value, String username, String clientId, Duration validFor, String claims, String scope, String redirectUri) {
+        return new Token(value, username, clientId, LocalDateTime.now(), validFor, claims, scope, redirectUri);
     }
 
-    public Token createBearerToken(String username, String clientId, Duration validFor, String claims, String scope) {
-        return createToken(tokenProvider.get(), username, clientId, validFor, claims, scope);
+    public Token createBearerToken(String username, String clientId, Duration validFor, String claims, String scope, String redirectUri) {
+        return createToken(tokenProvider.get(), username, clientId, validFor, claims, scope,redirectUri);
     }
 
     public Token createChildToken(String value, Duration validFor, Token parent) {
-        Token result = createToken(value, parent.getUsername(), parent.getClientId(), validFor, parent.getClaims(), parent.getScope());
+        Token result = createToken(value, parent.getUsername(), parent.getClientId(), validFor, parent.getClaims(), parent.getScope(),parent.getRedirectUri());
         parent.addChild(result);
         return result;
     }
@@ -97,22 +97,22 @@ public class CombinedTokenManager {
         return createChildToken(tokenProvider.get(), validFor, parent);
     }
 
-    public Token createBearerTokenWithDefaultDuration(String username, String clientId, String claims, String scope) {
-        return createBearerToken(username, clientId, Token.getDefaultValidFor(), claims, scope);
+    public Token createBearerTokenWithDefaultDuration(String username, String clientId, String claims, String scope, String redirectUri) {
+        return createBearerToken(username, clientId, Token.getDefaultValidFor(), claims, scope,redirectUri);
     }
 
     public Token createChildBearerTokenWithDefaultDuration(Token parent) {
         return createChildBearerToken(Token.defaultValidFor, parent);
     }
 
-    public Token createIdToken(String issuer, String subject, String clientId, Duration validFor, String authTime, String nonce, Map<String, String> claims, String username, String scope) throws JoseException {
+    public Token createIdToken(String issuer, String subject, String clientId, Duration validFor, String authTime, String nonce, Map<String, String> claims, String username, String scope, String redirectUri) throws JoseException {
         String idToken = idTokenProvider.createIdToken(issuer, subject, clientId, validFor, authTime, nonce, claims);
         String claimsString = compactMapClaimsToStringClaims(claims);
-        return createToken(idToken, username, clientId, validFor, claimsString, scope);
+        return createToken(idToken, username, clientId, validFor, claimsString, scope,redirectUri);
     }
 
     public Token createChildIdToken(String issuer, String subject, String clientId, Duration validFor, String authTime, String nonce, Map<String, String> claims, Token parent) throws JoseException {
-        Token result = createIdToken(issuer, subject, clientId, validFor, authTime, nonce, claims, parent.getUsername(), parent.getScope());
+        Token result = createIdToken(issuer, subject, clientId, validFor, authTime, nonce, claims, parent.getUsername(), parent.getScope(),parent.getRedirectUri());
         parent.addChild(result);
         return result;
     }

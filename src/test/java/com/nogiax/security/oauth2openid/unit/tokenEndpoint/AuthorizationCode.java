@@ -6,6 +6,7 @@ import com.nogiax.security.oauth2openid.Constants;
 import com.nogiax.security.oauth2openid.ConstantsTest;
 import com.nogiax.security.oauth2openid.Util;
 import com.nogiax.security.oauth2openid.unit.Common;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -69,6 +70,7 @@ public class AuthorizationCode extends BaseTokenEndpointTests {
     }
 
 
+    /*@Ignore // changed requirements -> scope is now only needed when doing password/credentials flow
     @Test
     public void superiorScopeThanBefore() throws Exception {
         Common.testExchangeOn(server,
@@ -86,7 +88,7 @@ public class AuthorizationCode extends BaseTokenEndpointTests {
                             () -> assertEquals(400, exc.getResponse().getStatuscode())
                     );
                 });
-    }
+    }*/
 
     @Test
     public void equalScope() throws Exception {
@@ -221,7 +223,7 @@ public class AuthorizationCode extends BaseTokenEndpointTests {
                 () -> {
                     try {
                         Exchange exc = Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
-                        exc.getRequest().getHeader().getRawHeaders().replace(Constants.HEADER_AUTHORIZATION, Util.encodeToBasicAuthValue(ConstantsTest.CLIENT_DEFAULT_ID2, ConstantsTest.CLIENT_DEFAULT_SECRET2));
+                        exc.getRequest().getHeader().getRawHeaders().replace(Constants.HEADER_AUTHORIZATION.toLowerCase(), Util.encodeToBasicAuthValue(ConstantsTest.CLIENT_DEFAULT_ID2, ConstantsTest.CLIENT_DEFAULT_SECRET2));
                         return exc;
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
@@ -289,7 +291,7 @@ public class AuthorizationCode extends BaseTokenEndpointTests {
                 () -> {
                     try {
                         Exchange exc = Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
-                        exc.getRequest().getHeader().getRawHeaders().replace(Constants.HEADER_AUTHORIZATION, Util.encodeToBasicAuthValue(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET + "23542342"));
+                        exc.getRequest().getHeader().getRawHeaders().replace(Constants.HEADER_AUTHORIZATION.toLowerCase(), Util.encodeToBasicAuthValue(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET + "23542342"));
                         return exc;
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);

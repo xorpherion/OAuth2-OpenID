@@ -49,7 +49,10 @@ public class TokenManager {
 
     public Token getToken(String value) {
         deactivateExpiredTokens();
-        return tokenExistsInMapElseNull(value).get(value);
+        Map<String, Token> stringTokenMap = tokenExistsInMapElseNull(value);
+        if(stringTokenMap == null)
+            return null;
+        return stringTokenMap.get(value);
     }
 
     public void expireToken(String value) {

@@ -54,4 +54,9 @@ public class MembraneServerFunctionality implements ProvidedServices {
         result.add(ConstantsTest.CUSTOM_CLAIM_NAME);
         return result;
     }
+
+    @Override
+    public String getContextPath() {
+        return "";
+    }
 }

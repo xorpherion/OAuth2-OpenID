@@ -51,13 +51,13 @@ public class TokenEndpoint extends Endpoint {
             exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
             return;
         }
-        if (!clientIsAuthorized && serverServices.getProvidedServices().getClientDataProvider().isConfidential(clientId)) {
+        if (!clientIsAuthorized && serverServices.getProvidedServices().getClientDataProvider().isConfidential(clientId) && !serverServices.getProvidedServices().getClientDataProvider().verify(clientId,params.get("client_secret"))) {
             exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
             return;
         }
         session.putValue(Constants.PARAMETER_CLIENT_ID, clientId);
 
-        if (params.get(Constants.PARAMETER_GRANT_TYPE) == null || params.get(Constants.PARAMETER_SCOPE) == null) {
+        if (params.get(Constants.PARAMETER_GRANT_TYPE) == null) {
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
             return;
         }
@@ -69,6 +69,20 @@ public class TokenEndpoint extends Endpoint {
         }
         session.putValue(Constants.PARAMETER_GRANT_TYPE, grantType);
 
+        if(grantType.equals(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE)) {
+            String code = params.get("code");
+            if(code == null){
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+                return;
+            }
+            Token token = serverServices.getTokenManager().getAuthorizationCodes().getToken(code);
+            if(token == null){
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                return;
+            }
+            params.put(Constants.PARAMETER_SCOPE, token.getScope());
+        }
+
         if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE)) || scopeIsSuperior(session.getValue(Constants.PARAMETER_SCOPE), params.get(Constants.PARAMETER_SCOPE))) {
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_SCOPE));
             return;
@@ -76,7 +90,8 @@ public class TokenEndpoint extends Endpoint {
         session.putValue(Constants.PARAMETER_SCOPE, params.get(Constants.PARAMETER_SCOPE));
 
         if (grantType.equals(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE)) {
-            if (params.get(Constants.PARAMETER_REDIRECT_URI) == null || !session.getValue(Constants.PARAMETER_REDIRECT_URI).equals(params.get(Constants.PARAMETER_REDIRECT_URI)) || params.get(Constants.PARAMETER_CODE) == null) {
+            Token token = serverServices.getTokenManager().getAuthorizationCodes().getToken(params.get(Constants.PARAMETER_CODE));
+            if (params.get(Constants.PARAMETER_REDIRECT_URI) == null || !token.getRedirectUri().equals(params.get(Constants.PARAMETER_REDIRECT_URI)) || params.get(Constants.PARAMETER_CODE) == null) {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
                 return;
             }
@@ -104,8 +119,8 @@ public class TokenEndpoint extends Endpoint {
                 return;
             }
 
-            String redirectUri = serverServices.getProvidedServices().getClientDataProvider().getRedirectUri(clientId);
-            if (!redirectUri.equals(params.get(Constants.PARAMETER_REDIRECT_URI))) {
+            Set<String> redirectUri = serverServices.getProvidedServices().getClientDataProvider().getRedirectUris(clientId);
+            if (!redirectUri.contains(params.get(Constants.PARAMETER_REDIRECT_URI))) {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
                 return;
             }

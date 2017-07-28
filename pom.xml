@@ -6,7 +6,8 @@
 
     <groupId>com.nogiax</groupId>
     <artifactId>oauth2-openid</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
+    <packaging>jar</packaging>
 
     <build>
         <plugins>
@@ -62,7 +63,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>RELEASE</version>
+            <version>5.0.0-M4</version>
             <scope>test</scope>
         </dependency>
 
