@@ -178,9 +178,16 @@ public class TokenEndpoint extends Endpoint {
         }
 
 
-
-
         // request is now valid
+
+        Map<String, String> finalParams = params;
+        params.keySet().stream().forEach(key -> {
+            try {
+                session.putValue(key, finalParams.get(key));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
         //log.info("Valid Token Request");
         session.putValue(Constants.SESSION_ENDPOINT, Constants.ENDPOINT_TOKEN);
