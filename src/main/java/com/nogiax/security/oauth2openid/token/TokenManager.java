@@ -1,6 +1,8 @@
 package com.nogiax.security.oauth2openid.token;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,10 +27,15 @@ public class TokenManager {
     }
 
     private void deactivateExpiredTokens() {
+        List<String> toRemove = new ArrayList<>();
         for (String val : activeTokens.keySet())
             if (activeTokens.get(val).isExpired()) {
-                expireToken(val);
+                toRemove.add(val);
             }
+        toRemove.stream().forEach(val -> {
+            expireToken(val);
+        });
+
     }
 
     private Map<String, Token> selectCorrectMap(Token token) {
