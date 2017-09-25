@@ -26,6 +26,7 @@ public class IdTokenVerifier {
                 .setRequireExpirationTime()
                 .setAllowedClockSkewInSeconds(30)
                 .setRequireSubject()
+                .setSkipDefaultAudienceValidation()
                 .setVerificationKeyResolver(jwksResolver)
                 .build();
 

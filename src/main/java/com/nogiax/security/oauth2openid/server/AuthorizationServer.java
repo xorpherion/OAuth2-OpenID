@@ -54,6 +54,8 @@ public class AuthorizationServer {
             exc.getResponse().getHeader().append(Constants.HEADER_CACHE_CONTROL, Constants.HEADER_VALUE_NO_STORE);
             exc.getResponse().getHeader().append(Constants.HEADER_PRAGMA, Constants.HEADER_VALUE_NO_CACHE);
             exc.getResponse().getHeader().append(Constants.HEADER_X_FRAME_OPTIONS, Constants.HEADER_VALUE_SAMEORIGIN);
+            if(exc.getResponse().getStatuscode() == 401)
+                exc.getResponse().getHeader().add("WWW-Authenticate","Bearer realm=\"OAuth2\"");
         }
     }
 

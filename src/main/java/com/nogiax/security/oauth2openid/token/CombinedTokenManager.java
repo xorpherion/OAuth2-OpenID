@@ -140,4 +140,12 @@ public class CombinedTokenManager {
     public TokenManager getIdTokens() {
         return idTokens;
     }
+
+    public BearerTokenProvider getTokenProvider() {
+        return tokenProvider;
+    }
+
+    public IdTokenProvider getIdTokenProvider() {
+        return idTokenProvider;
+    }
 }
