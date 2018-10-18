@@ -21,11 +21,11 @@ public class AuthorizationServer {
     private ArrayList<Endpoint> endpoints;
     ServerServices serverServices;
 
-    public AuthorizationServer(ProvidedServices providedServices) throws JoseException, JsonProcessingException {
+    public AuthorizationServer(ProvidedServices providedServices) throws Exception {
         this(providedServices, new IdTokenProvider());
     }
 
-    public AuthorizationServer(ProvidedServices providedServices, IdTokenProvider idTokenProvider) throws JsonProcessingException {
+    public AuthorizationServer(ProvidedServices providedServices, IdTokenProvider idTokenProvider) throws Exception {
         serverServices = new ServerServices(providedServices, idTokenProvider);
 
         endpoints = new ArrayList<>();
