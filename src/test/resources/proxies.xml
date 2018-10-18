@@ -4,10 +4,10 @@
               xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
 					    http://membrane-soa.org/proxies/1/ http://membrane-soa.org/schemas/proxies-1.xsd">
 
-    <spring:bean id="authServer" class="com.nogiax.security.oauth2openid.AuthorizationServerInterceptor">
+    <spring:bean id="authServer" class="com.bornium.security.oauth2openid.AuthorizationServerInterceptor">
 
     </spring:bean>
-    <spring:bean id="webAppClient" class="com.nogiax.security.oauth2openid.WebApplicationClientInterceptor">
+    <spring:bean id="webAppClient" class="com.bornium.security.oauth2openid.WebApplicationClientInterceptor">
 
     </spring:bean>
 
