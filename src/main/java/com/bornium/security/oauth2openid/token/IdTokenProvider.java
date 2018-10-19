@@ -21,10 +21,19 @@ public class IdTokenProvider {
     private final RsaJsonWebKey rsaJsonWebKey;
 
     public IdTokenProvider() throws JoseException {
-        rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
+        this(generateKey());
+    }
+
+    private static RsaJsonWebKey generateKey() throws JoseException {
+        RsaJsonWebKey rsaJsonWebKey = RsaJwkGenerator.generateJwk(2048);
         rsaJsonWebKey.setKeyId("k1");
         rsaJsonWebKey.setAlgorithm(AlgorithmIdentifiers.RSA_USING_SHA256);
         rsaJsonWebKey.setUse("sig");
+        return rsaJsonWebKey;
+    }
+
+    public IdTokenProvider(RsaJsonWebKey rsaJsonWebKey) throws JoseException {
+        this.rsaJsonWebKey = rsaJsonWebKey;
     }
 
     public String getJwk() {

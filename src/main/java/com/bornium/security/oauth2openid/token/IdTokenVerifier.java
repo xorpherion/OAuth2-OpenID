@@ -39,6 +39,25 @@ public class IdTokenVerifier {
         return result;
     }
 
+    public Map<String, String> verifyAndGetClaims(String idToken, String issuer) throws InvalidJwtException {
+        JwtConsumer consumer = new JwtConsumerBuilder()
+                .setRequireExpirationTime()
+                .setAllowedClockSkewInSeconds(30)
+                .setRequireSubject()
+                .setExpectedIssuer(issuer)
+                .setSkipDefaultAudienceValidation()
+                .setVerificationKeyResolver(jwksResolver)
+                .build();
+
+        JwtClaims claims = consumer.processToClaims(idToken);
+
+        HashMap<String, String> result = new HashMap<>();
+        for (String claim : claims.getClaimNames())
+            result.put(claim, String.valueOf(claims.getClaimValue(claim)));
+
+        return result;
+    }
+
     public Map<String, String> verifyAndGetClaims(String idToken, String issuer, String clientId) throws InvalidJwtException {
         JwtConsumer consumer = new JwtConsumerBuilder()
                 .setRequireExpirationTime()
