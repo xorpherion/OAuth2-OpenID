@@ -21,21 +21,21 @@ public class IdTokenVerifier {
         jwksResolver = new JwksVerificationKeyResolver(new JsonWebKeySet(jwks).getJsonWebKeys());
     }
 
-    public Map<String,String> verifySignedJwt(String jwt) throws InvalidJwtException {
+    public Map<String,Object> verifySignedJwt(String jwt) throws InvalidJwtException {
         JwtConsumer consumer = new JwtConsumerBuilder()
                 .setVerificationKeyResolver(jwksResolver)
                 .build();
 
         JwtClaims claims = consumer.processToClaims(jwt);
 
-        HashMap<String, String> result = new HashMap<>();
+        HashMap<String, Object> result = new HashMap<>();
         for (String claim : claims.getClaimNames())
-            result.put(claim, String.valueOf(claims.getClaimValue(claim)));
+            result.put(claim, claims.getClaimValue(claim));
 
         return result;
     }
 
-    public Map<String, String> verifyAndGetClaims(String idToken) throws InvalidJwtException {
+    public Map<String, Object> verifyAndGetClaims(String idToken) throws InvalidJwtException {
         JwtConsumer consumer = new JwtConsumerBuilder()
                 .setRequireExpirationTime()
                 .setAllowedClockSkewInSeconds(30)
@@ -46,9 +46,9 @@ public class IdTokenVerifier {
 
         JwtClaims claims = consumer.processToClaims(idToken);
 
-        HashMap<String, String> result = new HashMap<>();
+        HashMap<String, Object> result = new HashMap<>();
         for (String claim : claims.getClaimNames())
-            result.put(claim, String.valueOf(claims.getClaimValue(claim)));
+            result.put(claim, claims.getClaimValue(claim));
 
         return result;
     }
