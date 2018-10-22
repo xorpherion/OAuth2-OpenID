@@ -21,6 +21,20 @@ public class IdTokenVerifier {
         jwksResolver = new JwksVerificationKeyResolver(new JsonWebKeySet(jwks).getJsonWebKeys());
     }
 
+    public Map<String,String> verifySignedJwt(String jwt) throws InvalidJwtException {
+        JwtConsumer consumer = new JwtConsumerBuilder()
+                .setVerificationKeyResolver(jwksResolver)
+                .build();
+
+        JwtClaims claims = consumer.processToClaims(jwt);
+
+        HashMap<String, String> result = new HashMap<>();
+        for (String claim : claims.getClaimNames())
+            result.put(claim, String.valueOf(claims.getClaimValue(claim)));
+
+        return result;
+    }
+
     public Map<String, String> verifyAndGetClaims(String idToken) throws InvalidJwtException {
         JwtConsumer consumer = new JwtConsumerBuilder()
                 .setRequireExpirationTime()

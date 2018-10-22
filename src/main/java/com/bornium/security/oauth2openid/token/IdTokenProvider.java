@@ -52,6 +52,36 @@ public class IdTokenProvider {
         return jws.getCompactSerialization();
     }
 
+    public JwtClaims createJwtClaims(Duration validFor, Map<String,String> claims){
+        JwtClaims jwtClaims = new JwtClaims();
+
+        NumericDate expiration = NumericDate.now();
+        expiration.addSeconds(validFor.getSeconds());
+        jwtClaims.setExpirationTime(expiration);
+
+        for (String claim : claims.keySet())
+            jwtClaims.setClaim(claim, claims.get(claim));
+
+        return jwtClaims;
+    }
+
+    public JsonWebSignature signJwt(JwtClaims claims){
+        JsonWebSignature jws = new JsonWebSignature();
+        jws.setPayload(claims.toJson());
+        jws.setKey(rsaJsonWebKey.getPrivateKey());
+        jws.setKeyIdHeaderValue(rsaJsonWebKey.getKeyId());
+        jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA256);
+        return jws;
+    }
+
+    public String toString(JsonWebSignature jws) throws JoseException {
+        return jws.getCompactSerialization();
+    }
+
+    public String createSignedJwt(Duration validFor, Map<String,String> claims) throws JoseException {
+        return toString(signJwt(createJwtClaims(validFor,claims)));
+    }
+
     private JwtClaims createClaims(String issuer, String subject, String clientidOfRecipient, Duration validFor, String authTime, String nonce, Map<String, String> claims) {
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setIssuer(issuer);
