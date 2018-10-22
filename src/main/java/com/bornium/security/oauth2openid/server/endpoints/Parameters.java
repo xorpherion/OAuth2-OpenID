@@ -21,6 +21,17 @@ public class Parameters {
         return result;
     }
 
+    public static Map<String, Object> stripNullParams(Map<String, Object> params) {
+        HashMap<String, Object> result = new HashMap<>();
+        if (params == null)
+            return result;
+        params.keySet().stream().forEach((key) -> {
+            if (params.get(key) != null)
+                result.put(key, params.get(key));
+        });
+        return result;
+    }
+
     public static Map<String, String> createParams(String... tuples) {
         if (tuples.length % 2 != 0)
             throw new IllegalArgumentException("Argument needs to be tuples of key/value");

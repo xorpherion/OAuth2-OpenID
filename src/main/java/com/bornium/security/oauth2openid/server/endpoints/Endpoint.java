@@ -151,7 +151,7 @@ public abstract class Endpoint {
         return jsParams;
     }
 
-    protected Response answerWithJSONBody(int statuscode, Map<String, String> params) throws JsonProcessingException {
+    protected Response answerWithJSONBody(int statuscode, Map<String, Object> params) throws JsonProcessingException {
         return answerWithBody(statuscode, new ObjectMapper().writeValueAsString(params));
     }
 
@@ -159,7 +159,7 @@ public abstract class Endpoint {
         return new ResponseBuilder().statuscode(statuscode).body(body).build();
     }
 
-    protected Response okWithJSONBody(Map<String, String> params) throws JsonProcessingException {
+    protected Response okWithJSONBody(Map params) throws JsonProcessingException {
         return answerWithJSONBody(200, params);
     }
 

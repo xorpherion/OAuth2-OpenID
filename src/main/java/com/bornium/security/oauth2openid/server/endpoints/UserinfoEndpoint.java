@@ -49,11 +49,11 @@ public class UserinfoEndpoint extends Endpoint {
             exc.setResponse(this.answerWithError(401, Constants.ERROR_INVALID_TOKEN));
             return;
         }
-        HashMap<String, String> resp = new HashMap<>();
+        HashMap<String, Object> resp = new HashMap<>();
         Set<String> claims = getValidUserinfoClaimsFromToken(accessToken);
 
-        Map<String, String> claimValues = serverServices.getProvidedServices().getUserDataProvider().getClaims(accessToken.getUsername(), claims);
-        claimValues = Parameters.stripEmptyParams(claimValues);
+        Map<String, Object> claimValues = serverServices.getProvidedServices().getUserDataProvider().getClaims(accessToken.getUsername(), claims);
+        claimValues = Parameters.stripNullParams(claimValues);
 
         resp.putAll(claimValues);
         exc.setResponse(okWithJSONBody(resp));

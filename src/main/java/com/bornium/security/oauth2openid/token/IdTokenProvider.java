@@ -40,7 +40,7 @@ public class IdTokenProvider {
         return "{\"keys\": [ " + rsaJsonWebKey.toJson() + "]}";
     }
 
-    public String createIdToken(String issuer, String subject, String clientidOfRecipient, Duration validFor, String authTime, String nonce, Map<String, String> claims) throws JoseException {
+    public String createIdToken(String issuer, String subject, String clientidOfRecipient, Duration validFor, String authTime, String nonce, Map<String, Object> claims) throws JoseException {
         JwtClaims jwtClaims = createClaims(issuer, subject, clientidOfRecipient, validFor, authTime, nonce, claims);
 
         JsonWebSignature jws = new JsonWebSignature();
@@ -52,7 +52,7 @@ public class IdTokenProvider {
         return jws.getCompactSerialization();
     }
 
-    public JwtClaims createJwtClaims(Duration validFor, Map<String,String> claims){
+    public JwtClaims createJwtClaims(Duration validFor, Map<String,Object> claims){
         JwtClaims jwtClaims = new JwtClaims();
 
         NumericDate expiration = NumericDate.now();
@@ -78,11 +78,11 @@ public class IdTokenProvider {
         return jws.getCompactSerialization();
     }
 
-    public String createSignedJwt(Duration validFor, Map<String,String> claims) throws JoseException {
+    public String createSignedJwt(Duration validFor, Map<String,Object> claims) throws JoseException {
         return toString(signJwt(createJwtClaims(validFor,claims)));
     }
 
-    private JwtClaims createClaims(String issuer, String subject, String clientidOfRecipient, Duration validFor, String authTime, String nonce, Map<String, String> claims) {
+    private JwtClaims createClaims(String issuer, String subject, String clientidOfRecipient, Duration validFor, String authTime, String nonce, Map<String, Object> claims) {
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setIssuer(issuer);
         jwtClaims.setSubject(subject);
@@ -96,7 +96,7 @@ public class IdTokenProvider {
         claims.put(Constants.CLAIM_NONCE, nonce);
         claims.put(Constants.CLAIM_AUTH_TIME, authTime);
         claims.put(Constants.CLAIM_AUTHORIZED_PARTY, clientidOfRecipient);
-        claims = Parameters.stripEmptyParams(claims);
+        claims = Parameters.stripNullParams(claims);
 
         for (String claim : claims.keySet())
             jwtClaims.setClaim(claim, claims.get(claim));

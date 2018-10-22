@@ -57,7 +57,7 @@ public class TokenResponseGenerator extends ResponseGenerator {
             Set<String> idTokenClaimNames = new ClaimsParameter(claims).getAllIdTokenClaimNames();
             idTokenClaimNames.addAll(getServerServices().getSupportedScopes().getClaimsForScope(scope));
             idTokenClaimNames = getServerServices().getSupportedClaims().getValidClaims(idTokenClaimNames);
-            Map<String, String> idTokenClaims = getServerServices().getProvidedServices().getUserDataProvider().getClaims(username, idTokenClaimNames);
+            Map<String, Object> idTokenClaims = getServerServices().getProvidedServices().getUserDataProvider().getClaims(username, idTokenClaimNames);
 
             idTokenClaims.put(Constants.CLAIM_AT_HASH, Util.halfHashFromValue(Constants.ALG_SHA_256, accessTokenValue));
             idTokenClaims.put(Constants.CLAIM_C_HASH, Util.halfHashFromValue(Constants.ALG_SHA_256, code));

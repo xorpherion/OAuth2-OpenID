@@ -105,19 +105,19 @@ public class CombinedTokenManager {
         return createChildBearerToken(Token.defaultValidFor, parent);
     }
 
-    public Token createIdToken(String issuer, String subject, String clientId, Duration validFor, String authTime, String nonce, Map<String, String> claims, String username, String scope, String redirectUri) throws JoseException {
+    public Token createIdToken(String issuer, String subject, String clientId, Duration validFor, String authTime, String nonce, Map<String, Object> claims, String username, String scope, String redirectUri) throws JoseException {
         String idToken = idTokenProvider.createIdToken(issuer, subject, clientId, validFor, authTime, nonce, claims);
         String claimsString = compactMapClaimsToStringClaims(claims);
         return createToken(idToken, username, clientId, validFor, claimsString, scope,redirectUri);
     }
 
-    public Token createChildIdToken(String issuer, String subject, String clientId, Duration validFor, String authTime, String nonce, Map<String, String> claims, Token parent) throws JoseException {
+    public Token createChildIdToken(String issuer, String subject, String clientId, Duration validFor, String authTime, String nonce, Map<String, Object> claims, Token parent) throws JoseException {
         Token result = createIdToken(issuer, subject, clientId, validFor, authTime, nonce, claims, parent.getUsername(), parent.getScope(),parent.getRedirectUri());
         parent.addChild(result);
         return result;
     }
 
-    private String compactMapClaimsToStringClaims(Map<String, String> claims) {
+    private String compactMapClaimsToStringClaims(Map<String, Object> claims) {
         StringBuilder builder = new StringBuilder();
         for (String claim : claims.keySet())
             builder.append(claim).append(" ");
