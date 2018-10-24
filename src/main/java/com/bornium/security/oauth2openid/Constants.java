@@ -70,6 +70,7 @@ public class Constants {
     public static final String ENDPOINT_CONSENT = "/login/consent";
     public static final String ENDPOINT_REVOCATION = "/revoke";
     public static final String ENDPOINT_JWK = "/jwk";
+    public static final String ENDPOINT_WELL_KNOWN = "/.well-known/openid-configuration";
 
     public static final String ENDPOINT_CLIENT_CALLBACK = "/oauth2cb";
 
@@ -115,11 +116,13 @@ public class Constants {
     public static final String HEADER_SET_COOKIE = "Set-Cookie";
     public static final String HEADER_X_FRAME_OPTIONS = "X-Frame-Options";
     public static final String HEADER_HOST = "Host";
+    public static final String HEADER_CONTENT_TYPE = "Content-Type";
 
     //Header values
     public static final String HEADER_VALUE_NO_CACHE = "no-cache";
     public static final String HEADER_VALUE_NO_STORE = "no-store";
     public static final String HEADER_VALUE_SAMEORIGIN = "SAMEORIGIN";
+    public static final String HEADER_VALUE_CONTENT_TYPE_JSON = "application/json";
 
     // Response types
     public static final String TOKEN_TYPE_CODE = "code";

@@ -22,4 +22,6 @@ public interface ProvidedServices {
     Set<String> getSupportedClaims();
 
     String getContextPath();
+
+    String getSubClaimName();
 }

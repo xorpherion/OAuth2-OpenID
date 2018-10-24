@@ -1,12 +1,10 @@
 package com.bornium.security.oauth2openid.server;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.bornium.http.Exchange;
 import com.bornium.http.ResponseBuilder;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.server.endpoints.*;
 import com.bornium.security.oauth2openid.token.IdTokenProvider;
-import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +34,7 @@ public class AuthorizationServer {
         endpoints.add(new UserinfoEndpoint(serverServices));
         endpoints.add(new RevocationEndpoint(serverServices));
         endpoints.add(new JwkEndpoint(serverServices));
+        endpoints.add(new WellKnownEndpoint(serverServices));
     }
 
     public Exchange invokeOn(Exchange exc) throws Exception {

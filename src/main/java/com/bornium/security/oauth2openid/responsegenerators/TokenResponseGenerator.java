@@ -2,10 +2,10 @@ package com.bornium.security.oauth2openid.responsegenerators;
 
 import com.bornium.http.Exchange;
 import com.bornium.security.oauth2openid.Constants;
-import com.bornium.security.oauth2openid.server.ServerServices;
-import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.Util;
 import com.bornium.security.oauth2openid.permissions.ClaimsParameter;
+import com.bornium.security.oauth2openid.providers.Session;
+import com.bornium.security.oauth2openid.server.ServerServices;
 import com.bornium.security.oauth2openid.token.Token;
 
 import java.util.*;

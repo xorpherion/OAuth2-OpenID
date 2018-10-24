@@ -1,14 +1,14 @@
 package com.bornium.security.oauth2openid.server.endpoints;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.CharStreams;
 import com.bornium.http.Exchange;
 import com.bornium.http.Response;
 import com.bornium.http.ResponseBuilder;
 import com.bornium.http.util.BodyUtil;
 import com.bornium.security.oauth2openid.Constants;
-import com.bornium.security.oauth2openid.server.ServerServices;
 import com.bornium.security.oauth2openid.providers.Session;
+import com.bornium.security.oauth2openid.server.ServerServices;
+import com.google.common.base.Charsets;
+import com.google.common.io.CharStreams;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

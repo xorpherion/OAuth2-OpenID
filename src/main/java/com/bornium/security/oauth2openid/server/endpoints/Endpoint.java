@@ -1,17 +1,17 @@
 package com.bornium.security.oauth2openid.server.endpoints;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.bornium.http.Exchange;
 import com.bornium.http.Response;
 import com.bornium.http.ResponseBuilder;
 import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
-import com.bornium.security.oauth2openid.server.ServerServices;
-import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.permissions.ClaimsParameter;
+import com.bornium.security.oauth2openid.providers.Session;
+import com.bornium.security.oauth2openid.server.ServerServices;
 import com.bornium.security.oauth2openid.token.BearerTokenProvider;
 import com.bornium.security.oauth2openid.token.Token;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,11 +152,11 @@ public abstract class Endpoint {
     }
 
     protected Response answerWithJSONBody(int statuscode, Map<String, Object> params) throws JsonProcessingException {
-        return answerWithBody(statuscode, new ObjectMapper().writeValueAsString(params));
+        return answerWithBody(statuscode, new ObjectMapper().writeValueAsString(params), Constants.HEADER_VALUE_CONTENT_TYPE_JSON);
     }
 
-    protected Response answerWithBody(int statuscode, String body) {
-        return new ResponseBuilder().statuscode(statuscode).body(body).build();
+    protected Response answerWithBody(int statuscode, String body, String contentType) {
+        return new ResponseBuilder().statuscode(statuscode).body(body).header(Constants.HEADER_CONTENT_TYPE,contentType).build();
     }
 
     protected Response okWithJSONBody(Map params) throws JsonProcessingException {
@@ -164,7 +164,7 @@ public abstract class Endpoint {
     }
 
     protected Response answerWithError(int statusCode, String error) throws JsonProcessingException {
-        return answerWithBody(statusCode, getErrorBody(error));
+        return answerWithBody(statusCode, getErrorBody(error), "application/json");
 
     }
 

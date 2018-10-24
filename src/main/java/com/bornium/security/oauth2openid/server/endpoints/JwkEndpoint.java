@@ -1,10 +1,10 @@
 package com.bornium.security.oauth2openid.server.endpoints;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.bornium.http.Exchange;
 import com.bornium.http.ResponseBuilder;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.server.ServerServices;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * Created by Xorpherion on 08.02.2017.

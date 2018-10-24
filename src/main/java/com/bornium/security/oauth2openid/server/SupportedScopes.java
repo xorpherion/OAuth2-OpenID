@@ -38,4 +38,8 @@ public class SupportedScopes {
 
         return result;
     }
+
+    public HashMap<String, Scope> getSupportedScopes() {
+        return supportedScopes;
+    }
 }

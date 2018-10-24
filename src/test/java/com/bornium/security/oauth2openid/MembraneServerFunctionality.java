@@ -59,4 +59,9 @@ public class MembraneServerFunctionality implements ProvidedServices {
     public String getContextPath() {
         return "";
     }
+
+    @Override
+    public String getSubClaimName() {
+        return "username";
+    }
 }

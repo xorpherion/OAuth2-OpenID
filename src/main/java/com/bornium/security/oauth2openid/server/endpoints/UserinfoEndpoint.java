@@ -23,7 +23,7 @@ public class UserinfoEndpoint extends Endpoint {
     public void invokeOn(Exchange exc) throws Exception {
         //log.info("Userinfo endpoint");
         if (exc.getRequest().getHeader().getValue(Constants.HEADER_AUTHORIZATION) == null) {
-            exc.setResponse(this.answerWithBody(401, ""));
+            exc.setResponse(this.answerWithBody(401, "", ""));
             exc.getResponse().getHeader().append(Constants.HEADER_WWW_AUTHENTICATE, "Bearer realm=\"token\"");
             return;
         }
@@ -51,6 +51,7 @@ public class UserinfoEndpoint extends Endpoint {
         }
         HashMap<String, Object> resp = new HashMap<>();
         Set<String> claims = getValidUserinfoClaimsFromToken(accessToken);
+        claims.add(serverServices.getProvidedServices().getSubClaimName());
 
         Map<String, Object> claimValues = serverServices.getProvidedServices().getUserDataProvider().getClaims(accessToken.getUsername(), claims);
         claimValues = Parameters.stripNullParams(claimValues);
@@ -60,7 +61,7 @@ public class UserinfoEndpoint extends Endpoint {
     }
 
     private Response createErrorResponse(String error){
-        Response res = this.answerWithBody(401, "");
+        Response res = this.answerWithBody(401, "", "");
         res.getHeader().append(Constants.HEADER_WWW_AUTHENTICATE, "Bearer realm=\"token\", error=" + error);
         return res;
     }

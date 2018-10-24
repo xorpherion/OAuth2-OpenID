@@ -2,8 +2,8 @@ package com.bornium.security.oauth2openid.responsegenerators;
 
 import com.bornium.http.Exchange;
 import com.bornium.security.oauth2openid.Constants;
-import com.bornium.security.oauth2openid.server.ServerServices;
 import com.bornium.security.oauth2openid.providers.Session;
+import com.bornium.security.oauth2openid.server.ServerServices;
 import com.bornium.security.oauth2openid.token.CombinedTokenManager;
 
 import java.util.HashMap;

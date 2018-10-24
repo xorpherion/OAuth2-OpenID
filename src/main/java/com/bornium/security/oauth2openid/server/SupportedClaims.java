@@ -28,4 +28,8 @@ public class SupportedClaims {
     public void addValidClaim(String claim) {
         claims.add(claim);
     }
+
+    public Set<String> getClaims() {
+        return claims;
+    }
 }

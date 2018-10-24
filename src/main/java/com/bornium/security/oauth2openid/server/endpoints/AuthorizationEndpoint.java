@@ -3,9 +3,9 @@ package com.bornium.security.oauth2openid.server.endpoints;
 import com.bornium.http.Exchange;
 import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
-import com.bornium.security.oauth2openid.server.ServerServices;
 import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.responsegenerators.CombinedResponseGenerator;
+import com.bornium.security.oauth2openid.server.ServerServices;
 
 import java.time.Duration;
 import java.time.Instant;
