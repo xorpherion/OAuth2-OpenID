@@ -41,15 +41,16 @@ public class IdTokenProvider {
     }
 
     public String createIdToken(String issuer, String subject, String clientidOfRecipient, Duration validFor, String authTime, String nonce, Map<String, Object> claims) throws JoseException {
-        JwtClaims jwtClaims = createClaims(issuer, subject, clientidOfRecipient, validFor, authTime, nonce, claims);
+        return createIdToken(createClaims(issuer, subject, clientidOfRecipient, validFor, authTime, nonce, claims));
+    }
 
-        JsonWebSignature jws = new JsonWebSignature();
-        jws.setPayload(jwtClaims.toJson());
-        jws.setKey(rsaJsonWebKey.getPrivateKey());
-        jws.setKeyIdHeaderValue(rsaJsonWebKey.getKeyId());
-        jws.setAlgorithmHeaderValue(AlgorithmIdentifiers.RSA_USING_SHA256);
+    public String createIdTokenNoNullClaims(String issuer, String subject, String clientidOfRecipient, Duration validFor, String authTime, String nonce, Map<String, Object> claims) throws JoseException {
+        return createIdToken(createClaimsNoNulls(issuer,subject,clientidOfRecipient,validFor,authTime,nonce,claims));
+    }
 
-        return jws.getCompactSerialization();
+    public String createIdToken(JwtClaims claims) throws JoseException {
+        return signJwt(claims)
+                .getCompactSerialization();
     }
 
     public JwtClaims createJwtClaims(Duration validFor, Map<String,Object> claims){
@@ -100,6 +101,17 @@ public class IdTokenProvider {
 
         for (String claim : claims.keySet())
             jwtClaims.setClaim(claim, claims.get(claim));
+
+        return jwtClaims;
+    }
+
+    private JwtClaims createClaimsNoNulls(String issuer, String subject, String clientidOfRecipient, Duration validFor, String authTime, String nonce, Map<String, Object> claims) {
+        JwtClaims jwtClaims = createClaims(issuer,subject,clientidOfRecipient,validFor,authTime,nonce,claims);
+
+        jwtClaims.getClaimNames().stream().forEach(cln -> {
+            if(jwtClaims.getClaimValue(cln) == null)
+                jwtClaims.unsetClaim(cln);
+        });
         return jwtClaims;
     }
 

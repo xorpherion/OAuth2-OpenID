@@ -90,4 +90,9 @@ public class IdTokenVerifier {
 
         return result;
     }
+
+    public JwtConsumerBuilder createCustomJwtValidator(){
+        return new JwtConsumerBuilder()
+                .setVerificationKeyResolver(jwksResolver);
+    }
 }
