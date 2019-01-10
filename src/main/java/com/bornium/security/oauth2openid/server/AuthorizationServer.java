@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Xorpherion on 25.01.2017.
@@ -24,17 +26,22 @@ public class AuthorizationServer {
     }
 
     public AuthorizationServer(ProvidedServices providedServices, IdTokenProvider idTokenProvider) throws Exception {
+        this(providedServices, idTokenProvider, serverServices -> Arrays.asList(new LoginEndpoint(serverServices)));
+    }
+
+    public AuthorizationServer(ProvidedServices providedServices, IdTokenProvider idTokenProvider, EndpointFactory loginEndpointFactory) throws Exception {
         serverServices = new ServerServices(providedServices, idTokenProvider);
 
         endpoints = new ArrayList<>();
 
         endpoints.add(new AuthorizationEndpoint(serverServices));
-        endpoints.add(new LoginEndpoint(serverServices));
         endpoints.add(new TokenEndpoint(serverServices));
         endpoints.add(new UserinfoEndpoint(serverServices));
         endpoints.add(new RevocationEndpoint(serverServices));
         endpoints.add(new JwkEndpoint(serverServices));
         endpoints.add(new WellKnownEndpoint(serverServices));
+
+        endpoints.addAll(loginEndpointFactory.createEndpoints(serverServices));
     }
 
     public Exchange invokeOn(Exchange exc) throws Exception {
