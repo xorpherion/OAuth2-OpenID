@@ -8,7 +8,7 @@ import java.util.Collections;
 /**
  * Created by Xorpherion on 25.01.2017.
  */
-public class Token {
+public abstract class Token {
 
     static Duration defaultValidFor = Duration.ofMinutes(10);
     static Duration defaultValidForLong = Duration.ofDays(1);

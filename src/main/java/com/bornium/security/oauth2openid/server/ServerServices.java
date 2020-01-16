@@ -21,7 +21,7 @@ public class ServerServices {
 
     public ServerServices(ProvidedServices providedServices, IdTokenProvider idTokenProvider) {
         this.providedServices = providedServices;
-        this.tokenManager = new CombinedTokenManager(idTokenProvider);
+        this.tokenManager = new CombinedTokenManager(idTokenProvider, providedServices.getTokenPersistenceProvider());
         this.supportedScopes = new SupportedScopes(defaultScopes());
         this.supportedClaims = new SupportedClaims(supportedClaims());
 
