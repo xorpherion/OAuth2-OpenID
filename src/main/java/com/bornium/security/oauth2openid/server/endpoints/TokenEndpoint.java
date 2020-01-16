@@ -9,6 +9,8 @@ import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.responsegenerators.CombinedResponseGenerator;
 import com.bornium.security.oauth2openid.server.ServerServices;
 import com.bornium.security.oauth2openid.token.Token;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -50,22 +52,26 @@ public class TokenEndpoint extends Endpoint {
         if (clientId == null)
             clientId = params.get(Constants.PARAMETER_CLIENT_ID);
         if (clientId == null) {
+            log.debug("No clientId detected.");
             exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
             return;
         }
         if (!clientIsAuthorized && serverServices.getProvidedServices().getClientDataProvider().isConfidential(clientId) && !serverServices.getProvidedServices().getClientDataProvider().verify(clientId,params.get("client_secret"))) {
+            log.debug("Client is confidential and client_secret incorrect.");
             exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
             return;
         }
         session.putValue(Constants.PARAMETER_CLIENT_ID, clientId);
 
         if (params.get(Constants.PARAMETER_GRANT_TYPE) == null) {
+            log.debug("Parameter 'grant_type' missing.");
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
             return;
         }
 
         String grantType = params.get(Constants.PARAMETER_GRANT_TYPE);
         if (!grantTypeIsSupported(grantType)) {
+            log.debug("Unsupported grant_type: " + grantType);
             exc.setResponse(answerWithError(400, Constants.ERROR_UNSUPPORTED_GRANT_TYPE));
             return;
         }
@@ -74,11 +80,13 @@ public class TokenEndpoint extends Endpoint {
         if(grantType.equals(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE)) {
             String code = params.get("code");
             if(code == null){
+                log.debug("Parameter 'code' is missing.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
                 return;
             }
             Token token = serverServices.getTokenManager().getAuthorizationCodes().getToken(code);
             if(token == null){
+                log.debug("Code is invalid.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
@@ -86,6 +94,7 @@ public class TokenEndpoint extends Endpoint {
         }
 
         if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE)) || scopeIsSuperior(session.getValue(Constants.PARAMETER_SCOPE), params.get(Constants.PARAMETER_SCOPE))) {
+            log.debug("Scope '" + params.get(Constants.PARAMETER_SCOPE) + "' from parameter is not supported or is supperior to session scope.");
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_SCOPE));
             return;
         }
@@ -94,11 +103,13 @@ public class TokenEndpoint extends Endpoint {
         if (grantType.equals(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE)) {
             Token token = serverServices.getTokenManager().getAuthorizationCodes().getToken(params.get(Constants.PARAMETER_CODE));
             if (params.get(Constants.PARAMETER_REDIRECT_URI) == null || !token.getRedirectUri().equals(params.get(Constants.PARAMETER_REDIRECT_URI)) || params.get(Constants.PARAMETER_CODE) == null) {
+                log.debug("Parameter redirect_uri does not match the token's redirect_uri.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
                 return;
             }
             String code = params.get(Constants.PARAMETER_CODE);
             if (!serverServices.getTokenManager().getAuthorizationCodes().tokenExists(code)) {
+                log.debug("Code is invalid.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
@@ -107,22 +118,26 @@ public class TokenEndpoint extends Endpoint {
 
             if (authorizationCodeToken.getUsages() > 0) {
                 authorizationCodeToken.revokeCascade();
+                log.debug("Code has already been used, revoking all child tokens.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
 
             if (authorizationCodeToken.isExpired()) {
+                log.debug("Code is expired.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
 
             if (!authorizationCodeToken.getClientId().equals(clientId)) {
+                log.debug("Code does not fit to the clientId.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
 
             Set<String> redirectUri = serverServices.getProvidedServices().getClientDataProvider().getRedirectUris(clientId);
             if (!redirectUri.contains(params.get(Constants.PARAMETER_REDIRECT_URI))) {
+                log.debug("Parameter redirect_uri does not match one of the client's redirect_uris.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
                 return;
             }
@@ -133,10 +148,12 @@ public class TokenEndpoint extends Endpoint {
 
         if (grantType.equals(Constants.PARAMETER_VALUE_PASSWORD)) {
             if (params.get(Constants.PARAMETER_USERNAME) == null || params.get(Constants.PARAMETER_PASSWORD) == null) {
+                log.debug("Parameter username or password missing.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
                 return;
             }
             if(!serverServices.getProvidedServices().getUserDataProvider().verifyUser(params.get(Constants.PARAMETER_USERNAME), params.get(Constants.PARAMETER_PASSWORD))){
+                log.debug("Parameter username or password incorrect.");
                 exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
                 return;
             }
@@ -145,16 +162,19 @@ public class TokenEndpoint extends Endpoint {
 
         if (grantType.equals(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS))
             if (!clientIsAuthorized) {
+                log.debug("Client is not authorized.");
                 exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
                 return;
             }
         if (grantType.equals(Constants.PARAMETER_VALUE_REFRESH_TOKEN)) {
             if (params.get(Constants.PARAMETER_REFRESH_TOKEN) == null) {
+                log.debug("Parameter refresh_token is missing.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
                 return;
             }
             String refreshToken = params.get(Constants.PARAMETER_REFRESH_TOKEN);
             if (!serverServices.getTokenManager().getRefreshTokens().tokenExists(refreshToken)) {
+                log.debug("RefreshToken is not known.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
@@ -163,16 +183,19 @@ public class TokenEndpoint extends Endpoint {
 
             if (refreshTokenToken.getUsages() > 0) {
                 refreshTokenToken.revokeCascade();
+                log.debug("RefreshToken has already been used, revoking all child tokens.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
 
             if (refreshTokenToken.isExpired() || refreshTokenToken.getUsages() > 1) {
+                log.debug("RefreshToken is expired.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
 
             if (!refreshTokenToken.getClientId().equals(clientId)) {
+                log.debug("RefreshToken does not fit to the clientId.");
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
