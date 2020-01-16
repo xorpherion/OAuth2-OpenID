@@ -23,7 +23,7 @@ public class Token {
     private final String redirectUri;
     private final ArrayList<Token> children;
     private int usages;
-    private boolean manuallyRevoked = false;
+    private boolean manuallyRevoked;
 
     public Token(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, String scope, String redirectUri, Token... children) {
         this.value = value;
@@ -34,26 +34,29 @@ public class Token {
         this.claims = claims;
         this.scope = scope;
         this.redirectUri = redirectUri;
-        this.children = new ArrayList<>();
-        Collections.addAll(this.children, children);
-        usages = 0;
+        synchronized (this) {
+            this.children = new ArrayList<>();
+            Collections.addAll(this.children, children);
+            usages = 0;
+            manuallyRevoked = false;
+        }
     }
 
-    public void revokeCascade() {
+    public synchronized void revokeCascade() {
         manuallyRevoked = true;
         for (Token t : children)
             t.revokeCascade();
     }
 
-    public void addChild(Token child) {
+    public synchronized void addChild(Token child) {
         children.add(child);
     }
 
-    public void incrementUsage() {
+    public synchronized void incrementUsage() {
         usages++;
     }
 
-    public boolean isExpired() {
+    public synchronized boolean isExpired() {
         return LocalDateTime.now().isAfter(LocalDateTime.now().plus(validFor)) || manuallyRevoked;
     }
 
@@ -85,11 +88,11 @@ public class Token {
         return claims;
     }
 
-    public ArrayList getChildren() {
+    public synchronized ArrayList getChildren() {
         return children;
     }
 
-    public int getUsages() {
+    public synchronized int getUsages() {
         return usages;
     }
 
@@ -101,7 +104,7 @@ public class Token {
         return scope;
     }
 
-    public boolean isManuallyRevoked() {
+    public synchronized boolean isManuallyRevoked() {
         return manuallyRevoked;
     }
 
