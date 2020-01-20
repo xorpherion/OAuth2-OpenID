@@ -25,12 +25,14 @@ public class RevocationEndpoint extends Endpoint {
         params = Parameters.stripEmptyParams(params);
 
         if (params.get(Constants.PARAMETER_TOKEN) == null) {
+            log.debug("Parameter 'token' is missing.");
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
             return;
         }
 
         Token token = serverServices.getTokenManager().findToken(params.get(Constants.PARAMETER_TOKEN));
         if (token == null) {
+            log.debug("Token ('" + params.get(Constants.PARAMETER_TOKEN) + "') is not known.");
             exc.setResponse(new ResponseBuilder().statuscode(200).build());
             return;
         }
@@ -56,11 +58,13 @@ public class RevocationEndpoint extends Endpoint {
             clientId = token.getClientId();
 
         if (!clientIsAuthorized && serverServices.getProvidedServices().getClientDataProvider().isConfidential(clientId)) {
+            log.debug("Client is not authorized, but confidential.");
             exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
             return;
         }
 
         if (!clientId.equals(token.getClientId())) {
+            log.debug("Client does not fit to the token.");
             exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
             return;
         }

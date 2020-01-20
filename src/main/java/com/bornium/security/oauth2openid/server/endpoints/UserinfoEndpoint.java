@@ -23,16 +23,19 @@ public class UserinfoEndpoint extends Endpoint {
     public void invokeOn(Exchange exc) throws Exception {
         //log.info("Userinfo endpoint");
         if (exc.getRequest().getHeader().getValue(Constants.HEADER_AUTHORIZATION) == null) {
+            log.debug("Header 'Authorization' is missing.");
             exc.setResponse(this.answerWithBody(401, "", ""));
             exc.getResponse().getHeader().append(Constants.HEADER_WWW_AUTHENTICATE, "Bearer realm=\"token\"");
             return;
         }
         String[] authHeader = exc.getRequest().getHeader().getValue(Constants.HEADER_AUTHORIZATION).split(Pattern.quote(" "));
         if (authHeader.length != 2) {
+            log.debug("Authorization header is badly formatted.");
             exc.setResponse(this.answerWithError(401, Constants.ERROR_INVALID_TOKEN));
             return;
         }
         if (!Constants.PARAMETER_VALUE_BEARER.equals(authHeader[0])) {
+            log.debug("Authorization type is not 'Bearer'.");
             exc.setResponse(this.answerWithError(401, Constants.ERROR_INVALID_TOKEN));
             return;
         }
@@ -40,12 +43,14 @@ public class UserinfoEndpoint extends Endpoint {
         String accessTokenValue = authHeader[1];
 
         if (!serverServices.getTokenManager().getAccessTokens().tokenExists(accessTokenValue)) {
+            log.debug("Authorization token is unknown.");
             exc.setResponse(this.answerWithError(401, Constants.ERROR_INVALID_TOKEN));
             return;
         }
 
         Token accessToken = serverServices.getTokenManager().getAccessTokens().getToken(accessTokenValue);
         if (accessToken.isExpired()) {
+            log.debug("Authorization token is expired.");
             exc.setResponse(this.answerWithError(401, Constants.ERROR_INVALID_TOKEN));
             return;
         }

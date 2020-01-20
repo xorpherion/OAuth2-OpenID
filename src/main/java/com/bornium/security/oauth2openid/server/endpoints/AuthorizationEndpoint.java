@@ -42,16 +42,19 @@ public class AuthorizationEndpoint extends Endpoint {
             Map<String, String> params = getParams(exc);
 
             if (redirectUriOrClientIdProblem(params)) {
+                log.debug("Parameters client_id ('" + params.get(Constants.PARAMETER_CLIENT_ID) + "') or redirect_uri ('" + params.get(Constants.PARAMETER_REDIRECT_URI) + "') have problems.");
                 exc.setResponse(informResourceOwnerError(Constants.ERROR_INVALID_REQUEST));
                 return;
             }
 
             if (params.get(Constants.PARAMETER_RESPONSE_TYPE) == null) {
+                log.debug("Parameter response_type is missing.");
                 exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE), false));
                 return;
             }
 
             if (!responseTypeIsSupported(params.get(Constants.PARAMETER_RESPONSE_TYPE))) {
+                log.debug("ResponseType ('" + params.get(Constants.PARAMETER_RESPONSE_TYPE) + "') is not supported.");
                 exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_UNSUPPORTED_RESPONSE_TYPE, params.get(Constants.PARAMETER_STATE), false));
                 return;
             }
@@ -61,11 +64,13 @@ public class AuthorizationEndpoint extends Endpoint {
 
             if (hasOpenIdScope(exc))
                 if (isImplicitFlowAndHasNoNonceValue(params)) {
+                    log.debug("Implicit Flow is used, but no nonce value present.");
                     exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                     return;
                 }
 
             if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE))) {
+                log.debug("Scope ('" + params.get(Constants.PARAMETER_SCOPE) + "') not supported.");
                 exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_SCOPE, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                 return;
             }
@@ -83,6 +88,7 @@ public class AuthorizationEndpoint extends Endpoint {
                         session.clear();
                     if (prompt.equals(Constants.PARAMETER_VALUE_NONE))
                         if (!isLoggedInAndHasGivenConsent(exc)) {
+                            log.debug("Session is not logged in or has not given consent.");
                             exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INTERACTION_REQUIRED, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                             return;
                         }
@@ -93,16 +99,19 @@ public class AuthorizationEndpoint extends Endpoint {
                         if (maxAge < 0)
                             throw new RuntimeException(); // exception is used as control flow only because Integer.parseInt throws anyway on error
                     } catch (Exception e) {
+                        log.debug("MaxAge ('" + params.get(Constants.PARAMETER_MAX_AGE) + "') has a problem.");
                         exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                         return;
                     }
                 }
 
                 if (params.containsKey(Constants.PARAMETER_REQUEST)) {
+                    log.debug("Parameter 'request' not supported with OpenId Scope.");
                     exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_REQUEST_NOT_SUPPORTED, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                     return;
                 }
                 if (params.containsKey(Constants.PARAMETER_REQUEST_URI)) {
+                    log.debug("Parameter 'request_uri' not supported with OpenId Scope.");
                     exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_REQUEST_URI_NOT_SUPPORTED, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
                     return;
                 }
@@ -119,8 +128,10 @@ public class AuthorizationEndpoint extends Endpoint {
             // this is ENDPOINT_AFTER_LOGIN
             if (isLoggedInAndHasGivenConsent(exc)) {
                 answerWithToken(exc, session);
-            } else
+            } else {
+                log.debug("Session is not logged in or has not given consent.");
                 exc.setResponse(redirectToCallbackWithError(session.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED, session.getValue(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, session)));
+            }
         }
 
     }
