@@ -50,10 +50,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gpg.keyname>083E7A237B190D36</gpg.keyname>
 
-        <jackson.core.version>2.8.11.1</jackson.core.version>
+        <jackson.core.version>2.9.10.1</jackson.core.version>
         <slf4j.version>1.7.5</slf4j.version>
         <guava.version>21.0</guava.version>
-        <jose4j.version>0.5.4</jose4j.version>
+        <jose4j.version>0.5.5</jose4j.version>
     </properties>
 
     <dependencies>
@@ -118,6 +118,9 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>2.10.1</version>
+                        <configuration>
+                            <source>8</source>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>

@@ -36,6 +36,7 @@ public class UtilMembrane {
 
     public static Router startMembraneWithProxies(ServiceProxy... sps) throws Exception {
         HttpRouter router = new HttpRouter();
+        router.getTransport().setForceSocketCloseOnHotDeployAfter(1000);
         router.setHotDeploy(false);
 
         for (ServiceProxy sp : sps)
