@@ -1,5 +1,6 @@
 package com.bornium.security.oauth2openid.token;
 
+import com.bornium.security.oauth2openid.providers.TokenPersistenceProvider;
 import org.jose4j.lang.JoseException;
 
 import java.time.Duration;
@@ -13,25 +14,22 @@ public class CombinedTokenManager {
 
     private final BearerTokenProvider tokenProvider;
     private final IdTokenProvider idTokenProvider;
+    private final TokenPersistenceProvider tokenPersistenceProvider;
 
     TokenManager authorizationCodes;
     TokenManager accessTokens;
     TokenManager refreshTokens;
     TokenManager idTokens;
 
-
-    public CombinedTokenManager() throws JoseException {
-        this(new IdTokenProvider());
-    }
-
-    public CombinedTokenManager(IdTokenProvider idTokenProvider) {
+    public CombinedTokenManager(IdTokenProvider idTokenProvider, TokenPersistenceProvider tokenPersistenceProvider) {
         this.idTokenProvider = idTokenProvider;
         tokenProvider = new BearerTokenProvider();
+        this.tokenPersistenceProvider = tokenPersistenceProvider;
 
-        authorizationCodes = new TokenManager();
-        accessTokens = new TokenManager();
-        refreshTokens = new TokenManager();
-        idTokens = new TokenManager();
+        authorizationCodes = tokenPersistenceProvider.createTokenManager("auth");
+        accessTokens = tokenPersistenceProvider.createTokenManager("access");
+        refreshTokens = tokenPersistenceProvider.createTokenManager("refresh");
+        idTokens = tokenPersistenceProvider.createTokenManager("id");
     }
 
     public String getJwk() {
@@ -80,7 +78,7 @@ public class CombinedTokenManager {
     }
 
     public Token createToken(String value, String username, String clientId, Duration validFor, String claims, String scope, String redirectUri) {
-        return new Token(value, username, clientId, LocalDateTime.now(), validFor, claims, scope, redirectUri);
+        return tokenPersistenceProvider.createToken(value, username, clientId, LocalDateTime.now(), validFor, claims, scope, redirectUri);
     }
 
     public Token createBearerToken(String username, String clientId, Duration validFor, String claims, String scope, String redirectUri) {
