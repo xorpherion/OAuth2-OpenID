@@ -12,7 +12,7 @@ import com.bornium.security.oauth2openid.token.BearerTokenProvider;
 import com.bornium.security.oauth2openid.token.Token;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import org.jose4j.base64url.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
