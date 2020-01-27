@@ -226,7 +226,8 @@ public class Common {
         Map<String, String> params = new HashMap<>();
         params.put(Constants.PARAMETER_GRANT_TYPE, Constants.PARAMETER_VALUE_REFRESH_TOKEN);
         params.put(Constants.PARAMETER_REFRESH_TOKEN, refreshToken);
-        params.put(Constants.PARAMETER_SCOPE, scope);
+        if (scope != null)
+            params.put(Constants.PARAMETER_SCOPE, scope);
 
         params = Parameters.stripEmptyParams(params);
 

@@ -158,4 +158,26 @@ public class RefreshToken {
                     );
                 });
     }
+
+    @Test
+    public void missingScope() throws Exception {
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.preStepAndRefreshTokenRequest(getPreStep(), null, ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(200, exc.getResponse().getStatuscode()),
+                            () -> assertNotNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ACCESS_TOKEN)),
+                            () -> assertNotNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_EXPIRES_IN)),
+                            () -> assertNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_CODE)),
+                            () -> assertNotNull(Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_REFRESH_TOKEN))
+                    );
+                });
+    }
 }

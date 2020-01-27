@@ -93,12 +93,16 @@ public class TokenEndpoint extends Endpoint {
             params.put(Constants.PARAMETER_SCOPE, token.getScope());
         }
 
-        if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE)) || scopeIsSuperior(session.getValue(Constants.PARAMETER_SCOPE), params.get(Constants.PARAMETER_SCOPE))) {
-            log.debug("Scope '" + params.get(Constants.PARAMETER_SCOPE) + "' from parameter is not supported or is supperior to session scope.");
+        String scopes = params.get(Constants.PARAMETER_SCOPE);
+        if(scopes == null && grantType.equals(Constants.PARAMETER_VALUE_REFRESH_TOKEN) && params.get(Constants.PARAMETER_REFRESH_TOKEN) != null)
+            scopes = serverServices.getTokenManager().getRefreshTokens().getToken(params.get(Constants.PARAMETER_REFRESH_TOKEN)).getScope();
+
+        if (!serverServices.getSupportedScopes().scopesSupported(scopes) || scopeIsSuperior(session.getValue(Constants.PARAMETER_SCOPE), scopes)) {
+            log.debug("Scope '" + scopes + "' from parameter is not supported or is supperior to session scope.");
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_SCOPE));
             return;
         }
-        session.putValue(Constants.PARAMETER_SCOPE, params.get(Constants.PARAMETER_SCOPE));
+        session.putValue(Constants.PARAMETER_SCOPE, scopes);
 
         if (grantType.equals(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE)) {
             Token token = serverServices.getTokenManager().getAuthorizationCodes().getToken(params.get(Constants.PARAMETER_CODE));
