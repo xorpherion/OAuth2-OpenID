@@ -94,8 +94,15 @@ public class TokenEndpoint extends Endpoint {
         }
 
         String scopes = params.get(Constants.PARAMETER_SCOPE);
-        if(scopes == null && grantType.equals(Constants.PARAMETER_VALUE_REFRESH_TOKEN) && params.get(Constants.PARAMETER_REFRESH_TOKEN) != null)
-            scopes = serverServices.getTokenManager().getRefreshTokens().getToken(params.get(Constants.PARAMETER_REFRESH_TOKEN)).getScope();
+        if(scopes == null && grantType.equals(Constants.PARAMETER_VALUE_REFRESH_TOKEN) && params.get(Constants.PARAMETER_REFRESH_TOKEN) != null) {
+            String maybeRefreshToken = params.get(Constants.PARAMETER_REFRESH_TOKEN);
+            if (!serverServices.getTokenManager().getRefreshTokens().tokenExists(maybeRefreshToken)) {
+                log.debug("RefreshToken is not known.");
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                return;
+            }
+            scopes = serverServices.getTokenManager().getRefreshTokens().getToken(maybeRefreshToken).getScope();
+        }
 
         if (!serverServices.getSupportedScopes().scopesSupported(scopes) || scopeIsSuperior(session.getValue(Constants.PARAMETER_SCOPE), scopes)) {
             log.debug("Scope '" + scopes + "' from parameter is not supported or is supperior to session scope.");
