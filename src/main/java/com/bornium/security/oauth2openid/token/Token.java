@@ -22,10 +22,11 @@ public abstract class Token {
     private final String scope;
     private final String redirectUri;
     private final ArrayList<Token> children;
+    private final String nonce;
     private int usages;
     private boolean manuallyRevoked;
 
-    public Token(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, String scope, String redirectUri, Token... children) {
+    public Token(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, String scope, String redirectUri, String nonce, Token... children) {
         this.value = value;
         this.username = username;
         this.clientId = clientId;
@@ -34,6 +35,7 @@ public abstract class Token {
         this.claims = claims;
         this.scope = scope;
         this.redirectUri = redirectUri;
+        this.nonce = nonce;
         synchronized (this) {
             this.children = new ArrayList<>();
             Collections.addAll(this.children, children);
@@ -112,4 +114,7 @@ public abstract class Token {
         return redirectUri;
     }
 
+    public String getNonce() {
+        return nonce;
+    }
 }

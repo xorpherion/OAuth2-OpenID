@@ -16,7 +16,7 @@ public interface TokenPersistenceProvider {
      *     <li>by calling <code>token.addChild(...)</code> on another token.</li>
      * </ul>
      */
-    Token createToken(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, String scope, String redirectUri);
+    Token createToken(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, String scope, String redirectUri, String nonce);
 
     /**
      * @param tokenManagerId a unique string identifying this TokenManager instance within the persistenceProvider
