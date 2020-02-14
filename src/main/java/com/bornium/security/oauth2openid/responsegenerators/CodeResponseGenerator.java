@@ -25,7 +25,8 @@ public class CodeResponseGenerator extends ResponseGenerator {
         String scope = getSession().getValue(Constants.PARAMETER_SCOPE);
         String state = getSession().getValue(Constants.PARAMETER_STATE);
         String redirectUri = getSession().getValue(Constants.PARAMETER_REDIRECT_URI);
-        Token authCode = getTokenManager().addTokenToManager(getTokenManager().getAuthorizationCodes(), getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, claims, scope,redirectUri));
+        String nonce = getSession().getValue(Constants.PARAMETER_NONCE);
+        Token authCode = getTokenManager().addTokenToManager(getTokenManager().getAuthorizationCodes(), getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, claims, scope, redirectUri, nonce));
 
         Map<String, String> result = new HashMap<>();
         result.put(Constants.PARAMETER_CODE, authCode.getValue());

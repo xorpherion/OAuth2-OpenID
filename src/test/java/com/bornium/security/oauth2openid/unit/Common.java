@@ -190,9 +190,9 @@ public class Common {
         Map<String, String> params = createBodyParams(grantType, code, redirectUri, scope, username, password);
 
         if (clientSecret == null)
-            return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)), cookie).buildExchange();
+            return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)), useFragment ? null : cookie).buildExchange();
         String authHeader = Util.encodeToBasicAuthValue(clientId, clientSecret);
-        return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_AUTHORIZATION, authHeader), cookie).buildExchange();
+        return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)).header(Constants.HEADER_AUTHORIZATION, authHeader), useFragment ? null : cookie).buildExchange();
     }
 
     private static RequestBuilder addCookieIfNotNull(RequestBuilder response, String cookie) {
