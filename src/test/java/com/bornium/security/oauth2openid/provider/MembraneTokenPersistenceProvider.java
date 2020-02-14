@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 
 public class MembraneTokenPersistenceProvider implements TokenPersistenceProvider {
     public static class InMemoryToken extends Token {
-        public InMemoryToken(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, String scope, String redirectUri, Token... children) {
-            super(value, username, clientId, issued, validFor, claims, scope, redirectUri, children);
+        public InMemoryToken(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, String scope, String redirectUri, String nonce, Token... children) {
+            super(value, username, clientId, issued, validFor, claims, scope, redirectUri, nonce, children);
         }
     }
 
     @Override
-    public Token createToken(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, String scope, String redirectUri) {
-        return new InMemoryToken(value, username, clientId, issued, validFor, claims, scope, redirectUri);
+    public Token createToken(String value, String username, String clientId, LocalDateTime issued, Duration validFor, String claims, String scope, String redirectUri, String nonce) {
+        return new InMemoryToken(value, username, clientId, issued, validFor, claims, scope, redirectUri, nonce);
     }
 
     @Override
