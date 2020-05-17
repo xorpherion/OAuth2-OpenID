@@ -144,14 +144,6 @@ public class AuthorizationEndpoint extends Endpoint {
         return session.getValue(Constants.PARAMETER_MAX_AGE) != null;
     }
 
-    private Map<String, String> getParams(Exchange exc) {
-        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getRawQuery());
-        if (params.isEmpty())
-            params = UriUtil.queryToParameters(exc.getRequest().getBody());
-        params = Parameters.stripEmptyParams(params);
-        return params;
-    }
-
     private boolean requestTargetsTheAuthorizationEndpoint(Exchange exc) {
         return exc.getRequest().getUri().getPath().endsWith(Constants.ENDPOINT_AUTHORIZATION);
     }

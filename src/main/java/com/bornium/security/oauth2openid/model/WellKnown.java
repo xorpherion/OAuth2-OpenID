@@ -12,6 +12,8 @@ public class WellKnown {
 
     @JsonProperty("authorization_endpoint")
     String authorizationEndpoint;
+    @JsonProperty("device_authorization_endpoint")
+    String deviceAuthorizationEndpoint;
     @JsonProperty("token_endpoint")
     String tokenEndpoint;
     @JsonProperty("userinfo_endpoint")
@@ -37,13 +39,14 @@ public class WellKnown {
     @JsonProperty("code_challenge_methods_supported")
     List<String> codeChallengeMethodsSupported;
 
-    public WellKnown(String issuer, String authorizationEndpoint, String tokenEndpoint,
+    public WellKnown(String issuer, String authorizationEndpoint, String deviceAuthorizationEndpoint, String tokenEndpoint,
                      String userinfoEndpoint, String revocationEndpoint, String jwksUri,
                      List<String> responseTypesSupported, List<String> grantTypesSupported, List<String> subjectTypesSupported, List<String> idTokenSigningAlgValuesSupported,
                      List<String> scopesSupported, List<String> tokenEndpointAuthMethodsSupported, List<String> claimsSupported,
                      List<String> codeChallengeMethodsSupported) {
         this.issuer = issuer;
         this.authorizationEndpoint = authorizationEndpoint;
+        this.deviceAuthorizationEndpoint = deviceAuthorizationEndpoint;
         this.tokenEndpoint = tokenEndpoint;
         this.userinfoEndpoint = userinfoEndpoint;
         this.revocationEndpoint = revocationEndpoint;
@@ -72,6 +75,14 @@ public class WellKnown {
 
     public void setAuthorizationEndpoint(String authorizationEndpoint) {
         this.authorizationEndpoint = authorizationEndpoint;
+    }
+
+    public String getDeviceAuthorizationEndpoint() {
+        return deviceAuthorizationEndpoint;
+    }
+
+    public void setDeviceAuthorizationEndpoint(String deviceAuthorizationEndpoint) {
+        this.deviceAuthorizationEndpoint = deviceAuthorizationEndpoint;
     }
 
     public String getTokenEndpoint() {

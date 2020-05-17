@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+        var decodeFragmentValue = function(part){
+            return decodeURIComponent(part).replace(/\+/g, ' ')
+        }
+
+        var decodeBase64 = function(part){
+            return atob(part);
+        }
+
+        var getSingleEncodedFragmentAsJson = function(fragment){
+            return JSON.parse(decodeBase64(decodeFragmentValue(fragment)))
+        }
+
+        var accept = function(){
+            document.getElementById("consent").value = "yes";
+            return true;
+        }
+
+        var deny = function(){
+            document.getElementById("consent").value = "no";
+            return true;
+        }
+
+        $(document).ready(function(){
+            document.getElementById("accept").onclick = accept;
+            document.getElementById("deny").onclick = deny;
+
+            if(window.location.hash){
+                var params = getSingleEncodedFragmentAsJson(window.location.hash.split('=')[1]);
+                if(params.error)
+                    document.getElementById("error").appendChild(document.createTextNode(params.error));
+                if(params.scope) {
+                    document.getElementById("scopes").appendChild(document.createTextNode(params.scope));
+                    document.getElementById("scope").value = params.scope;
+                }
+                if(params.user_code)
+                    document.getElementById("user_code").value = params.user_code;
+            }
+        });
+
+    </script>
+</head>
+<body>
+<div id="usercodepage" class="container">
+    <p>Device Verification Page</p>
+    <p id="error"></p>
+    <p id="scopes">Please accept following scopes: </p>
+    <p>(Descriptions for scopes and claims can be found at http://openid.net/specs/openid-connect-core-1_0.html</p>
+    <form name="consent" method="post" accept-charset="utf-8">
+        <ul>
+            <li>
+                <input id="accept" type="submit" value="Accept"></li>
+            <li>
+                <input id="deny" type="submit" value="Deny"></li>
+        </ul>
+        <input id="user_code" type="text" name="user_code">
+        <input id="scope" type="hidden" name="scope">
+        <input id="consent" type="hidden" name="consent">
+    </form>
+</div>
+</body>
+</html>

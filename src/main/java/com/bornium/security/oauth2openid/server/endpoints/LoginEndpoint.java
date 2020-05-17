@@ -90,7 +90,11 @@ public class LoginEndpoint extends Endpoint {
         session.putValue(Constants.LOGIN_USERNAME, username);
         session.putValue(Constants.SESSION_LOGGED_IN, Constants.VALUE_YES);
         session.putValue(Constants.PARAMETER_AUTH_TIME, String.valueOf(Instant.now().getEpochSecond()));
-        exc.setResponse(redirectToConsent(getConsentPageParams(session)));
+
+        if (session.getValue(Constants.PARAMETER_USER_CODE) != null)
+            exc.setResponse(redirectToDeviceVerification(getDeviceVerificationPageParams(session)));
+        else
+            exc.setResponse(redirectToConsent(getConsentPageParams(session)));
     }
 
     private Map<String, String> possibleCSRFError(Session session) throws Exception {
@@ -112,6 +116,12 @@ public class LoginEndpoint extends Endpoint {
     private Map<String, String> couldNotVerifyUserError(Session session) throws Exception {
         HashMap<String, String> result = new HashMap<>(prepareJsStateParameter(session));
         result.put(Constants.PARAMETER_ERROR, Constants.ERROR_COULD_NOT_VALIDATE_USER);
+        return result;
+    }
+
+    private Map<String, String> getDeviceVerificationPageParams(Session session) throws Exception {
+        HashMap<String, String> result = new HashMap<>(prepareJsStateParameter(session));
+        result.put(Constants.PARAMETER_USER_CODE, session.getValue(Constants.PARAMETER_USER_CODE));
         return result;
     }
 

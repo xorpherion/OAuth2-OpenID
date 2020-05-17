@@ -142,6 +142,10 @@ public abstract class Endpoint {
         return redirectToUrl(serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_CONSENT + "#params=" + prepareJSParams(params), null);
     }
 
+    protected Response redirectToDeviceVerification(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {
+        return redirectToUrl(serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_VERIFICATION + "#params=" + prepareJSParams(params), null);
+    }
+
     protected HashMap<String, String> prepareJsStateParameter(Session session) throws Exception {
         String stateToken = loginStateProvider.get();
         session.putValue(Constants.SESSION_LOGIN_STATE, stateToken);
@@ -202,4 +206,13 @@ public abstract class Endpoint {
             }
         return defaultValue;
     }
+
+    protected Map<String, String> getParams(Exchange exc) {
+        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getRawQuery());
+        if (params.isEmpty())
+            params = UriUtil.queryToParameters(exc.getRequest().getBody());
+        params = Parameters.stripEmptyParams(params);
+        return params;
+    }
+
 }

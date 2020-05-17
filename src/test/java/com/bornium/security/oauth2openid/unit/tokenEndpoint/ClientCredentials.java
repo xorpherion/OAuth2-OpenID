@@ -56,12 +56,17 @@ public class ClientCredentials extends BaseTokenEndpointTests {
         return null;
     }
 
+    @Override
+    public String getDeviceCode() {
+        return null;
+    }
+
     @Test
     public void goodRequest() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), getDeviceCode());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }

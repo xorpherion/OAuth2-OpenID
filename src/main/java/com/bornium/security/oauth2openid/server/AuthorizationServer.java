@@ -35,11 +35,13 @@ public class AuthorizationServer {
         endpoints = new ArrayList<>();
 
         endpoints.add(new AuthorizationEndpoint(serverServices));
+        endpoints.add(new DeviceAuthorizationEndpoint(serverServices));
         endpoints.add(new TokenEndpoint(serverServices));
         endpoints.add(new UserinfoEndpoint(serverServices));
         endpoints.add(new RevocationEndpoint(serverServices));
         endpoints.add(new JwkEndpoint(serverServices));
         endpoints.add(new WellKnownEndpoint(serverServices));
+        endpoints.add(new VerificationEndpoint(serverServices));
 
         endpoints.addAll(loginEndpointFactory.createEndpoints(serverServices));
     }

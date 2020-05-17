@@ -64,6 +64,9 @@ public abstract class BaseOpenIdTokenEndpointTests<T extends BaseOpenIdAuthoriza
         return ConstantsTest.USER_DEFAULT_PASSWORD;
     }
 
+    @Override
+    public String getDeviceCode() { return null; }
+
     public Consumer<Exchange> additionalValidation = null;
 
     @Override
@@ -85,7 +88,7 @@ public abstract class BaseOpenIdTokenEndpointTests<T extends BaseOpenIdAuthoriza
         return Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), endpoint.isImplicit());
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), endpoint.isImplicit(), getDeviceCode());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }

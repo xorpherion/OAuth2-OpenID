@@ -37,6 +37,11 @@ public class Constants {
     public static final String PARAMETER_ACR_VALUES = "acr_values";
     public static final String PARAMETER_DISPLAY = "display";
     public static final String PARAMETER_UI_LOCALES = "ui_locales";
+    public static final String PARAMETER_USER_CODE = "user_code";
+    public static final String PARAMETER_DEVICE_CODE = "device_code";
+    public static final String PARAMETER_VERIFICATION_URI = "verification_uri";
+    public static final String PARAMETER_VERIFICATION_URI_COMPLETE = "verification_uri_complete";
+    public static final String PARAMETER_INTERVAL = "interval";
     public static final String SESSION_ENDPOINT = "current_endpoint";
 
     //Scope names
@@ -59,10 +64,12 @@ public class Constants {
     public static final String PARAMETER_VALUE_LOGIN = "login";
     public static final String PARAMETER_VALUE_QUERY = "query";
     public static final String PARAMETER_VALUE_FRAGMENT = "fragment";
+    public static final String PARAMETER_VALUE_DEVICE_CODE = "urn:ietf:params:oauth:grant-type:device_code";
 
 
     //Endpoint names
     public static final String ENDPOINT_AUTHORIZATION = "/auth";
+    public static final String ENDPOINT_DEVICE_AUTHORIZATION = "/device_auth";
     public static final String ENDPOINT_TOKEN = "/token";
     public static final String ENDPOINT_USERINFO = "/userinfo";
     public static final String ENDPOINT_LOGIN = "/login/login";
@@ -70,6 +77,7 @@ public class Constants {
     public static final String ENDPOINT_CONSENT = "/login/consent";
     public static final String ENDPOINT_REVOCATION = "/revoke";
     public static final String ENDPOINT_JWK = "/jwk";
+    public static final String ENDPOINT_VERIFICATION = "/verify";
     public static final String ENDPOINT_WELL_KNOWN = "/.well-known/openid-configuration";
 
     public static final String ENDPOINT_CLIENT_CALLBACK = "/oauth2cb";
@@ -86,6 +94,10 @@ public class Constants {
     public static final String ERROR_INTERACTION_REQUIRED = "interaction_required";
     public static final String ERROR_REQUEST_URI_NOT_SUPPORTED = "request_uri_not_supported";
     public static final String ERROR_REQUEST_NOT_SUPPORTED = "request_not_supported";
+    public static final String ERROR_INVALID_CLIENT = "invalid_client";
+    public static final String ERROR_EXPIRED_TOKEN = "expired_token";
+    public static final String ERROR_SLOW_DOWN = "slow_down";
+    public static final String ERROR_AUTHORIZATION_PENDING = "authorization_pending";
 
     public static final String ERROR_COULD_NOT_VALIDATE_USER = "Could not verify user. Please try again.";
     public static final String ERROR_POSSIBLE_CSRF = "Possible CSRF attack.";

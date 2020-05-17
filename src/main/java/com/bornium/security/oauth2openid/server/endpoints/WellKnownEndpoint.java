@@ -21,6 +21,7 @@ public class WellKnownEndpoint extends Endpoint {
         issuer = serverServices.getProvidedServices().getIssuer();
         wellKnown = new WellKnown(issuer,
                 path(Constants.ENDPOINT_AUTHORIZATION),
+                path(Constants.ENDPOINT_DEVICE_AUTHORIZATION),
                 path(Constants.ENDPOINT_TOKEN),
                 path(Constants.ENDPOINT_USERINFO),
                 path(Constants.ENDPOINT_REVOCATION),
@@ -42,7 +43,8 @@ public class WellKnownEndpoint extends Endpoint {
                 "authorization_code",
                 "refresh_token",
                 "password",
-                "client_credentials"
+                "client_credentials",
+                "urn:ietf:params:oauth:grant-type:device_code"
         );
     }
 
