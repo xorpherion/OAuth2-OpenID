@@ -4,10 +4,7 @@ import com.bornium.security.oauth2openid.provider.MembraneClientDataProvider;
 import com.bornium.security.oauth2openid.provider.MembraneSessionProvider;
 import com.bornium.security.oauth2openid.provider.MembraneTokenPersistenceProvider;
 import com.bornium.security.oauth2openid.provider.MembraneUserDataProvider;
-import com.bornium.security.oauth2openid.providers.ClientDataProvider;
-import com.bornium.security.oauth2openid.providers.SessionProvider;
-import com.bornium.security.oauth2openid.providers.TokenPersistenceProvider;
-import com.bornium.security.oauth2openid.providers.UserDataProvider;
+import com.bornium.security.oauth2openid.providers.*;
 import com.bornium.security.oauth2openid.server.ProvidedServices;
 
 import java.util.HashSet;
@@ -23,12 +20,14 @@ public class MembraneServerFunctionality implements ProvidedServices {
     MembraneClientDataProvider clientDataProvider;
     MembraneUserDataProvider userDataProvider;
     MembraneTokenPersistenceProvider tokenPersistenceProvider;
+    TimingProvider timingProvider;
 
     public MembraneServerFunctionality(String issuer) {
         sessionProvider = new MembraneSessionProvider("SC_ID");
         clientDataProvider = new MembraneClientDataProvider();
         userDataProvider = new MembraneUserDataProvider();
         tokenPersistenceProvider = new MembraneTokenPersistenceProvider();
+        timingProvider = new DefaultTimingProvider();
         this.issuer = issuer;
     }
 
@@ -50,6 +49,11 @@ public class MembraneServerFunctionality implements ProvidedServices {
     @Override
     public TokenPersistenceProvider getTokenPersistenceProvider() {
         return tokenPersistenceProvider;
+    }
+
+    @Override
+    public TimingProvider getTimingProvider() {
+        return timingProvider;
     }
 
     @Override

@@ -30,7 +30,7 @@ public class DeviceAuthorizationResponseGenerator extends ResponseGenerator {
         String deviceCode = deviceToken.getValue().replaceFirst("^pre:", "");
         String userCode = deviceToken.getUsername();
 
-        getTokenManager().addTokenToManager(getTokenManager().getUserCodes(), getTokenManager().createUserToken(userCode, deviceCode, scope));
+        getTokenManager().addTokenToManager(getTokenManager().getUserCodes(), getTokenManager().createUserToken(userCode, deviceCode, clientId, scope));
 
         result.put(Constants.PARAMETER_DEVICE_CODE, deviceCode);
         result.put(Constants.PARAMETER_USER_CODE, userCode);

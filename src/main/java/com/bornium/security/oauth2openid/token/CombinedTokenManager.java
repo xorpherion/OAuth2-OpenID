@@ -1,6 +1,8 @@
 package com.bornium.security.oauth2openid.token;
 
+import com.bornium.security.oauth2openid.providers.TimingProvider;
 import com.bornium.security.oauth2openid.providers.TokenPersistenceProvider;
+import com.bornium.security.oauth2openid.server.TimingContext;
 import org.jose4j.lang.JoseException;
 
 import java.time.Duration;
@@ -16,6 +18,7 @@ public class CombinedTokenManager {
     private final IdTokenProvider idTokenProvider;
     private final TokenPersistenceProvider tokenPersistenceProvider;
     private final UserTokenProvider userTokenProvider;
+    private final TimingProvider timingProvider;
 
     TokenManager authorizationCodes;
     TokenManager accessTokens;
@@ -24,11 +27,12 @@ public class CombinedTokenManager {
     TokenManager deviceCodes;
     TokenManager userCodes;
 
-    public CombinedTokenManager(IdTokenProvider idTokenProvider, TokenPersistenceProvider tokenPersistenceProvider) {
+    public CombinedTokenManager(IdTokenProvider idTokenProvider, TokenPersistenceProvider tokenPersistenceProvider, TimingProvider timingProvider) {
         this.idTokenProvider = idTokenProvider;
         tokenProvider = new BearerTokenProvider();
         this.tokenPersistenceProvider = tokenPersistenceProvider;
         userTokenProvider = new UserTokenProvider();
+        this.timingProvider = timingProvider;
 
         authorizationCodes = tokenPersistenceProvider.createTokenManager("auth");
         accessTokens = tokenPersistenceProvider.createTokenManager("access");
@@ -106,23 +110,28 @@ public class CombinedTokenManager {
     }
 
     public Token createBearerTokenWithDefaultDuration(String username, String clientId, String claims, String scope, String redirectUri, String nonce) {
-        return createBearerToken(username, clientId, Token.getDefaultValidFor(), claims, scope, redirectUri, nonce);
+        Duration validFor = timingProvider.getShortTokenValidFor(new TimingContext(clientId));
+        return createBearerToken(username, clientId, validFor, claims, scope, redirectUri, nonce);
     }
 
     public Token createDeviceTokenWithDefaultDuration(String clientId, String scope) {
-        return createDeviceToken(userTokenProvider.get(), clientId, Token.getDefaultValidFor(), null, scope, null, null);
+        Duration validFor = timingProvider.getShortTokenValidFor(new TimingContext(clientId));
+        return createDeviceToken(userTokenProvider.get(), clientId, validFor, null, scope, null, null);
     }
 
     public Token createDeviceTokenWithDefaultDuration(String deviceCode, String username, String clientId, String scope) {
-        return createToken(deviceCode, username, clientId, Token.getDefaultValidFor(), null, scope, null, null);
+        Duration validFor = timingProvider.getShortTokenValidFor(new TimingContext(clientId));
+        return createToken(deviceCode, username, clientId, validFor, null, scope, null, null);
     }
 
-    public Token createUserToken(String userCode, String deviceCode, String scope) {
-        return createToken(userCode, deviceCode, null, Token.getDefaultValidFor(), null, scope, null, null);
+    public Token createUserToken(String userCode, String deviceCode, String clientId, String scope) {
+        Duration validFor = timingProvider.getShortTokenValidFor(new TimingContext(clientId));
+        return createToken(userCode, deviceCode, null, validFor, null, scope, null, null);
     }
 
     public Token createChildBearerTokenWithDefaultDuration(Token parent) {
-        return createChildBearerToken(Token.defaultValidFor, parent);
+        Duration validFor = timingProvider.getShortTokenValidFor(new TimingContext(parent.getClientId()));
+        return createChildBearerToken(validFor, parent);
     }
 
     public Token createIdToken(String issuer, String subject, String clientId, Duration validFor, String authTime, String nonce, Map<String, Object> claims, String username, String scope, String redirectUri) throws JoseException {
