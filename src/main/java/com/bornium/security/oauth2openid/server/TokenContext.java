@@ -1,10 +1,9 @@
 package com.bornium.security.oauth2openid.server;
 
-public class TimingContext {
-
+public class TokenContext {
     private final String clientId;
 
-    public TimingContext(String clientId) {
+    public TokenContext(String clientId) {
         this.clientId = clientId;
     }
 

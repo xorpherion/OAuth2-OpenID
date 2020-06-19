@@ -8,6 +8,7 @@ import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.permissions.ClaimsParameter;
 import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.TokenContext;
 import com.bornium.security.oauth2openid.token.BearerTokenProvider;
 import com.bornium.security.oauth2openid.token.Token;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -147,7 +148,7 @@ public abstract class Endpoint {
     }
 
     protected HashMap<String, String> prepareJsStateParameter(Session session) throws Exception {
-        String stateToken = loginStateProvider.get();
+        String stateToken = loginStateProvider.get(new TokenContext(null));
         session.putValue(Constants.SESSION_LOGIN_STATE, stateToken);
         HashMap<String, String> jsParams = new HashMap<>();
         jsParams.put(Constants.PARAMETER_STATE, stateToken);

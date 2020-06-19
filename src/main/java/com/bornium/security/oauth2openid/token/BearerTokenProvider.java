@@ -1,5 +1,8 @@
 package com.bornium.security.oauth2openid.token;
 
+import com.bornium.security.oauth2openid.providers.TokenProvider;
+import com.bornium.security.oauth2openid.server.TokenContext;
+
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.function.Supplier;
@@ -7,7 +10,7 @@ import java.util.function.Supplier;
 /**
  * Created by Xorpherion on 25.01.2017.
  */
-public class BearerTokenProvider {
+public class BearerTokenProvider implements TokenProvider {
 
     private final Supplier<String> factory;
 
@@ -28,7 +31,7 @@ public class BearerTokenProvider {
         };
     }
 
-    public String get() {
+    public String get(TokenContext tokenContext) {
         return factory.get();
     }
 }
