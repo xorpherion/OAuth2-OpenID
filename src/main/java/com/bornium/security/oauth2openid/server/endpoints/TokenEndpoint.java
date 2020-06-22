@@ -5,9 +5,11 @@ import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.User;
 import com.bornium.security.oauth2openid.Util;
+import com.bornium.security.oauth2openid.providers.ConfigProvider;
 import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.responsegenerators.CombinedResponseGenerator;
 import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.TokenContext;
 import com.bornium.security.oauth2openid.token.Token;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +25,12 @@ import java.util.stream.Stream;
  * Created by Xorpherion on 29.01.2017.
  */
 public class TokenEndpoint extends Endpoint {
+    private final ConfigProvider configProvider;
+
     public TokenEndpoint(ServerServices serverServices) {
         super(serverServices, Constants.ENDPOINT_TOKEN);
+
+        configProvider = serverServices.getProvidedServices().getConfigProvider();
     }
 
     @Override
@@ -245,17 +251,25 @@ public class TokenEndpoint extends Endpoint {
 
             Token refreshTokenToken = serverServices.getTokenManager().getRefreshTokens().getToken(refreshToken);
 
-            if (refreshTokenToken.getUsages() > 0) {
-                refreshTokenToken.revokeCascade();
-                log.debug("RefreshToken has already been used, revoking all child tokens.");
-                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
-                return;
-            }
+            if (configProvider != null && configProvider.useReusableRefreshTokens(new TokenContext(clientId))) {
+                if (refreshTokenToken.isExpired()) {
+                    log.debug("RefreshToken is expired.");
+                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                    return;
+                }
+            } else {
+                if (refreshTokenToken.getUsages() > 0) {
+                    refreshTokenToken.revokeCascade();
+                    log.debug("RefreshToken has already been used, revoking all child tokens.");
+                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                    return;
+                }
 
-            if (refreshTokenToken.isExpired() || refreshTokenToken.getUsages() > 1) {
-                log.debug("RefreshToken is expired.");
-                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
-                return;
+                if (refreshTokenToken.isExpired() || refreshTokenToken.getUsages() > 1) {
+                    log.debug("RefreshToken is expired.");
+                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                    return;
+                }
             }
 
             if (!refreshTokenToken.getClientId().equals(clientId)) {

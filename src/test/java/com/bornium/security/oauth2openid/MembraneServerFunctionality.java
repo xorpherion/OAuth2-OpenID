@@ -65,6 +65,11 @@ public class MembraneServerFunctionality implements ProvidedServices {
     }
 
     @Override
+    public ConfigProvider getConfigProvider() {
+        return null;
+    }
+
+    @Override
     public String getIssuer() {
         return issuer;
     }
