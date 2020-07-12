@@ -149,11 +149,11 @@ public class VerificationEndpoint extends Endpoint {
 
 
     private Response sendUsercodepage() throws IOException {
-        return new ResponseBuilder().statuscode(200).body(loadUsercodepage()).build();
+        return new ResponseBuilder().statuscode(200).header("Content-Type", "text/html").body(loadUsercodepage()).build();
     }
 
     private Response sendSuccesspage() throws IOException {
-        return new ResponseBuilder().statuscode(200).body(loadSuccesspage()).build();
+        return new ResponseBuilder().statuscode(200).header("Content-Type", "text/html").body(loadSuccesspage()).build();
     }
 
     private String loadUsercodepage() throws IOException {
