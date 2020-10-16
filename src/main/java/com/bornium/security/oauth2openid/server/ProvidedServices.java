@@ -1,9 +1,6 @@
 package com.bornium.security.oauth2openid.server;
 
-import com.bornium.security.oauth2openid.providers.ClientDataProvider;
-import com.bornium.security.oauth2openid.providers.SessionProvider;
-import com.bornium.security.oauth2openid.providers.TokenPersistenceProvider;
-import com.bornium.security.oauth2openid.providers.UserDataProvider;
+import com.bornium.security.oauth2openid.providers.*;
 
 import java.util.Set;
 
@@ -19,6 +16,8 @@ public interface ProvidedServices {
     UserDataProvider getUserDataProvider();
 
     TokenPersistenceProvider getTokenPersistenceProvider();
+
+    TimingProvider getTimingProvider();
 
     String getIssuer();
 

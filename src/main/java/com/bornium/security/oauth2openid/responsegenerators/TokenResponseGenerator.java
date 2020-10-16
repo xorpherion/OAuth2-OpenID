@@ -5,9 +5,12 @@ import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.Util;
 import com.bornium.security.oauth2openid.permissions.ClaimsParameter;
 import com.bornium.security.oauth2openid.providers.Session;
+import com.bornium.security.oauth2openid.providers.TimingProvider;
 import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.TimingContext;
 import com.bornium.security.oauth2openid.token.Token;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -15,8 +18,11 @@ import java.util.regex.Pattern;
  * Created by Xorpherion on 28.01.2017.
  */
 public class TokenResponseGenerator extends ResponseGenerator {
+    private TimingProvider timingProvider;
+
     public TokenResponseGenerator(ServerServices serverServices, Exchange exc) {
         super(serverServices, exc, Constants.TOKEN_TYPE_TOKEN, Constants.TOKEN_TYPE_ID_TOKEN);
+        timingProvider = serverServices.getProvidedServices().getTimingProvider();
     }
 
     @Override
@@ -65,7 +71,8 @@ public class TokenResponseGenerator extends ResponseGenerator {
             idTokenClaims.put(Constants.PARAMETER_NONCE, nonce);
             idTokenClaims.put(Constants.PARAMETER_AUTH_TIME, authTime);
 
-            Token idToken = getTokenManager().addTokenToManager(getTokenManager().getIdTokens(),getServerServices().getTokenManager().createChildIdToken(getIssuer(), getSubClaim(username), clientId, Token.getDefaultValidFor(), authTime, nonce, idTokenClaims, parentToken));
+            Duration validFor = timingProvider.getShortTokenValidFor(new TimingContext(clientId));
+            Token idToken = getTokenManager().addTokenToManager(getTokenManager().getIdTokens(),getServerServices().getTokenManager().createChildIdToken(getIssuer(), getSubClaim(username), clientId, validFor, authTime, nonce, idTokenClaims, parentToken));
 
             result.put(Constants.PARAMETER_ID_TOKEN, idToken.getValue());
         }
@@ -75,7 +82,8 @@ public class TokenResponseGenerator extends ResponseGenerator {
         String accessTokenValue = null;
         if (responseTypes.contains(Constants.PARAMETER_VALUE_TOKEN)) {
             Token accessToken = getTokenManager().addTokenToManager(getTokenManager().getAccessTokens(), getTokenManager().createChildBearerTokenWithDefaultDuration(parentToken));
-            Token refreshToken = getTokenManager().addTokenToManager(getTokenManager().getRefreshTokens(), getTokenManager().createChildBearerToken(Token.getDefaultValidForLong(), parentToken));
+            Duration validForLong = timingProvider.getRefreshTokenValidFor(new TimingContext(parentToken.getClientId()));
+            Token refreshToken = getTokenManager().addTokenToManager(getTokenManager().getRefreshTokens(), getTokenManager().createChildBearerToken(validForLong, parentToken));
 
             result.put(Constants.PARAMETER_ACCESS_TOKEN, accessToken.getValue());
             result.put(Constants.PARAMETER_TOKEN_TYPE, Constants.PARAMETER_VALUE_BEARER);

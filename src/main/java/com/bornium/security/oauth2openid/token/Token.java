@@ -10,9 +10,6 @@ import java.util.Collections;
  */
 public abstract class Token {
 
-    static Duration defaultValidFor = Duration.ofMinutes(10);
-    static Duration defaultValidForLong = Duration.ofDays(1);
-
     private final String value;
     private final String username;
     private final String clientId;
@@ -62,10 +59,6 @@ public abstract class Token {
         return LocalDateTime.now().isAfter(LocalDateTime.now().plus(validFor)) || manuallyRevoked;
     }
 
-    public static Duration getDefaultValidFor() {
-        return defaultValidFor;
-    }
-
     public String getValue() {
         return value;
     }
@@ -96,10 +89,6 @@ public abstract class Token {
 
     public synchronized int getUsages() {
         return usages;
-    }
-
-    public static Duration getDefaultValidForLong() {
-        return defaultValidForLong;
     }
 
     public String getScope() {
