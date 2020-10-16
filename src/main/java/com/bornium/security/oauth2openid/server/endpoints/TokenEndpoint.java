@@ -93,6 +93,59 @@ public class TokenEndpoint extends Endpoint {
             params.put(Constants.PARAMETER_SCOPE, token.getScope());
         }
 
+        if (grantType.equals(Constants.PARAMETER_VALUE_DEVICE_CODE)) {
+            String deviceCode = params.get(Constants.PARAMETER_DEVICE_CODE);
+            if (deviceCode == null) {
+                log.debug("Parameter device_code is missing.");
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
+                return;
+            }
+
+            Token token = serverServices.getTokenManager().getDeviceCodes().getToken(deviceCode);
+
+            if (token == null) {
+
+                token = serverServices.getTokenManager().getDeviceCodes().getToken("pre:" + deviceCode);
+
+                if (token == null) {
+                    log.debug("Device Code is invalid.");
+                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                    return;
+                }
+
+                if (token.isExpired()) {
+                    log.debug("Device Code is expired.");
+                    exc.setResponse(answerWithError(400, Constants.ERROR_EXPIRED_TOKEN));
+                    return;
+                }
+
+                if (!token.getClientId().equals(clientId)) {
+                    log.debug("Device Code belongs to one client ('" + token.getClientId() + "') while token was requested from a different client ('" + clientId + "').");
+                    exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_CLIENT));
+                    return;
+                }
+
+                exc.setResponse(answerWithError(400, Constants.ERROR_AUTHORIZATION_PENDING));
+                return;
+            }
+
+            if (token.isExpired()) {
+                log.debug("Device Code is expired.");
+                exc.setResponse(answerWithError(400, Constants.ERROR_EXPIRED_TOKEN));
+                return;
+            }
+
+            if (!token.getClientId().equals(clientId)) {
+                log.debug("Device Code belongs to one client ('" + token.getClientId() + "') while token was requested from a different client ('" + clientId + "').");
+                exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
+                return;
+            }
+
+            session.putValue(Constants.LOGIN_USERNAME, token.getUsername());
+
+            params.put(Constants.PARAMETER_SCOPE, token.getScope());
+        }
+
         String scopes = params.get(Constants.PARAMETER_SCOPE);
         if(scopes == null && grantType.equals(Constants.PARAMETER_VALUE_REFRESH_TOKEN) && params.get(Constants.PARAMETER_REFRESH_TOKEN) != null) {
             String maybeRefreshToken = params.get(Constants.PARAMETER_REFRESH_TOKEN);
@@ -256,6 +309,7 @@ public class TokenEndpoint extends Endpoint {
         supportedGrantTypes.add(Constants.PARAMETER_VALUE_PASSWORD);
         supportedGrantTypes.add(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS);
         supportedGrantTypes.add(Constants.PARAMETER_VALUE_REFRESH_TOKEN);
+        supportedGrantTypes.add(Constants.PARAMETER_VALUE_DEVICE_CODE);
         return supportedGrantTypes.contains(grantType);
     }
 

@@ -1,26 +1,24 @@
 package com.bornium.security.oauth2openid.unit.tokenEndpoint;
 
 import com.bornium.http.Exchange;
-import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.ConstantsTest;
+import com.bornium.security.oauth2openid.Util;
 import com.bornium.security.oauth2openid.unit.Common;
+import com.bornium.security.oauth2openid.unit.otherEndpoints.DeviceAuthorizationEndpoint;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
 import java.util.function.Supplier;
 
+import static com.bornium.security.oauth2openid.unit.otherEndpoints.DeviceAuthorizationEndpoint.DEVICE_REQUEST;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Created by Xorpherion on 06.02.2017.
- */
-@DisplayName("TokenEndpoint.Password")
-public class Password extends BaseTokenEndpointTests {
+@DisplayName("TokenEndpoint.DeviceCode")
+public class DeviceCode extends BaseTokenEndpointTests {
     @Override
     public String getGrantType() {
-        return Constants.PARAMETER_VALUE_PASSWORD;
+        return Constants.PARAMETER_VALUE_DEVICE_CODE;
     }
 
     @Override
@@ -45,12 +43,12 @@ public class Password extends BaseTokenEndpointTests {
 
     @Override
     public String getUsername() {
-        return ConstantsTest.USER_DEFAULT_NAME;
+        return null;
     }
 
     @Override
     public String getPassword() {
-        return ConstantsTest.USER_DEFAULT_PASSWORD;
+        return null;
     }
 
     @Override
@@ -60,12 +58,38 @@ public class Password extends BaseTokenEndpointTests {
 
     @Override
     public String getDeviceCode() {
-        return null;
+        try {
+            DeviceAuthorizationEndpoint deviceAuthorizationEndpoint = new DeviceAuthorizationEndpoint();
+            deviceAuthorizationEndpoint.init(server);
+            Exchange exchange = deviceAuthorizationEndpoint.goodDeviceCompleteVerificationAckUserCodeAndScope();
+            return Common.getBodyParamsFromResponse(
+                    ((Exchange) exchange.getProperties().get(DEVICE_REQUEST))).get(Constants.PARAMETER_DEVICE_CODE);
+        } catch (Exception e) {
+            return Common.defaultExceptionHandling(e);
+        }
     }
 
     @Test
-    public void goodRequest() throws Exception {
+    public void equalScope() throws Exception {
         Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), getDeviceCode());
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(200, exc.getResponse().getStatuscode())
+                    );
+                });
+    }
+
+    @Test
+    public Exchange goodRequest() throws Exception {
+        return Common.testExchangeOn(server,
                 () -> {
                     try {
                         return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), getDeviceCode());
@@ -86,15 +110,30 @@ public class Password extends BaseTokenEndpointTests {
     }
 
     @Test
-    public void missingUsername() throws Exception {
+    public void badDeviceCode() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), getDeviceCode());
-                        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
-                        params.remove(Constants.PARAMETER_USERNAME);
-                        exc.getRequest().setBody(UriUtil.parametersToQuery(params));
-                        return exc;
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), getDeviceCode() + "bad");
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_GRANT, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                    );
+                });
+    }
+
+    @Test
+    public void missingDeviceCode() throws Exception {
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), null);
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -108,16 +147,56 @@ public class Password extends BaseTokenEndpointTests {
                 });
     }
 
+    /*
     @Test
-    public void badUsername() throws Exception {
+    public void useAuthorizationCodeMultipleTimes() throws Exception {
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
+                        server.invokeOn(exc);
+                        exc.setResponse(null);
+                        return exc;
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_GRANT, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                    );
+                });
+    }
+     */
+
+    @Test
+    public void wrongClientIdForCode() throws Exception {
+        Common.testExchangeOn(server,
+                () -> {
+                    try {
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), ConstantsTest.CLIENT_DEFAULT_ID2, ConstantsTest.CLIENT_DEFAULT_SECRET2, getUsername(), getPassword(), getDeviceCode());
+                    } catch (Exception e) {
+                        return Common.defaultExceptionHandling(e);
+                    }
+                },
+                (exc) -> {
+                    assertAll(
+                            Common.getMethodName(),
+                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
+                            () -> assertEquals(Constants.ERROR_INVALID_GRANT, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
+                    );
+                });
+    }
+
+    @Test
+    public void wrongClientAuthForGrant() throws Exception {
         Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), getDeviceCode());
-                        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
-                        params.remove(Constants.PARAMETER_USERNAME);
-                        params.put(Constants.PARAMETER_USERNAME, "43097438904723843280492304238904789407230");
-                        exc.getRequest().setBody(UriUtil.parametersToQuery(params));
+                        exc.getRequest().getHeader().getRawHeaders().replace(Constants.HEADER_AUTHORIZATION.toLowerCase(), Util.encodeToBasicAuthValue(ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET + "23542342"));
                         return exc;
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
@@ -132,50 +211,4 @@ public class Password extends BaseTokenEndpointTests {
                 });
     }
 
-    @Test
-    public void missingPassword() throws Exception {
-        Common.testExchangeOn(server,
-                () -> {
-                    try {
-                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), getDeviceCode());
-                        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
-                        params.remove(Constants.PARAMETER_PASSWORD);
-                        exc.getRequest().setBody(UriUtil.parametersToQuery(params));
-                        return exc;
-                    } catch (Exception e) {
-                        return Common.defaultExceptionHandling(e);
-                    }
-                },
-                (exc) -> {
-                    assertAll(
-                            Common.getMethodName(),
-                            () -> assertEquals(400, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_INVALID_REQUEST, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
-                    );
-                });
-    }
-
-    @Test
-    public void badPassword() throws Exception {
-        Common.testExchangeOn(server,
-                () -> {
-                    try {
-                        Exchange exc = Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), getDeviceCode());
-                        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
-                        params.remove(Constants.PARAMETER_PASSWORD);
-                        params.put(Constants.PARAMETER_PASSWORD, "43097438904723843280492304238904789407230");
-                        exc.getRequest().setBody(UriUtil.parametersToQuery(params));
-                        return exc;
-                    } catch (Exception e) {
-                        return Common.defaultExceptionHandling(e);
-                    }
-                },
-                (exc) -> {
-                    assertAll(
-                            Common.getMethodName(),
-                            () -> assertEquals(401, exc.getResponse().getStatuscode()),
-                            () -> assertEquals(Constants.ERROR_ACCESS_DENIED, Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ERROR))
-                    );
-                });
-    }
 }

@@ -1,6 +1,5 @@
 package com.bornium.security.oauth2openid.unit;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.bornium.http.Exchange;
 import com.bornium.http.Method;
 import com.bornium.http.RequestBuilder;
@@ -11,6 +10,8 @@ import com.bornium.security.oauth2openid.Util;
 import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.bornium.security.oauth2openid.server.endpoints.Parameters;
 import com.bornium.security.oauth2openid.token.IdTokenProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import org.jose4j.lang.JoseException;
 
 import java.io.IOException;
@@ -112,6 +113,40 @@ public class Common {
         throw new RuntimeException();
     }
 
+    public static Exchange createDeviceAuthRequest(String clientId, String clientSecret, String scope) throws URISyntaxException, UnsupportedEncodingException {
+        Map<String, String> params = Parameters.createParams(
+                Constants.PARAMETER_CLIENT_ID, clientSecret == null ? null : clientId, // if the clientSecret is set, we use basic auth
+                Constants.PARAMETER_SCOPE, scope
+        );
+        params = Parameters.stripEmptyParams(params);
+
+        RequestBuilder builder = new RequestBuilder().uri(ConstantsTest.SERVER_DEVICE_AUTHORIZATION_ENDPOINT).method(Method.POST);
+        builder = builder.body(UriUtil.parametersToQuery(params));
+        if (clientSecret != null) {
+            String authHeader = Util.encodeToBasicAuthValue(clientId, clientSecret);
+            return builder.header(Constants.HEADER_AUTHORIZATION, authHeader).buildExchange();
+        }
+        return builder.buildExchange();
+    }
+
+    public static Exchange createDeviceVerificationRequest(String uri, String cookie, String userCode, String consent, String scope) throws URISyntaxException, UnsupportedEncodingException {
+        boolean isPost = userCode != null || consent != null || scope != null;
+        RequestBuilder builder = new RequestBuilder().uri(uri).method(isPost ? Method.POST : Method.GET);
+        if (cookie != null)
+            builder = builder.header(Constants.HEADER_COOKIE, cookie);
+        if (isPost) {
+            Map body = new HashMap();
+            if (userCode != null)
+                body.put("user_code", userCode);
+            if (consent != null)
+                body.put("consent", consent);
+            if (scope != null)
+                body.put("scope", scope);
+            builder = builder.body(UriUtil.parametersToQuery(body));
+        }
+        return builder.buildExchange();
+    }
+
     public static Map<String, String> getBodyParamsFromResponse(Exchange exc) throws IOException {
         return new ObjectMapper().readValue(exc.getResponse().getBody(), Map.class);
     }
@@ -171,11 +206,11 @@ public class Common {
         return new RequestBuilder().uri(ConstantsTest.SERVER_AFTER_LOGIN_ENDPOINT).method(Method.POST).header(Constants.HEADER_COOKIE, cookie).buildExchange();
     }
 
-    public static Exchange preStepAndTokenRequest(Supplier<Exchange> preStep, String grantType, String redirectUri, String scope, String clientId, String clientSecret, String username, String password) throws Exception {
-        return preStepAndTokenRequest(preStep, grantType, redirectUri, scope, clientId, clientSecret, username, password, false);
+    public static Exchange preStepAndTokenRequest(Supplier<Exchange> preStep, String grantType, String redirectUri, String scope, String clientId, String clientSecret, String username, String password, String deviceCode) throws Exception {
+        return preStepAndTokenRequest(preStep, grantType, redirectUri, scope, clientId, clientSecret, username, password, false, deviceCode);
     }
 
-    public static Exchange preStepAndTokenRequest(Supplier<Exchange> preStep, String grantType, String redirectUri, String scope, String clientId, String clientSecret, String username, String password, boolean useFragment) throws Exception {
+    public static Exchange preStepAndTokenRequest(Supplier<Exchange> preStep, String grantType, String redirectUri, String scope, String clientId, String clientSecret, String username, String password, boolean useFragment, String deviceCode) throws Exception {
         String cookie = null;
         String code = null;
         if (preStep != null) {
@@ -187,7 +222,7 @@ public class Common {
         }
 
 
-        Map<String, String> params = createBodyParams(grantType, code, redirectUri, scope, username, password);
+        Map<String, String> params = createBodyParams(grantType, code, redirectUri, scope, username, password, deviceCode);
 
         if (clientSecret == null)
             return addCookieIfNotNull(new RequestBuilder().uri(ConstantsTest.SERVER_TOKEN_ENDPOINT).method(Method.POST).body(UriUtil.parametersToQuery(params)), useFragment ? null : cookie).buildExchange();
@@ -201,7 +236,7 @@ public class Common {
         return response;
     }
 
-    private static Map<String, String> createBodyParams(String grantType, String code, String redirectUri, String scope, String username, String password) {
+    private static Map<String, String> createBodyParams(String grantType, String code, String redirectUri, String scope, String username, String password, String deviceCode) {
         Map<String, String> params = new HashMap<>();
         params.put(Constants.PARAMETER_GRANT_TYPE, grantType);
         params.put(Constants.PARAMETER_CODE, code);
@@ -209,6 +244,7 @@ public class Common {
         params.put(Constants.PARAMETER_SCOPE, scope);
         params.put(Constants.PARAMETER_USERNAME, username);
         params.put(Constants.PARAMETER_PASSWORD, password);
+        params.put(Constants.PARAMETER_DEVICE_CODE, deviceCode);
 
         return Parameters.stripEmptyParams(params);
     }

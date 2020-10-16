@@ -35,6 +35,8 @@ public abstract class BaseTokenEndpointTests {
 
     public abstract String getPassword();
 
+    public abstract String getDeviceCode();
+
     public abstract Supplier<Exchange> getPreStep() throws Exception;
 
     public BaseTokenEndpointTests(AuthorizationServer server) {
@@ -60,7 +62,7 @@ public abstract class BaseTokenEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType() + "123", getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType() + "123", getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), getDeviceCode());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -79,7 +81,7 @@ public abstract class BaseTokenEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(), null, getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword());
+                        return Common.preStepAndTokenRequest(getPreStep(), null, getRedirectUri(), getScope(), getClientId(), getClientSecret(), getUsername(), getPassword(), getDeviceCode());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -137,7 +139,7 @@ public abstract class BaseTokenEndpointTests {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret() + "wrong secret", getUsername(), getPassword());
+                        return Common.preStepAndTokenRequest(getPreStep(), getGrantType(), getRedirectUri(), getScope(), getClientId(), getClientSecret() + "wrong secret", getUsername(), getPassword(), getDeviceCode());
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }

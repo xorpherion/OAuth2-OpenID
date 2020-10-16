@@ -15,21 +15,27 @@ public class CombinedTokenManager {
     private final BearerTokenProvider tokenProvider;
     private final IdTokenProvider idTokenProvider;
     private final TokenPersistenceProvider tokenPersistenceProvider;
+    private final UserTokenProvider userTokenProvider;
 
     TokenManager authorizationCodes;
     TokenManager accessTokens;
     TokenManager refreshTokens;
     TokenManager idTokens;
+    TokenManager deviceCodes;
+    TokenManager userCodes;
 
     public CombinedTokenManager(IdTokenProvider idTokenProvider, TokenPersistenceProvider tokenPersistenceProvider) {
         this.idTokenProvider = idTokenProvider;
         tokenProvider = new BearerTokenProvider();
         this.tokenPersistenceProvider = tokenPersistenceProvider;
+        userTokenProvider = new UserTokenProvider();
 
         authorizationCodes = tokenPersistenceProvider.createTokenManager("auth");
         accessTokens = tokenPersistenceProvider.createTokenManager("access");
         refreshTokens = tokenPersistenceProvider.createTokenManager("refresh");
         idTokens = tokenPersistenceProvider.createTokenManager("id");
+        deviceCodes = tokenPersistenceProvider.createTokenManager("device");
+        userCodes = tokenPersistenceProvider.createTokenManager("user");
     }
 
     public String getJwk() {
@@ -85,6 +91,10 @@ public class CombinedTokenManager {
         return createToken(tokenProvider.get(), username, clientId, validFor, claims, scope,redirectUri, nonce);
     }
 
+    public Token createDeviceToken(String username, String clientId, Duration validFor, String claims, String scope, String redirectUri, String nonce) {
+        return createToken("pre:" + tokenProvider.get(), username, clientId, validFor, claims, scope, redirectUri, nonce);
+    }
+
     public Token createChildToken(String value, Duration validFor, Token parent) {
         Token result = createToken(value, parent.getUsername(), parent.getClientId(), validFor, parent.getClaims(), parent.getScope(), parent.getRedirectUri(), parent.getNonce());
         parent.addChild(result);
@@ -97,6 +107,18 @@ public class CombinedTokenManager {
 
     public Token createBearerTokenWithDefaultDuration(String username, String clientId, String claims, String scope, String redirectUri, String nonce) {
         return createBearerToken(username, clientId, Token.getDefaultValidFor(), claims, scope, redirectUri, nonce);
+    }
+
+    public Token createDeviceTokenWithDefaultDuration(String clientId, String scope) {
+        return createDeviceToken(userTokenProvider.get(), clientId, Token.getDefaultValidFor(), null, scope, null, null);
+    }
+
+    public Token createDeviceTokenWithDefaultDuration(String deviceCode, String username, String clientId, String scope) {
+        return createToken(deviceCode, username, clientId, Token.getDefaultValidFor(), null, scope, null, null);
+    }
+
+    public Token createUserToken(String userCode, String deviceCode, String scope) {
+        return createToken(userCode, deviceCode, null, Token.getDefaultValidFor(), null, scope, null, null);
     }
 
     public Token createChildBearerTokenWithDefaultDuration(Token parent) {
@@ -137,6 +159,14 @@ public class CombinedTokenManager {
 
     public TokenManager getIdTokens() {
         return idTokens;
+    }
+
+    public TokenManager getDeviceCodes() {
+        return deviceCodes;
+    }
+
+    public TokenManager getUserCodes() {
+        return userCodes;
     }
 
     public BearerTokenProvider getTokenProvider() {
