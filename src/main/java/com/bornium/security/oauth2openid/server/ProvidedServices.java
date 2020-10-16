@@ -19,6 +19,8 @@ public interface ProvidedServices {
 
     TimingProvider getTimingProvider();
 
+    TokenProvider getTokenProvider();
+
     String getIssuer();
 
     Set<String> getSupportedClaims();

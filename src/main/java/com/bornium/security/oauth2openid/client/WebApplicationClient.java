@@ -5,6 +5,7 @@ import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.Util;
 import com.bornium.security.oauth2openid.providers.Session;
+import com.bornium.security.oauth2openid.server.TokenContext;
 import com.bornium.security.oauth2openid.token.BearerTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
@@ -145,7 +146,7 @@ public class WebApplicationClient {
     }
 
     private String createStateAndSaveOriginalRequestToIt(Exchange exc) throws Exception {
-        String state = stateTokenProvider.get();
+        String state = stateTokenProvider.get(new TokenContext(null));
         originalRequestsForState.put(state, exc);
 
         Session session = clientProvider.getSessionProvider().getSession(exc);
