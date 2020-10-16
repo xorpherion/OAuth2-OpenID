@@ -50,10 +50,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gpg.keyname>083E7A237B190D36</gpg.keyname>
 
-        <jackson.core.version>2.9.10.3</jackson.core.version>
-        <slf4j.version>1.7.5</slf4j.version>
-        <guava.version>21.0</guava.version>
-        <jose4j.version>0.5.5</jose4j.version>
+        <jackson.core.version>2.11.3</jackson.core.version>
+        <slf4j.version>1.7.30</slf4j.version>
+        <guava.version>29.0-jre</guava.version>
+        <jose4j.version>0.7.2</jose4j.version>
     </properties>
 
     <dependencies>
@@ -104,7 +104,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.4</version>
+                        <version>3.2.1</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -117,7 +117,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.1</version>
+                        <version>3.2.0</version>
                         <configuration>
                             <source>8</source>
                         </configuration>
@@ -147,7 +147,7 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.3</version>
+                        <version>1.6.8</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
