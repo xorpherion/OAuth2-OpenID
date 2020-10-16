@@ -37,7 +37,7 @@ public class BodyUtil {
         String[] paramsRaw = body.split(Pattern.quote("&"));
         for (String paramRaw : paramsRaw) {
             String[] paramSplit = paramRaw.split(Pattern.quote("="));
-            result.put(paramSplit[0], paramSplit[1]);
+            result.put(paramSplit[0], paramSplit.length < 2 ? "" : paramSplit[1]);
         }
 
         return result;

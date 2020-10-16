@@ -21,6 +21,8 @@ public interface ProvidedServices {
 
     TokenProvider getTokenProvider();
 
+    ConfigProvider getConfigProvider();
+
     String getIssuer();
 
     Set<String> getSupportedClaims();
