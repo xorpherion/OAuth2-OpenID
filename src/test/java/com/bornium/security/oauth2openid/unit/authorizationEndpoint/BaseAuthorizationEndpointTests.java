@@ -51,8 +51,11 @@ public abstract class BaseAuthorizationEndpointTests {
         this.server = server;
         return this;
     }
-
     @Test
+    public void goodPreLoginRequestTest() throws Exception {
+        goodPreLoginRequest();
+    }
+
     public Exchange goodPreLoginRequest() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -72,6 +75,10 @@ public abstract class BaseAuthorizationEndpointTests {
     }
 
     @Test
+    public void goodPostLoginRequestTest() throws Exception {
+        goodPostLoginRequest();
+    }
+
     public Exchange goodPostLoginRequest() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -242,6 +249,10 @@ public abstract class BaseAuthorizationEndpointTests {
     }
 
     @Test
+    public void goodLoginTest() throws Exception {
+        goodLogin();
+    }
+
     public Exchange goodLogin() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -263,6 +274,10 @@ public abstract class BaseAuthorizationEndpointTests {
     }
 
     @Test
+    public void goodConsentTest() throws Exception {
+        goodConsent();
+    }
+
     public Exchange goodConsent() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -284,6 +299,10 @@ public abstract class BaseAuthorizationEndpointTests {
     }
 
     @Test
+    public void loginWrongUsernameTest() throws Exception {
+        loginWrongUsername();
+    }
+
     public Exchange loginWrongUsername() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -305,6 +324,10 @@ public abstract class BaseAuthorizationEndpointTests {
     }
 
     @Test
+    public void loginWrongPasswordTest() throws Exception {
+        loginWrongPassword();
+    }
+
     public Exchange loginWrongPassword() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -326,6 +349,10 @@ public abstract class BaseAuthorizationEndpointTests {
     }
 
     @Test
+    public void consentNotGivenTest() throws Exception {
+        consentNotGiven();
+    }
+
     public Exchange consentNotGiven() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {

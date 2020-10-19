@@ -43,6 +43,17 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+                <configuration>
+                    <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+                    <includes>
+                        <include>**/*.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -54,6 +65,8 @@
         <slf4j.version>1.7.30</slf4j.version>
         <guava.version>29.0-jre</guava.version>
         <jose4j.version>0.7.2</jose4j.version>
+        <junit-jupiter.version>5.7.0</junit-jupiter.version>
+        <membrane.version>4.7.3</membrane.version>
     </properties>
 
     <dependencies>
@@ -84,13 +97,19 @@
         <dependency>
             <groupId>org.membrane-soa</groupId>
             <artifactId>membrane-service-proxy</artifactId>
-            <version>4.3.0</version>
+            <version>${membrane.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.0.0-M4</version>
+            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
 

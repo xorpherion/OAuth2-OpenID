@@ -52,6 +52,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
     }
 
     @Test
+    public void goodPreLoginRequestTest() throws Exception {
+        goodPreLoginRequest();
+    }
+
     @Override
     public Exchange goodPreLoginRequest() throws Exception {
         return Common.testExchangeOn(server,
@@ -72,6 +76,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
     }
 
     @Test
+    public void goodPreLoginRequestPostTest() throws Exception {
+        goodPreLoginRequestPost();
+    }
+
     public Exchange goodPreLoginRequestPost() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -91,6 +99,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
     }
 
     @Test
+    public void responseModeQueryTest() throws Exception {
+        responseModeQuery();
+    }
+
     public Exchange responseModeQuery() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -119,6 +131,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
     }
 
     @Test
+    public void responseModeFragmentTest() throws Exception {
+        responseModeFragment();
+    }
+
     public Exchange responseModeFragment() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -147,6 +163,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
     }
 
     @Test
+    public void responseTypeNoneTest() throws Exception {
+        responseTypeNone();
+    }
+
     public Exchange responseTypeNone() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -175,6 +195,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
     }
 
     @Test
+    public void promptLoginForcesNewLoginTest() throws Exception {
+        promptLoginForcesNewLogin();
+    }
+
     public Exchange promptLoginForcesNewLogin() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -198,6 +222,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
     }
 
     @Test
+    public void promptNoneResultsInErrorTest() throws Exception {
+        promptNoneResultsInError();
+    }
+
     public Exchange promptNoneResultsInError() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -219,6 +247,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
     }
 
     @Test
+    public void promptNoneWhenLoggedInTest() throws Exception {
+        promptNoneWhenLoggedIn();
+    }
+
     public Exchange promptNoneWhenLoggedIn() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -242,6 +274,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
     }
 
     @Test
+    public void elapsedMaxAgeForcesLoginTest() throws Exception {
+        elapsedMaxAgeForcesLogin();
+    }
+
     public Exchange elapsedMaxAgeForcesLogin() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -273,6 +309,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
     }
 
     @Test
+    public void notElapsedMaxAgeIsOkTest() throws Exception {
+        notElapsedMaxAgeIsOk();
+    }
+
     public Exchange notElapsedMaxAgeIsOk() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {

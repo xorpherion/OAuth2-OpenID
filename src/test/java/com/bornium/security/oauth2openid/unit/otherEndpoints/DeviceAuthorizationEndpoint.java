@@ -39,6 +39,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceAuthRequestTest() throws Exception {
+        goodDeviceAuthRequest();
+    }
+
     public Exchange goodDeviceAuthRequest() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -174,6 +178,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodCompleteVerificationRequestTest() throws Exception {
+        goodCompleteVerificationRequest();
+    }
+
     public Exchange goodCompleteVerificationRequest() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -195,6 +203,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodVerificationRequestTest() throws Exception {
+        goodVerificationRequest();
+    }
+
     public Exchange goodVerificationRequest() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -216,6 +228,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodLoginAfterCompleteVerificationTest() throws Exception {
+        goodLoginAfterCompleteVerification();
+    }
+
     public Exchange goodLoginAfterCompleteVerification() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -237,6 +253,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodLoginAfterVerificationTest() throws Exception {
+        goodLoginAfterVerification();
+    }
+
     public Exchange goodLoginAfterVerification() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -258,6 +278,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceCompleteVerificationOpenFormTest() throws Exception {
+        goodDeviceCompleteVerificationOpenForm();
+    }
+
     public Exchange goodDeviceCompleteVerificationOpenForm() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -282,6 +306,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceCompleteVerificationAckUserCodeTest() throws Exception {
+        goodDeviceCompleteVerificationAckUserCode();
+    }
+
     public Exchange goodDeviceCompleteVerificationAckUserCode() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -307,6 +335,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceVerificationWithGoodUserCodeTest() throws Exception {
+        goodDeviceVerificationWithGoodUserCode();
+    }
+
     public Exchange goodDeviceVerificationWithGoodUserCode() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -333,6 +365,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceVerificationWithBadUserCodeTest() throws Exception {
+        goodDeviceVerificationWithBadUserCode();
+    }
+
     public Exchange goodDeviceVerificationWithBadUserCode() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -358,6 +394,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceCompleteVerificationWithGoodUserCodeAckScopeTest() throws Exception {
+        goodDeviceCompleteVerificationWithGoodUserCodeAckScope();
+    }
+
     public Exchange goodDeviceCompleteVerificationWithGoodUserCodeAckScope() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -381,6 +421,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void reuseUserCodeTest() throws Exception {
+        reuseUserCode();
+    }
+
     public Exchange reuseUserCode() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -406,6 +450,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceCompleteVerificationWithGoodUserCodeRejectedScopeTest() throws Exception {
+        goodDeviceCompleteVerificationWithGoodUserCodeRejectedScope();
+    }
+
     public Exchange goodDeviceCompleteVerificationWithGoodUserCodeRejectedScope() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -431,6 +479,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceCompleteVerificationAckUserCodeAndScopeTest() throws Exception {
+        goodDeviceCompleteVerificationAckUserCodeAndScope();
+    }
+
     public Exchange goodDeviceCompleteVerificationAckUserCodeAndScope() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -454,6 +506,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void reuseUserCodeAfterRejectionTest() throws Exception {
+        reuseUserCodeAfterRejection();
+    }
+
     public Exchange reuseUserCodeAfterRejection() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -478,6 +534,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceVerificationOpenFormTest() throws Exception {
+        goodDeviceVerificationOpenForm();
+    }
+
     public Exchange goodDeviceVerificationOpenForm() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -502,6 +562,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void loginWrongUsernameTest() throws Exception {
+        loginWrongUsername();
+    }
+
     public Exchange loginWrongUsername() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -523,6 +587,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void loginWrongPasswordTest() throws Exception {
+        loginWrongPassword();
+    }
+
     public Exchange loginWrongPassword() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
