@@ -6,7 +6,7 @@ import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.Util;
 import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.server.TokenContext;
-import com.bornium.security.oauth2openid.token.BearerTokenProvider;
+import com.bornium.impl.BearerTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;

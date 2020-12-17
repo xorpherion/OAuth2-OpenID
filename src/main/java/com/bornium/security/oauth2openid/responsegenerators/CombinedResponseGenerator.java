@@ -1,7 +1,7 @@
 package com.bornium.security.oauth2openid.responsegenerators;
 
-import com.bornium.http.Exchange;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.providers.GrantContext;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,18 +12,18 @@ import java.util.Map;
  */
 public class CombinedResponseGenerator {
 
-    protected final Exchange exc;
-    protected final ServerServices serverServices;
+    protected final GrantContext ctx;
+    protected final AuthorizationServer serverServices;
 
     protected ArrayList<ResponseGenerator> responseGenerators;
 
-    public CombinedResponseGenerator(ServerServices serverServices, Exchange exc) {
+    public CombinedResponseGenerator(AuthorizationServer serverServices, GrantContext ctx) {
         this.serverServices = serverServices;
-        this.exc = exc;
+        this.ctx = ctx;
 
         this.responseGenerators = new ArrayList<>();
-        responseGenerators.add(new CodeResponseGenerator(serverServices, exc));
-        responseGenerators.add(new TokenResponseGenerator(serverServices, exc));
+        responseGenerators.add(new CodeResponseGenerator(serverServices, ctx));
+        responseGenerators.add(new TokenResponseGenerator(serverServices, ctx));
     }
 
     public Map<String, String> invokeResponse(String responseType) throws Exception {
@@ -31,6 +31,10 @@ public class CombinedResponseGenerator {
         for (ResponseGenerator responseGenerator : responseGenerators)
             if (responseGenerator.isMyResponseType(responseType))
                 result.putAll(responseGenerator.invokeResponse());
+
+        for (Map.Entry<String, String> e : result.entrySet())
+            ctx.putValue(e.getKey(),e.getValue());
+
         return result;
     }
 }

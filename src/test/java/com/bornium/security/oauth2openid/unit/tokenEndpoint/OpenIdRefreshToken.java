@@ -53,15 +53,15 @@ public class OpenIdRefreshToken extends RefreshToken {
         Common.testExchangeOn(server,
                 () -> {
                     try {
-                        IdTokenVerifier verifier = new IdTokenVerifier(server.getServerServices().getTokenManager().getJwk());
+                        IdTokenVerifier verifier = new IdTokenVerifier(server.getTokenManager().getJwk());
                         Exchange exc = getPreStep().get();
                         String idToken = Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ID_TOKEN);
-                        Map<String, String> idTokenClaims = verifier.verifyAndGetClaims(idToken, server.getServerServices().getProvidedServices().getIssuer(), ConstantsTest.CLIENT_DEFAULT_ID);
+                        Map<String, String> idTokenClaims = verifier.verifyAndGetClaims(idToken, server.getProvidedServices().getIssuer(), ConstantsTest.CLIENT_DEFAULT_ID);
                         exc = Common.preStepAndRefreshTokenRequest(exc, getClientDefaultScope(), ConstantsTest.CLIENT_DEFAULT_ID, ConstantsTest.CLIENT_DEFAULT_SECRET);
 
                         exc = server.invokeOn(exc);
                         String secondIdToken = Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ID_TOKEN);
-                        Map<String, String> secondIdTokenClaims = verifier.verifyAndGetClaims(secondIdToken, server.getServerServices().getProvidedServices().getIssuer(), ConstantsTest.CLIENT_DEFAULT_ID);
+                        Map<String, String> secondIdTokenClaims = verifier.verifyAndGetClaims(secondIdToken, server.getProvidedServices().getIssuer(), ConstantsTest.CLIENT_DEFAULT_ID);
                         assertAll(
                                 Common.getMethodName(),
                                 () -> assertEquals(idTokenClaims.get(Constants.CLAIM_ISS), secondIdTokenClaims.get(Constants.CLAIM_ISS)),

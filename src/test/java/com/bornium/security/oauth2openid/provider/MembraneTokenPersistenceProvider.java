@@ -1,8 +1,8 @@
 package com.bornium.security.oauth2openid.provider;
 
 import com.bornium.security.oauth2openid.providers.TokenPersistenceProvider;
-import com.bornium.security.oauth2openid.token.InMemoryToken;
-import com.bornium.security.oauth2openid.token.InMemoryTokenManager;
+import com.bornium.impl.InMemoryToken;
+import com.bornium.impl.InMemoryTokenManager;
 import com.bornium.security.oauth2openid.token.Token;
 import com.bornium.security.oauth2openid.token.TokenManager;
 

@@ -3,7 +3,8 @@ package com.bornium.security.oauth2openid.responsegenerators;
 import com.bornium.http.Exchange;
 import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.providers.GrantContext;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.bornium.security.oauth2openid.token.Token;
 
 import java.time.temporal.ChronoUnit;
@@ -13,15 +14,15 @@ import java.util.Map;
 public class DeviceAuthorizationResponseGenerator extends ResponseGenerator {
     private final String issuer;
 
-    public DeviceAuthorizationResponseGenerator(ServerServices serverServices, Exchange exc) {
-        super(serverServices, exc);
+    public DeviceAuthorizationResponseGenerator(AuthorizationServer serverServices, GrantContext ctx) {
+        super(serverServices, ctx);
         issuer = serverServices.getProvidedServices().getIssuer();
     }
 
     @Override
     public Map<String, String> invokeResponse() throws Exception {
-        String clientId = getSession().getValue(Constants.PARAMETER_CLIENT_ID);
-        String scope = getSession().getValue(Constants.PARAMETER_SCOPE);
+        String clientId = getCtx().getValue(Constants.PARAMETER_CLIENT_ID);
+        String scope = getCtx().getValue(Constants.PARAMETER_SCOPE);
 
         Map result = new HashMap();
 

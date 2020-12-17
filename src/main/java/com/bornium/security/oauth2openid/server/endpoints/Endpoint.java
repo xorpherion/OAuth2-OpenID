@@ -6,10 +6,11 @@ import com.bornium.http.ResponseBuilder;
 import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.permissions.ClaimsParameter;
+import com.bornium.security.oauth2openid.providers.GrantContext;
 import com.bornium.security.oauth2openid.providers.Session;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.bornium.security.oauth2openid.server.TokenContext;
-import com.bornium.security.oauth2openid.token.BearerTokenProvider;
+import com.bornium.impl.BearerTokenProvider;
 import com.bornium.security.oauth2openid.token.Token;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,11 +32,11 @@ public abstract class Endpoint {
 
     Logger log = LoggerFactory.getLogger(this.getClass());
 
-    protected final ServerServices serverServices;
+    protected final AuthorizationServer serverServices;
     String[] paths;
     BearerTokenProvider loginStateProvider;
 
-    public Endpoint(ServerServices serverServices, String... paths) {
+    public Endpoint(AuthorizationServer serverServices, String... paths) {
         this.serverServices = serverServices;
         this.paths = paths;
         loginStateProvider = new BearerTokenProvider();
@@ -123,20 +124,18 @@ public abstract class Endpoint {
         return UriUtil.encode(Base64.encode(json.getBytes()));
     }
 
-    protected boolean isLoggedIn(Exchange exc) throws Exception {
-        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
-        String loggedIn = session.getValue(Constants.SESSION_LOGGED_IN);
+    protected boolean isLoggedIn(GrantContext ctx) throws Exception {
+        String loggedIn = ctx.getValue(Constants.SESSION_LOGGED_IN);
         return Constants.VALUE_YES.equals(loggedIn);
     }
 
-    protected boolean hasGivenConsent(Exchange exc) throws Exception {
-        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
-        String consentGiven = session.getValue(Constants.SESSION_CONSENT_GIVEN);
+    protected boolean hasGivenConsent(GrantContext ctx) throws Exception {
+        String consentGiven = ctx.getValue(Constants.SESSION_CONSENT_GIVEN);
         return Constants.VALUE_YES.equals(consentGiven);
     }
 
-    protected boolean isLoggedInAndHasGivenConsent(Exchange exc) throws Exception {
-        return isLoggedIn(exc) && hasGivenConsent(exc);
+    protected boolean isLoggedInAndHasGivenConsent(GrantContext ctx) throws Exception {
+        return isLoggedIn(ctx) && hasGivenConsent(ctx);
     }
 
     protected Response redirectToConsent(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {
@@ -147,7 +146,7 @@ public abstract class Endpoint {
         return redirectToUrl(serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_VERIFICATION + "#params=" + prepareJSParams(params), null);
     }
 
-    protected HashMap<String, String> prepareJsStateParameter(Session session) throws Exception {
+    protected HashMap<String, String> prepareJsStateParameter(GrantContext session) throws Exception {
         String stateToken = loginStateProvider.get(new TokenContext(null));
         session.putValue(Constants.SESSION_LOGIN_STATE, stateToken);
         HashMap<String, String> jsParams = new HashMap<>();
@@ -189,14 +188,14 @@ public abstract class Endpoint {
         return claims;
     }
 
-    protected boolean setToResponseModeOrUseDefault(Exchange exc, Session session) throws Exception {
+    protected boolean setToResponseModeOrUseDefault(Exchange exc, GrantContext session) throws Exception {
         String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
         if (responseType == null)
             throw new RuntimeException();
         return setToResponseModeOrUseDefault(exc, session, responseType.contains(Constants.PARAMETER_VALUE_TOKEN));
     }
 
-    protected boolean setToResponseModeOrUseDefault(Exchange exc, Session session, boolean defaultValue) throws Exception {
+    protected boolean setToResponseModeOrUseDefault(Exchange exc, GrantContext session, boolean defaultValue) throws Exception {
         if (hasOpenIdScope(exc))
             if (session.getValue(Constants.PARAMETER_RESPONSE_MODE) != null) {
                 String responseMode = session.getValue(Constants.PARAMETER_RESPONSE_MODE);

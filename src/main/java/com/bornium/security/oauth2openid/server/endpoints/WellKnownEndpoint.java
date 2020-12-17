@@ -4,7 +4,7 @@ import com.bornium.http.Exchange;
 import com.bornium.http.ResponseBuilder;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.model.WellKnown;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Arrays;
@@ -16,7 +16,7 @@ public class WellKnownEndpoint extends Endpoint {
     WellKnown wellKnown;
     String issuer;
 
-    public WellKnownEndpoint(ServerServices serverServices) {
+    public WellKnownEndpoint(AuthorizationServer serverServices) {
         super(serverServices, Constants.ENDPOINT_WELL_KNOWN);
         issuer = serverServices.getProvidedServices().getIssuer();
         wellKnown = new WellKnown(issuer,

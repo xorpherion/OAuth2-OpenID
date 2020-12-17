@@ -1,4 +1,6 @@
-package com.bornium.security.oauth2openid.token;
+package com.bornium.impl;
+
+import com.bornium.security.oauth2openid.token.Token;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

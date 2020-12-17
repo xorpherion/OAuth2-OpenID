@@ -6,15 +6,16 @@ import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.User;
 import com.bornium.security.oauth2openid.Util;
+import com.bornium.security.oauth2openid.providers.GrantContext;
 import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.responsegenerators.DeviceAuthorizationResponseGenerator;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
 
 import java.util.Map;
 
 public class DeviceAuthorizationEndpoint extends Endpoint {
 
-    public DeviceAuthorizationEndpoint(ServerServices serverServices) {
+    public DeviceAuthorizationEndpoint(AuthorizationServer serverServices) {
         super(serverServices, Constants.ENDPOINT_DEVICE_AUTHORIZATION);
     }
 
@@ -42,6 +43,7 @@ public class DeviceAuthorizationEndpoint extends Endpoint {
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);
 
+        GrantContext ctx = null; //TODO
 
         if (clientId == null)
             clientId = params.get(Constants.PARAMETER_CLIENT_ID);
@@ -69,7 +71,7 @@ public class DeviceAuthorizationEndpoint extends Endpoint {
         }
         session.putValue(Constants.PARAMETER_SCOPE, params.get(Constants.PARAMETER_SCOPE));
 
-        Map<String, String> responseBody = new DeviceAuthorizationResponseGenerator(serverServices, exc).invokeResponse();
+        Map<String, String> responseBody = new DeviceAuthorizationResponseGenerator(serverServices, ctx).invokeResponse();
         exc.setResponse(okWithJSONBody(responseBody));
     }
 

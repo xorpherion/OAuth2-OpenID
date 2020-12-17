@@ -1,12 +1,11 @@
 package com.bornium.security.oauth2openid;
 
-import com.bornium.security.oauth2openid.provider.MembraneClientDataProvider;
-import com.bornium.security.oauth2openid.provider.MembraneSessionProvider;
-import com.bornium.security.oauth2openid.provider.MembraneTokenPersistenceProvider;
-import com.bornium.security.oauth2openid.provider.MembraneUserDataProvider;
+import com.bornium.security.oauth2openid.provider.*;
 import com.bornium.security.oauth2openid.providers.*;
+import com.bornium.security.oauth2openid.server.EndpointFactory;
 import com.bornium.security.oauth2openid.server.ProvidedServices;
-import com.bornium.security.oauth2openid.token.BearerTokenProvider;
+import com.bornium.impl.LoginEndpoint;
+import com.bornium.impl.BearerTokenProvider;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +16,7 @@ import java.util.Set;
 public class MembraneServerFunctionality implements ProvidedServices {
 
     private final String issuer;
+    private final MembraneGrantContextDaoProvider grantContextDaoProvider;
     MembraneSessionProvider sessionProvider;
     MembraneClientDataProvider clientDataProvider;
     MembraneUserDataProvider userDataProvider;
@@ -31,7 +31,13 @@ public class MembraneServerFunctionality implements ProvidedServices {
         tokenPersistenceProvider = new MembraneTokenPersistenceProvider();
         timingProvider = new DefaultTimingProvider();
         tokenProvider = new BearerTokenProvider();
+        grantContextDaoProvider = new MembraneGrantContextDaoProvider();
         this.issuer = issuer;
+    }
+
+    @Override
+    public GrantContextDaoProvider getGrantContextDaoProvider() {
+        return grantContextDaoProvider;
     }
 
     @Override
@@ -89,5 +95,10 @@ public class MembraneServerFunctionality implements ProvidedServices {
     @Override
     public String getSubClaimName() {
         return "username";
+    }
+
+    @Override
+    public EndpointFactory loginEndpointFactory() {
+        return serverServices -> new LoginEndpoint(serverServices);
     }
 }

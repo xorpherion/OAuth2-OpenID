@@ -1,12 +1,12 @@
 package com.bornium.security.oauth2openid.responsegenerators;
 
-import com.bornium.http.Exchange;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.Util;
 import com.bornium.security.oauth2openid.permissions.ClaimsParameter;
+import com.bornium.security.oauth2openid.providers.GrantContext;
 import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.providers.TimingProvider;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.bornium.security.oauth2openid.server.TimingContext;
 import com.bornium.security.oauth2openid.token.Token;
 
@@ -20,24 +20,24 @@ import java.util.regex.Pattern;
 public class TokenResponseGenerator extends ResponseGenerator {
     private TimingProvider timingProvider;
 
-    public TokenResponseGenerator(ServerServices serverServices, Exchange exc) {
-        super(serverServices, exc, Constants.TOKEN_TYPE_TOKEN, Constants.TOKEN_TYPE_ID_TOKEN);
+    public TokenResponseGenerator(AuthorizationServer serverServices, GrantContext ctx) {
+        super(serverServices, ctx, Constants.TOKEN_TYPE_TOKEN, Constants.TOKEN_TYPE_ID_TOKEN);
         timingProvider = serverServices.getProvidedServices().getTimingProvider();
     }
 
     @Override
     public Map<String, String> invokeResponse() throws Exception {
-        String username = getSession().getValue(Constants.LOGIN_USERNAME);
-        String clientId = getSession().getValue(Constants.PARAMETER_CLIENT_ID);
-        String scope = getSession().getValue(Constants.PARAMETER_SCOPE);
-        String claims = getSession().getValue(Constants.PARAMETER_CLAIMS);
-        String code = getSession().getValue(Constants.SESSION_AUTHORIZATION_CODE);
-        String grantType = getSession().getValue(Constants.PARAMETER_GRANT_TYPE);
-        String refreshTokenValue = getSession().getValue(Constants.PARAMETER_REFRESH_TOKEN);
-        String state = getSession().getValue(Constants.PARAMETER_STATE);
-        String redirectUri = getSession().getValue(Constants.PARAMETER_REDIRECT_URI);
-        String nonce = getSession().getValue(Constants.PARAMETER_NONCE);
-        Set<String> responseTypes = new HashSet<String>(Arrays.asList(getSession().getValue(Constants.PARAMETER_RESPONSE_TYPE).split(Pattern.quote(" "))));
+        String username = getCtx().getValue(Constants.LOGIN_USERNAME);
+        String clientId = getCtx().getValue(Constants.PARAMETER_CLIENT_ID);
+        String scope = getCtx().getValue(Constants.PARAMETER_SCOPE);
+        String claims = getCtx().getValue(Constants.PARAMETER_CLAIMS);
+        String code = getCtx().getValue(Constants.SESSION_AUTHORIZATION_CODE);
+        String grantType = getCtx().getValue(Constants.PARAMETER_GRANT_TYPE);
+        String refreshTokenValue = getCtx().getValue(Constants.PARAMETER_REFRESH_TOKEN);
+        String state = getCtx().getValue(Constants.PARAMETER_STATE);
+        String redirectUri = getCtx().getValue(Constants.PARAMETER_REDIRECT_URI);
+        String nonce = getCtx().getValue(Constants.PARAMETER_NONCE);
+        Set<String> responseTypes = new HashSet<String>(Arrays.asList(getCtx().getValue(Constants.PARAMETER_RESPONSE_TYPE).split(Pattern.quote(" "))));
 
         Token parentToken = getOrCreateParentToken(username, clientId, scope, claims, code, refreshTokenValue, redirectUri, nonce);
         if(username == null && parentToken.getUsername() != null)
@@ -59,7 +59,7 @@ public class TokenResponseGenerator extends ResponseGenerator {
 
     private void createIdTokenIfNeeded(String username, String clientId, String scope, String claims, String code, Set<String> responseTypes, Token parentToken, Map<String, String> result, String accessTokenValue) throws Exception {
         if (responseTypes.contains(Constants.PARAMETER_VALUE_ID_TOKEN) && isOpenIdScope()) {
-            String authTime = getSession().getValue(Constants.PARAMETER_AUTH_TIME);
+            String authTime = getCtx().getValue(Constants.PARAMETER_AUTH_TIME);
             String nonce = parentToken.getNonce();
             Set<String> idTokenClaimNames = new ClaimsParameter(claims).getAllIdTokenClaimNames();
             idTokenClaimNames.addAll(getServerServices().getSupportedScopes().getClaimsForScope(scope));
@@ -100,20 +100,20 @@ public class TokenResponseGenerator extends ResponseGenerator {
         Token parentToken = null;
         if (refreshTokenValue != null) {
             parentToken = getTokenManager().getRefreshTokens().getToken(refreshTokenValue);
-            getSession().removeValue(Constants.PARAMETER_REFRESH_TOKEN);
+            getCtx().removeValue(Constants.PARAMETER_REFRESH_TOKEN);
         } else if (invokingEndpointIsAuthorizationEndpoint() || code == null) {
             Token fakeAuthToken = getTokenManager().createBearerTokenWithDefaultDuration(username, clientId, claims, scope, redirectUri, nonce);
             getTokenManager().getAuthorizationCodes().addToken(fakeAuthToken);
             parentToken = getTokenManager().getAuthorizationCodes().getToken(fakeAuthToken.getValue());
         } else {
             parentToken = getTokenManager().getAuthorizationCodes().getToken(code);
-            getSession().removeValue(Constants.SESSION_AUTHORIZATION_CODE);
+            getCtx().removeValue(Constants.SESSION_AUTHORIZATION_CODE);
         }
         return parentToken;
     }
 
     private boolean invokingEndpointIsAuthorizationEndpoint() throws Exception {
-        return getSession().getValue(Constants.SESSION_ENDPOINT).equals(Constants.ENDPOINT_AUTHORIZATION);
+        return getCtx().getValue(Constants.SESSION_ENDPOINT).equals(Constants.ENDPOINT_AUTHORIZATION);
     }
 
     private String getSubClaim(String username) {
@@ -125,8 +125,8 @@ public class TokenResponseGenerator extends ResponseGenerator {
     }
 
     private boolean isOpenIdScope() throws Exception {
-        Session session = getSession();
-        String scope = session.getValue(Constants.PARAMETER_SCOPE);
+        GrantContext ctx = getCtx();
+        String scope = ctx.getValue(Constants.PARAMETER_SCOPE);
         if (scope != null && scope.contains(Constants.SCOPE_OPENID))
             return true;
         return false;

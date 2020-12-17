@@ -25,6 +25,8 @@
                     document.getElementById("error").appendChild(document.createTextNode(params.error));
                 if(params.state)
                     document.getElementById("state").value = params.state;
+                if(params.grant_context_id)
+                    document.getElementById("grant_context_id").value = params.grant_context_id;
 
             }
         });
@@ -51,6 +53,7 @@
                 <input type="submit" value="Login"></li>
         </ul>
         <input id="state" type="hidden" name="login_state">
+        <input id="grant_context_id" type="hidden" name="grant_context_id">
     </form>
 </div>
 </body>

@@ -9,6 +9,8 @@ import java.util.Set;
  */
 public interface ProvidedServices {
 
+    GrantContextDaoProvider getGrantContextDaoProvider();
+
     SessionProvider getSessionProvider();
 
     ClientDataProvider getClientDataProvider();
@@ -30,4 +32,6 @@ public interface ProvidedServices {
     String getContextPath();
 
     String getSubClaimName();
+
+    EndpointFactory loginEndpointFactory();
 }

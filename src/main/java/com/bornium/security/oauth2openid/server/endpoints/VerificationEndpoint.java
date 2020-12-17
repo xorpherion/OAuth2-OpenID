@@ -7,8 +7,9 @@ import com.bornium.http.ResponseBuilder;
 import com.bornium.http.util.BodyUtil;
 import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
+import com.bornium.security.oauth2openid.providers.GrantContext;
 import com.bornium.security.oauth2openid.providers.Session;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.bornium.security.oauth2openid.token.CombinedTokenManager;
 import com.bornium.security.oauth2openid.token.Token;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class VerificationEndpoint extends Endpoint {
-    public VerificationEndpoint(ServerServices serverServices) {
+    public VerificationEndpoint(AuthorizationServer serverServices) {
         super(serverServices, Constants.ENDPOINT_VERIFICATION);
     }
 
@@ -35,8 +36,9 @@ public class VerificationEndpoint extends Endpoint {
             Map<String, String> params = getParams(exc);
 
             String userCode = params.get(Constants.PARAMETER_USER_CODE);
+            GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findById(userCode).get();
 
-            if (requireLogin(exc, session, userCode))
+            if (requireLogin(exc, ctx, userCode))
                 return;
 
             if (userCode == null) {
@@ -60,10 +62,12 @@ public class VerificationEndpoint extends Endpoint {
         Map<String, String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
 
         String userCode = params.get("user_code");
+        GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findById(userCode).get();
+
         if (userCode != null)
             userCode = UriUtil.decode(userCode);
 
-        if (requireLogin(exc, session, userCode))
+        if (requireLogin(exc, ctx, userCode))
             return;
 
         Token userToken = tokenManager.getUserCodes().getToken(userCode);
@@ -92,7 +96,7 @@ public class VerificationEndpoint extends Endpoint {
             if (consent != null)
                 userToken.revokeCascade();
 
-            HashMap<String, String> jsParams = prepareJsStateParameter(session);
+            HashMap<String, String> jsParams = prepareJsStateParameter(ctx);
             if (userCode != null)
                 jsParams.put(Constants.PARAMETER_USER_CODE, userCode);
             exc.setResponse(redirectToSelf(jsParams));
@@ -124,8 +128,8 @@ public class VerificationEndpoint extends Endpoint {
         session.removeValue(Constants.PARAMETER_USER_CODE);
     }
 
-    private boolean requireLogin(Exchange exc, Session session, String userCode) throws Exception {
-        if (isLoggedIn(exc))
+    private boolean requireLogin(Exchange exc, GrantContext session, String userCode) throws Exception {
+        if (isLoggedIn(session))
             return false;
 
         session.putValue(Constants.PARAMETER_USER_CODE, userCode == null ? "" : userCode);

@@ -4,7 +4,7 @@ package com.bornium.security.oauth2openid;
  * Created by Xorpherion on 25.01.2017.
  */
 public class ConstantsTest {
-    public static final String PROTOCOL = "https";
+    public static final String PROTOCOL = "http";
     public static final String HOST_LOCALHOST = PROTOCOL + "://localhost";
 
     public static final String HOST_AUTHORIZATION_SERVER = HOST_LOCALHOST;

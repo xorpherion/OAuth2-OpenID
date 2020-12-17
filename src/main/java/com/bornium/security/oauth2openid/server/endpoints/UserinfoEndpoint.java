@@ -3,7 +3,7 @@ package com.bornium.security.oauth2openid.server.endpoints;
 import com.bornium.http.Exchange;
 import com.bornium.http.Response;
 import com.bornium.security.oauth2openid.Constants;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.bornium.security.oauth2openid.token.Token;
 
 import java.util.HashMap;
@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  * Created by Xorpherion on 31.01.2017.
  */
 public class UserinfoEndpoint extends Endpoint {
-    public UserinfoEndpoint(ServerServices serverServices) {
+    public UserinfoEndpoint(AuthorizationServer serverServices) {
         super(serverServices, Constants.ENDPOINT_USERINFO);
     }
 

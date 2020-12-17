@@ -101,12 +101,12 @@ public class OpenIdCodeIdTokenToken extends BaseOpenIdAuthorizationEndpointTests
                     () -> assertEquals(ConstantsTest.CLIENT_DEFAULT_STATE, Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_STATE))
             );
             try {
-                String jwk = server.getServerServices().getTokenManager().getJwk();
+                String jwk = server.getTokenManager().getJwk();
                 IdTokenVerifier verifier = new IdTokenVerifier(jwk);
                 String idToken = Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_ID_TOKEN);
                 String accessToken = Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_ACCESS_TOKEN);
                 String code = Common.getParamsFromRedirectResponse(exc, isImplicit()).get(Constants.PARAMETER_CODE);
-                Map<String, String> claims = verifier.verifyAndGetClaims(idToken, server.getServerServices().getProvidedServices().getIssuer(), getClientId());
+                Map<String, String> claims = verifier.verifyAndGetClaims(idToken, server.getProvidedServices().getIssuer(), getClientId());
 
                 assertEquals(getNonce(), claims.get(Constants.PARAMETER_NONCE));
                 assertEquals(Util.halfHashFromValue(Constants.ALG_SHA_256, accessToken), claims.get(Constants.CLAIM_AT_HASH));

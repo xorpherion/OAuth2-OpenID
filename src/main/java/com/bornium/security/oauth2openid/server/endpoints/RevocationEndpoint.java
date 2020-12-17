@@ -6,7 +6,7 @@ import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.User;
 import com.bornium.security.oauth2openid.Util;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.bornium.security.oauth2openid.token.Token;
 
 import java.util.Map;
@@ -15,7 +15,7 @@ import java.util.Map;
  * Created by Xorpherion on 07.02.2017.
  */
 public class RevocationEndpoint extends Endpoint {
-    public RevocationEndpoint(ServerServices serverServices) {
+    public RevocationEndpoint(AuthorizationServer serverServices) {
         super(serverServices, Constants.ENDPOINT_REVOCATION);
     }
 
