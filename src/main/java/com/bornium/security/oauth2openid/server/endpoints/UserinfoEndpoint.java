@@ -70,8 +70,4 @@ public class UserinfoEndpoint extends Endpoint {
         res.getHeader().append(Constants.HEADER_WWW_AUTHENTICATE, "Bearer realm=\"token\", error=" + error);
         return res;
     }
-    @Override
-    public String getScope(Exchange exc) throws Exception {
-        return null;
-    }
 }

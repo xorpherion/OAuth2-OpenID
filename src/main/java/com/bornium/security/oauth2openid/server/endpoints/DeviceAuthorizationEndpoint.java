@@ -43,7 +43,7 @@ public class DeviceAuthorizationEndpoint extends Endpoint {
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);
 
-        GrantContext ctx = null; //TODO
+        GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findByIdOrCreate(""); //TODO
 
         if (clientId == null)
             clientId = params.get(Constants.PARAMETER_CLIENT_ID);
@@ -62,25 +62,35 @@ public class DeviceAuthorizationEndpoint extends Endpoint {
             exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
             return;
         }
-        session.putValue(Constants.PARAMETER_CLIENT_ID, clientId);
+        ctx.putValue(Constants.PARAMETER_CLIENT_ID, clientId);
 
         if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE))) {
             log.debug("Scope ('" + params.get(Constants.PARAMETER_SCOPE) + "') not supported.");
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_SCOPE));
             return;
         }
-        session.putValue(Constants.PARAMETER_SCOPE, params.get(Constants.PARAMETER_SCOPE));
+        ctx.putValue(Constants.PARAMETER_SCOPE, params.get(Constants.PARAMETER_SCOPE));
 
         Map<String, String> responseBody = new DeviceAuthorizationResponseGenerator(serverServices, ctx).invokeResponse();
+        copyResponseIntoContext(ctx, responseBody);
+
+        ctx.setIdentifier(responseBody.get(Constants.PARAMETER_DEVICE_CODE));
+        serverServices.getProvidedServices().getGrantContextDaoProvider().persist(ctx);
+
+        GrantContext deepCopyForUserCode = serverServices.getProvidedServices().getGrantContextDaoProvider().deepCopy(ctx);
+        deepCopyForUserCode.setIdentifier(responseBody.get(Constants.PARAMETER_USER_CODE));
+        serverServices.getProvidedServices().getGrantContextDaoProvider().persist(deepCopyForUserCode);
+
         exc.setResponse(okWithJSONBody(responseBody));
     }
 
-    @Override
-    public String getScope(Exchange exc) throws Exception {
-        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
-        params = Parameters.stripEmptyParams(params);
-        if (!params.isEmpty() && params.get(Constants.PARAMETER_SCOPE) != null)
-            return params.get(Constants.PARAMETER_SCOPE);
-        return serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_SCOPE);
+    private void copyResponseIntoContext(GrantContext ctx, Map<String, String> responseBody) {
+        responseBody.entrySet().stream().forEach(e -> {
+            try {
+                ctx.putValue(e.getKey(),String.valueOf(e.getValue()));
+            } catch (Exception exception) {
+                throw new RuntimeException(exception);
+            }
+        });
     }
 }

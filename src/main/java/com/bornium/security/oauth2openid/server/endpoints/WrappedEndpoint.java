@@ -28,11 +28,6 @@ public class WrappedEndpoint<T extends Endpoint> extends Endpoint{
     }
 
     @Override
-    public String getScope(Exchange exc) throws Exception {
-        return toBeWrapped.getScope(exc);
-    }
-
-    @Override
     public void useIfResponsible(Exchange exc) throws Exception {
         toBeWrapped.useIfResponsible(exc);
     }
@@ -48,8 +43,8 @@ public class WrappedEndpoint<T extends Endpoint> extends Endpoint{
     }
 
     @Override
-    protected boolean hasOpenIdScope(Exchange exc) throws Exception {
-        return toBeWrapped.hasOpenIdScope(exc);
+    protected boolean hasOpenIdScope(GrantContext ctx) throws Exception {
+        return toBeWrapped.hasOpenIdScope(ctx);
     }
 
     @Override
@@ -103,18 +98,18 @@ public class WrappedEndpoint<T extends Endpoint> extends Endpoint{
     }
 
     @Override
-    protected boolean isLoggedIn(GrantContext ctx) throws Exception {
-        return toBeWrapped.isLoggedIn(ctx);
+    protected boolean isLoggedIn(Session session) throws Exception {
+        return toBeWrapped.isLoggedIn(session);
     }
 
     @Override
-    protected boolean hasGivenConsent(GrantContext ctx) throws Exception {
-        return toBeWrapped.hasGivenConsent(ctx);
+    protected boolean hasGivenConsent(Session session) throws Exception {
+        return toBeWrapped.hasGivenConsent(session);
     }
 
     @Override
-    protected boolean isLoggedInAndHasGivenConsent(GrantContext ctx) throws Exception {
-        return toBeWrapped.isLoggedInAndHasGivenConsent(ctx);
+    protected boolean isLoggedInAndHasGivenConsent(Session session) throws Exception {
+        return toBeWrapped.isLoggedInAndHasGivenConsent(session);
     }
 
     @Override
@@ -163,13 +158,13 @@ public class WrappedEndpoint<T extends Endpoint> extends Endpoint{
     }
 
     @Override
-    protected boolean setToResponseModeOrUseDefault(Exchange exc, GrantContext session) throws Exception {
-        return toBeWrapped.setToResponseModeOrUseDefault(exc, session);
+    protected boolean setToResponseModeOrUseDefault(GrantContext ctx) throws Exception {
+        return toBeWrapped.setToResponseModeOrUseDefault(ctx);
     }
 
     @Override
-    protected boolean setToResponseModeOrUseDefault(Exchange exc, GrantContext session, boolean defaultValue) throws Exception {
-        return toBeWrapped.setToResponseModeOrUseDefault(exc, session, defaultValue);
+    protected boolean setToResponseModeOrUseDefault(GrantContext ctx, boolean defaultValue) throws Exception {
+        return toBeWrapped.setToResponseModeOrUseDefault(ctx, defaultValue);
     }
 
     @Override

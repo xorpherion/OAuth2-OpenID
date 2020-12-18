@@ -28,9 +28,4 @@ public class JwkEndpoint extends Endpoint {
 
         exc.setResponse(new ResponseBuilder().statuscode(200).body(jwk).build());
     }
-
-    @Override
-    public String getScope(Exchange exc) throws Exception {
-        return null;
-    }
 }

@@ -20,9 +20,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by Xorpherion on 25.01.2017.
@@ -56,14 +58,16 @@ public abstract class Endpoint {
 
     public abstract void invokeOn(Exchange exc) throws Exception;
 
-    public abstract String getScope(Exchange exc) throws Exception;
-
-    protected boolean hasOpenIdScope(String scope) {
-        return scope != null && scope.contains(Constants.SCOPE_OPENID);
+    public String getScope(GrantContext ctx) throws Exception{
+        return ctx.getValue(Constants.PARAMETER_SCOPE);
     }
 
-    protected boolean hasOpenIdScope(Exchange exc) throws Exception {
-        return hasOpenIdScope(getScope(exc));
+    protected boolean hasOpenIdScope(String scope) {
+        return scope != null && Arrays.stream(scope.split(" ")).collect(Collectors.toSet()).contains(Constants.SCOPE_OPENID);
+    }
+
+    protected boolean hasOpenIdScope(GrantContext ctx) throws Exception {
+        return hasOpenIdScope(getScope(ctx));
     }
 
     protected Response informResourceOwnerError(String error) throws JsonProcessingException {
@@ -124,18 +128,18 @@ public abstract class Endpoint {
         return UriUtil.encode(Base64.encode(json.getBytes()));
     }
 
-    protected boolean isLoggedIn(GrantContext ctx) throws Exception {
-        String loggedIn = ctx.getValue(Constants.SESSION_LOGGED_IN);
+    protected boolean isLoggedIn(Session se) throws Exception {
+        String loggedIn = se.getValue(Constants.SESSION_LOGGED_IN);
         return Constants.VALUE_YES.equals(loggedIn);
     }
 
-    protected boolean hasGivenConsent(GrantContext ctx) throws Exception {
-        String consentGiven = ctx.getValue(Constants.SESSION_CONSENT_GIVEN);
+    protected boolean hasGivenConsent(Session session) throws Exception {
+        String consentGiven = session.getValue(Constants.SESSION_CONSENT_GIVEN);
         return Constants.VALUE_YES.equals(consentGiven);
     }
 
-    protected boolean isLoggedInAndHasGivenConsent(GrantContext ctx) throws Exception {
-        return isLoggedIn(ctx) && hasGivenConsent(ctx);
+    protected boolean isLoggedInAndHasGivenConsent(Session session) throws Exception {
+        return isLoggedIn(session) && hasGivenConsent(session);
     }
 
     protected Response redirectToConsent(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {
@@ -143,7 +147,7 @@ public abstract class Endpoint {
     }
 
     protected Response redirectToDeviceVerification(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {
-        return redirectToUrl(serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_VERIFICATION + "#params=" + prepareJSParams(params), null);
+        return redirectToUrl(serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_VERIFICATION + "?" + Constants.GRANT_CONTEXT_ID + "=" + params.get(Constants.GRANT_CONTEXT_ID) + "#params=" + prepareJSParams(params), null);
     }
 
     protected HashMap<String, String> prepareJsStateParameter(GrantContext session) throws Exception {
@@ -188,17 +192,17 @@ public abstract class Endpoint {
         return claims;
     }
 
-    protected boolean setToResponseModeOrUseDefault(Exchange exc, GrantContext session) throws Exception {
-        String responseType = session.getValue(Constants.PARAMETER_RESPONSE_TYPE);
+    protected boolean setToResponseModeOrUseDefault(GrantContext ctx) throws Exception {
+        String responseType = ctx.getValue(Constants.PARAMETER_RESPONSE_TYPE);
         if (responseType == null)
             throw new RuntimeException();
-        return setToResponseModeOrUseDefault(exc, session, responseType.contains(Constants.PARAMETER_VALUE_TOKEN));
+        return setToResponseModeOrUseDefault(ctx, responseType.contains(Constants.PARAMETER_VALUE_TOKEN));
     }
 
-    protected boolean setToResponseModeOrUseDefault(Exchange exc, GrantContext session, boolean defaultValue) throws Exception {
-        if (hasOpenIdScope(exc))
-            if (session.getValue(Constants.PARAMETER_RESPONSE_MODE) != null) {
-                String responseMode = session.getValue(Constants.PARAMETER_RESPONSE_MODE);
+    protected boolean setToResponseModeOrUseDefault(GrantContext ctx, boolean defaultValue) throws Exception {
+        if (hasOpenIdScope(ctx))
+            if (ctx.getValue(Constants.PARAMETER_RESPONSE_MODE) != null) {
+                String responseMode = ctx.getValue(Constants.PARAMETER_RESPONSE_MODE);
                 if (responseMode.equals(Constants.PARAMETER_VALUE_QUERY))
                     return false;
                 if (responseMode.equals(Constants.PARAMETER_VALUE_FRAGMENT))

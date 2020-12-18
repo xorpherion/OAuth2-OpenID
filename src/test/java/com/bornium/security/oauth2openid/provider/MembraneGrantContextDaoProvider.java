@@ -12,10 +12,7 @@ import com.google.common.cache.CacheBuilder;
 import com.predic8.membrane.core.interceptor.authentication.session.SessionManager;
 import com.predic8.membrane.core.rules.NullRule;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -24,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class MembraneGrantContextDaoProvider extends GrantContextDaoProvider {
 
     Cache<String,GrantContext> ctxs = CacheBuilder.newBuilder()
-            .expireAfterWrite(60, TimeUnit.DAYS) // TODO change back to lower value (60 Seconds) when not in dev profile
+            .expireAfterWrite(10, TimeUnit.MINUTES)
             .build();
 
     @Override
@@ -41,6 +38,11 @@ public class MembraneGrantContextDaoProvider extends GrantContextDaoProvider {
             @Override
             public void putValue(String key, String value) throws Exception {
                 state.put(key,value);
+            }
+
+            @Override
+            public Set<String> allKeys() throws Exception {
+                return state.keySet();
             }
 
             @Override
@@ -62,7 +64,7 @@ public class MembraneGrantContextDaoProvider extends GrantContextDaoProvider {
 
 
     @Override
-    public void invalidate(String... identifiers) {
+    public void invalidationHint(String... identifiers) {
         Arrays.stream(identifiers).forEach(id -> ctxs.invalidate(id));
     }
 

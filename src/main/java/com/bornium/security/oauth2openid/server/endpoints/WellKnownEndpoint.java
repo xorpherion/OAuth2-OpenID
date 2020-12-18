@@ -92,9 +92,4 @@ public class WellKnownEndpoint extends Endpoint {
     public void invokeOn(Exchange exc) throws Exception {
         exc.setResponse(new ResponseBuilder().statuscode(200).body(new ObjectMapper().writeValueAsString(wellKnown)).build());
     }
-
-    @Override
-    public String getScope(Exchange exc){
-        return "openid";
-    }
 }

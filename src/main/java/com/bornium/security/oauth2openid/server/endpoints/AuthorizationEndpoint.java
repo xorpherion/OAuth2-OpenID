@@ -2,7 +2,6 @@ package com.bornium.security.oauth2openid.server.endpoints;
 
 import com.bornium.http.Exchange;
 import com.bornium.http.Response;
-import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.providers.GrantContext;
 import com.bornium.security.oauth2openid.providers.Session;
@@ -11,7 +10,6 @@ import com.bornium.security.oauth2openid.server.AuthorizationServer;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -43,6 +41,9 @@ public class AuthorizationEndpoint extends Endpoint {
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findByIdOrCreate(params.get(Constants.GRANT_CONTEXT_ID));
 
+        if(ctx.getIdentifier() == null)
+            copyParametersIntoContext(ctx,params); // possibly a dangerous line if any parameter check is missing
+
         if (requestTargetsTheAuthorizationEndpoint(exc)) {
             if (redirectUriOrClientIdProblem(params)) {
                 log.debug("Parameters client_id ('" + params.get(Constants.PARAMETER_CLIENT_ID) + "') or redirect_uri ('" + params.get(Constants.PARAMETER_REDIRECT_URI) + "') have problems.");
@@ -65,34 +66,34 @@ public class AuthorizationEndpoint extends Endpoint {
             if(params.get(Constants.PARAMETER_RESPONSE_MODE) != null)
                 ctx.putValue(Constants.PARAMETER_RESPONSE_MODE, params.get(Constants.PARAMETER_RESPONSE_MODE));
 
-            if (hasOpenIdScope(exc))
+            if (hasOpenIdScope(ctx))
                 if (isImplicitFlowAndHasNoNonceValue(params)) {
                     log.debug("Implicit Flow is used, but no nonce value present.");
-                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, ctx)));
+                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(ctx)));
                     return;
                 }
 
             if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE))) {
                 log.debug("Scope ('" + params.get(Constants.PARAMETER_SCOPE) + "') not supported.");
-                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_SCOPE, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, ctx)));
+                exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_SCOPE, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(ctx)));
                 return;
             }
 
-            if (isLoggedIn(ctx) && hasAMaximumAuthenticationAgeFromBefore(session)) {
+            if (isLoggedIn(session) && hasAMaximumAuthenticationAgeFromBefore(session)) {
                 Duration maxAge = Duration.ofSeconds(Integer.parseInt(session.getValue(Constants.PARAMETER_MAX_AGE)));
                 if (Instant.now().isAfter(Instant.ofEpochSecond(Long.parseLong(session.getValue(Constants.PARAMETER_AUTH_TIME))).plus(maxAge)))
                     session.clear();
             }
 
-            if (hasOpenIdScope(exc)) {
+            if (hasOpenIdScope(ctx)) {
                 if (params.get(Constants.PARAMETER_PROMPT) != null) {
                     String prompt = params.get(Constants.PARAMETER_PROMPT);
                     if (prompt.equals(Constants.PARAMETER_VALUE_LOGIN))
                         session.clear();
                     if (prompt.equals(Constants.PARAMETER_VALUE_NONE))
-                        if (!isLoggedInAndHasGivenConsent(ctx)) {
+                        if (!isLoggedInAndHasGivenConsent(session)) {
                             log.debug("Session is not logged in or has not given consent.");
-                            exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INTERACTION_REQUIRED, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, ctx)));
+                            exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INTERACTION_REQUIRED, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(ctx)));
                             return;
                         }
                 }
@@ -101,39 +102,41 @@ public class AuthorizationEndpoint extends Endpoint {
                         int maxAge = Integer.parseInt(params.get(Constants.PARAMETER_MAX_AGE));
                         if (maxAge < 0)
                             throw new RuntimeException(); // exception is used as control flow only because Integer.parseInt throws anyway on error
+                        session.putValue(Constants.PARAMETER_MAX_AGE, String.valueOf(maxAge));
                     } catch (Exception e) {
                         log.debug("MaxAge ('" + params.get(Constants.PARAMETER_MAX_AGE) + "') has a problem.");
-                        exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, ctx)));
+                        exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INVALID_REQUEST, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(ctx)));
                         return;
                     }
+
                 }
 
                 if (params.containsKey(Constants.PARAMETER_REQUEST)) {
                     log.debug("Parameter 'request' not supported with OpenId Scope.");
-                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_REQUEST_NOT_SUPPORTED, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, ctx)));
+                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_REQUEST_NOT_SUPPORTED, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(ctx)));
                     return;
                 }
                 if (params.containsKey(Constants.PARAMETER_REQUEST_URI)) {
                     log.debug("Parameter 'request_uri' not supported with OpenId Scope.");
-                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_REQUEST_URI_NOT_SUPPORTED, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, ctx)));
+                    exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_REQUEST_URI_NOT_SUPPORTED, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(ctx)));
                     return;
                 }
             }
 
             copyParametersIntoContext(ctx, params);
-            if (!isLoggedInAndHasGivenConsent(ctx)) {
+            if (!isLoggedInAndHasGivenConsent(session)) {
                 exc.setResponse(associatedContextWithClientStateAndInformLoginEndpoint(params, ctx));
                 return;
             }
             answerWithToken(exc, ctx);
         } else {
             // this is ENDPOINT_AFTER_LOGIN
-            if (isLoggedInAndHasGivenConsent(ctx)) {
-                serverServices.getProvidedServices().getGrantContextDaoProvider().invalidate(ctx.getIdentifier());
+            if (isLoggedInAndHasGivenConsent(session)) {
+                serverServices.getProvidedServices().getGrantContextDaoProvider().invalidationHint(ctx.getIdentifier());
                 answerWithToken(exc, ctx);
             } else {
                 log.debug("Session is not logged in or has not given consent.");
-                exc.setResponse(redirectToCallbackWithError(session.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED, session.getValue(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, ctx)));
+                exc.setResponse(redirectToCallbackWithError(session.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED, session.getValue(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(ctx)));
             }
         }
 
@@ -181,12 +184,30 @@ public class AuthorizationEndpoint extends Endpoint {
         ctx.putValue(Constants.SESSION_ENDPOINT, Constants.ENDPOINT_AUTHORIZATION);
         String responseType = ctx.getValue(Constants.PARAMETER_RESPONSE_TYPE);
 
-        boolean useFragment = setToResponseModeOrUseDefault(exc, ctx, responseType.contains(Constants.PARAMETER_VALUE_TOKEN));
+        boolean useFragment = setToResponseModeOrUseDefault(ctx, responseType.contains(Constants.PARAMETER_VALUE_TOKEN));
 
         Map<String, String> callbackParams = new CombinedResponseGenerator(serverServices, ctx).invokeResponse(responseTypeToResponseGeneratorValue(responseType));
-        ctx.setIdentifier(callbackParams.get(Constants.PARAMETER_CODE));
-        serverServices.getProvidedServices().getGrantContextDaoProvider().persist(ctx);
+        if(!callbackParams.isEmpty()) {
+            ctx.setIdentifier(findCtxIdentifierInTokenResponse(callbackParams));
+            serverServices.getProvidedServices().getGrantContextDaoProvider().persist(ctx);
+        }
         exc.setResponse(redirectToCallbackWithParams(ctx.getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams, ctx.getValue(Constants.PARAMETER_STATE), useFragment));
+    }
+
+    private String findCtxIdentifierInTokenResponse(Map<String, String> callbackParams) {
+        String authCode = callbackParams.get(Constants.PARAMETER_CODE);
+        if(authCode != null)
+            return authCode;
+
+        String accessToken = callbackParams.get(Constants.PARAMETER_ACCESS_TOKEN);
+        if(accessToken != null)
+            return accessToken;
+
+        String idToken = callbackParams.get(Constants.PARAMETER_ID_TOKEN);
+        if(idToken != null)
+            return idToken;
+
+        throw new RuntimeException("Should not happen");
     }
 
 
@@ -212,15 +233,4 @@ public class AuthorizationEndpoint extends Endpoint {
         return builder.toString().trim();
 
     }
-
-
-    @Override
-    public String getScope(Exchange exc) throws Exception {
-        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getUri().getQuery());
-        if (!params.isEmpty() && params.get(Constants.PARAMETER_SCOPE) != null)
-            return params.get(Constants.PARAMETER_SCOPE);
-        return serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_SCOPE);
-    }
-
-
 }

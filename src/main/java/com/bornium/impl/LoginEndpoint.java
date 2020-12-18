@@ -48,7 +48,7 @@ public class LoginEndpoint extends LoginEndpointBase {
         Map<String, String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
         GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findById(params.get(Constants.GRANT_CONTEXT_ID)).get();
         if (!params.containsKey(Constants.LOGIN_CONSENT) || params.get(Constants.LOGIN_CONSENT).equals(Constants.VALUE_NO)) {
-            exc.setResponse(redirectToCallbackWithError(ctx.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED, ctx.getValue(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(exc, ctx)));
+            exc.setResponse(redirectToCallbackWithError(ctx.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED, ctx.getValue(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(ctx)));
             return;
         }
 
@@ -58,6 +58,9 @@ public class LoginEndpoint extends LoginEndpointBase {
             return;
         }
         ctx.putValue(Constants.SESSION_CONSENT_GIVEN, Constants.VALUE_YES);
+        serverServices.getProvidedServices().getGrantContextDaoProvider().persist(ctx);
+        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
+        session.putValue(Constants.SESSION_CONSENT_GIVEN, Constants.VALUE_YES);
         exc.setResponse(redirectToAfterLoginEndpoint(ctx));
     }
 
@@ -91,6 +94,7 @@ public class LoginEndpoint extends LoginEndpointBase {
         ctx.putValue(Constants.LOGIN_USERNAME, username);
         ctx.putValue(Constants.SESSION_LOGGED_IN, Constants.VALUE_YES);
         ctx.putValue(Constants.PARAMETER_AUTH_TIME, String.valueOf(Instant.now().getEpochSecond()));
+        serverServices.getProvidedServices().getGrantContextDaoProvider().persist(ctx);
 
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         session.putValue(Constants.LOGIN_USERNAME, username);
@@ -128,6 +132,7 @@ public class LoginEndpoint extends LoginEndpointBase {
     private Map<String, String> getDeviceVerificationPageParams(GrantContext session) throws Exception {
         HashMap<String, String> result = new HashMap<>(prepareJsStateParameter(session));
         result.put(Constants.PARAMETER_USER_CODE, session.getValue(Constants.PARAMETER_USER_CODE));
+        result.put(Constants.GRANT_CONTEXT_ID, session.getIdentifier());
         return result;
     }
 
@@ -145,11 +150,6 @@ public class LoginEndpoint extends LoginEndpointBase {
 
     private Response sendConsentpage() throws IOException {
         return new ResponseBuilder().statuscode(200).body(loadConsentpage()).build();
-    }
-
-    @Override
-    public String getScope(Exchange exc) throws Exception {
-        return null;
     }
 
     private boolean hasSentLoginData(Exchange exc) {

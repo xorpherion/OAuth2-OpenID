@@ -36,15 +36,20 @@ public class VerificationEndpoint extends Endpoint {
             Map<String, String> params = getParams(exc);
 
             String userCode = params.get(Constants.PARAMETER_USER_CODE);
-            GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findById(userCode).get();
+            GrantContext ctx = getContextFromUserCodeOrGrantContextIdOrDefault(params, userCode);
 
-            if (requireLogin(exc, ctx, userCode))
+            if(ctx.getIdentifier() == null)
+                ctx.setIdentifier(loginStateProvider.get(null));
+
+
+
+            if (requireLogin(exc,session, ctx, userCode))
                 return;
 
             if (userCode == null) {
-                userCode = session.getValue(Constants.PARAMETER_USER_CODE);
+                userCode = ctx.getValue(Constants.PARAMETER_USER_CODE);
                 if (userCode != null)
-                    session.removeValue(Constants.PARAMETER_USER_CODE);
+                    ctx.removeValue(Constants.PARAMETER_USER_CODE);
             }
 
             if (userCode != null) {
@@ -62,12 +67,12 @@ public class VerificationEndpoint extends Endpoint {
         Map<String, String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
 
         String userCode = params.get("user_code");
-        GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findById(userCode).get();
+        GrantContext ctx = getContextFromUserCodeOrGrantContextIdOrDefault(params, userCode);
 
         if (userCode != null)
             userCode = UriUtil.decode(userCode);
 
-        if (requireLogin(exc, ctx, userCode))
+        if (requireLogin(exc, session,ctx, userCode))
             return;
 
         Token userToken = tokenManager.getUserCodes().getToken(userCode);
@@ -114,7 +119,7 @@ public class VerificationEndpoint extends Endpoint {
         Token deviceToken = tokenManager.getDeviceCodes().getToken("pre:" + userToken.getUsername());
         String deviceCode = deviceToken.getValue().replaceFirst("^pre:", "");
         
-        String username = session.getValue(Constants.LOGIN_USERNAME);
+        String username = ctx.getValue(Constants.LOGIN_USERNAME);
         String clientId = deviceToken.getClientId();
 
         tokenManager.addTokenToManager(tokenManager.getDeviceCodes(),
@@ -124,17 +129,25 @@ public class VerificationEndpoint extends Endpoint {
         deviceToken.incrementUsage();
 
         exc.setResponse(sendSuccesspage());
+        serverServices.getProvidedServices().getGrantContextDaoProvider().invalidationHint(ctx.getIdentifier());
 
-        session.removeValue(Constants.PARAMETER_USER_CODE);
+        ctx.removeValue(Constants.PARAMETER_USER_CODE);
     }
 
-    private boolean requireLogin(Exchange exc, GrantContext session, String userCode) throws Exception {
+    private GrantContext getContextFromUserCodeOrGrantContextIdOrDefault(Map<String, String> params, String userCode) {
+        return serverServices.getProvidedServices().getGrantContextDaoProvider().findById(userCode)
+                .orElseGet(() -> serverServices.getProvidedServices().getGrantContextDaoProvider().findByIdOrCreate(params.get(Constants.GRANT_CONTEXT_ID)));
+    }
+
+    private boolean requireLogin(Exchange exc, Session session, GrantContext ctx, String userCode) throws Exception {
         if (isLoggedIn(session))
             return false;
 
-        session.putValue(Constants.PARAMETER_USER_CODE, userCode == null ? "" : userCode);
+        ctx.putValue(Constants.PARAMETER_USER_CODE, userCode == null ? "" : userCode);
 
-        HashMap<String, String> jsParams = prepareJsStateParameter(session);
+        HashMap<String, String> jsParams = prepareJsStateParameter(ctx);
+        jsParams.put(Constants.GRANT_CONTEXT_ID, ctx.getIdentifier());
+        serverServices.getProvidedServices().getGrantContextDaoProvider().persist(ctx);
         exc.setResponse(redirectToLogin(jsParams));
         return true;
     }
@@ -174,10 +187,5 @@ public class VerificationEndpoint extends Endpoint {
 
     protected Response redirectToSelf(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {
         return redirectToUrl(serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_VERIFICATION + "#params=" + prepareJSParams(params), null);
-    }
-
-    @Override
-    public String getScope(Exchange exc) throws Exception {
-        return null;
     }
 }

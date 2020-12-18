@@ -15,6 +15,8 @@ public abstract class GrantContext {
 
     public abstract void putValue(String key, String value) throws Exception;
 
+    public abstract Set<String> allKeys() throws Exception;
+
     public abstract void removeValue(String key) throws Exception;
 
     public abstract void clear() throws Exception;

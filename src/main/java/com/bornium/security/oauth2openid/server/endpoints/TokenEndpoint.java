@@ -53,7 +53,7 @@ public class TokenEndpoint extends Endpoint {
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);
 
-        GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findById(params.get(Constants.PARAMETER_CODE)).get();
+        GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findByIdOrCreate(params.get(Constants.PARAMETER_CODE));
 
         if (clientId == null)
             clientId = params.get(Constants.PARAMETER_CLIENT_ID);
@@ -146,7 +146,7 @@ public class TokenEndpoint extends Endpoint {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
-
+            ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findById(token.getValue()).get();
             params.put(Constants.PARAMETER_SCOPE, ctx.getValue(Constants.PARAMETER_SCOPE));
         }
 
@@ -275,31 +275,34 @@ public class TokenEndpoint extends Endpoint {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
-            session.putValue(Constants.PARAMETER_REFRESH_TOKEN, refreshToken);
+            ctx.putValue(Constants.PARAMETER_REFRESH_TOKEN, refreshToken);
         }
 
 
         // request is now valid
 
-        Map<String, String> finalParams = params;
+        copyParamsIntoContext(params, ctx);
+
+        //log.info("Valid Token Request");
+        ctx.putValue(Constants.SESSION_ENDPOINT, Constants.ENDPOINT_TOKEN);
+
+        String response = Constants.TOKEN_TYPE_TOKEN;
+        if (hasOpenIdScope(ctx))
+            response += " " + Constants.TOKEN_TYPE_ID_TOKEN;
+        ctx.putValue(Constants.PARAMETER_RESPONSE_TYPE, response);
+
+        Map<String, String> responseBody = new CombinedResponseGenerator(serverServices, ctx).invokeResponse(response);
+        exc.setResponse(okWithJSONBody(responseBody));
+    }
+
+    private void copyParamsIntoContext(Map<String, String> params, GrantContext ctx) {
         params.keySet().stream().forEach(key -> {
             try {
-                session.putValue(key, finalParams.get(key));
+                ctx.putValue(key, params.get(key));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
-
-        //log.info("Valid Token Request");
-        session.putValue(Constants.SESSION_ENDPOINT, Constants.ENDPOINT_TOKEN);
-
-        String response = Constants.TOKEN_TYPE_TOKEN;
-        if (hasOpenIdScope(exc) && session.getValue(Constants.PARAMETER_SCOPE).contains(Constants.SCOPE_OPENID))
-            response += " " + Constants.TOKEN_TYPE_ID_TOKEN;
-        session.putValue(Constants.PARAMETER_RESPONSE_TYPE, response);
-
-        Map<String, String> responseBody = new CombinedResponseGenerator(serverServices, ctx).invokeResponse(response);
-        exc.setResponse(okWithJSONBody(responseBody));
     }
 
     private boolean scopeIsSuperior(String oldScope, String newScope) {
@@ -323,10 +326,5 @@ public class TokenEndpoint extends Endpoint {
         supportedGrantTypes.add(Constants.PARAMETER_VALUE_REFRESH_TOKEN);
         supportedGrantTypes.add(Constants.PARAMETER_VALUE_DEVICE_CODE);
         return supportedGrantTypes.contains(grantType);
-    }
-
-    @Override
-    public String getScope(Exchange exc) throws Exception {
-        return serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_SCOPE);
     }
 }

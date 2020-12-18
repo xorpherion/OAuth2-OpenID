@@ -9,16 +9,28 @@ import java.util.Optional;
  */
 public abstract class GrantContextDaoProvider {
 
+    /**
+     * Creates a fresh instance
+     * @return
+     */
     public abstract GrantContext create();
+
+    /**
+     * store a context for later retrieval by ctx.getIdentifier().
+     * GrantContexts are short lived objects that depend mostly on how fast the user can login (or authorize a device).
+     * GrantContexts should not be stored indefinitely but should be either limited in count or have a TTL or both.
+     * A good TTL time could be ~ 10 minutes. This should give a user enough time to complete any interaction
+     * @param ctx
+     */
     public abstract void persist(GrantContext ctx);
 
     /**
-     * It is possible that (e.g. due to a bug or not having all identifiers in all situations for a GrantContext) this method is not called for all identifiers that exist.
-     * GrantContexts are short lived objects ( lifetime is one active oauth2 grant execution, ~ 60 seconds max?).
-     * Your implementation should have a TTL on all identifiers by default
+     * This server can give you a hint about GrantContexts that aren't needed anymore for early invalidation.
+     * There is no requirement that this method is called for every GrantContext that was persisted.
+     * GrantContexts should not be stored indefinitely but should be either limited in count or have a TTL or both.
      * @param identifier
      */
-    public abstract void invalidate(String... identifier);
+    public abstract void invalidationHint(String... identifier);
 
     /**
      * find by identifier
@@ -33,5 +45,19 @@ public abstract class GrantContextDaoProvider {
             return create();
 
         return ctx.get();
+    }
+
+    public GrantContext deepCopy(GrantContext toBeCopied) throws Exception{
+        GrantContext result = create();
+
+        toBeCopied.allKeys().stream().forEach(k -> {
+            try {
+                result.putValue(k, toBeCopied.getValue(k));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        return result;
     }
 }
