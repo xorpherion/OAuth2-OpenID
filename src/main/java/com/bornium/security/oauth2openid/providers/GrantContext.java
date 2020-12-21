@@ -11,15 +11,15 @@ public abstract class GrantContext {
 
     protected String identifier;
 
-    public abstract String getValue(String key) throws Exception;
+    public abstract String getValue(String key);
 
-    public abstract void putValue(String key, String value) throws Exception;
+    public abstract void putValue(String key, String value);
 
-    public abstract Set<String> allKeys() throws Exception;
+    public abstract Set<String> allKeys();
 
-    public abstract void removeValue(String key) throws Exception;
+    public abstract void removeValue(String key);
 
-    public abstract void clear() throws Exception;
+    public abstract void clear();
 
     public String getIdentifier() {
         return identifier;

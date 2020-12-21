@@ -1,16 +1,9 @@
 package com.bornium.security.oauth2openid.provider;
 
 import com.bornium.security.oauth2openid.providers.GrantContext;
-import com.bornium.security.oauth2openid.providers.GrantContextDaoProvider;
-import com.bornium.security.oauth2openid.providers.Session;
-import com.bornium.security.oauth2openid.providers.SessionProvider;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.bornium.http.Exchange;
-import com.bornium.security.oauth2openid.Convert;
+import com.bornium.security.oauth2openid.providers.GrantContextProvider;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.predic8.membrane.core.interceptor.authentication.session.SessionManager;
-import com.predic8.membrane.core.rules.NullRule;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -18,10 +11,11 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by Xorpherion on 26.01.2017.
  */
-public class MembraneGrantContextDaoProvider extends GrantContextDaoProvider {
+public class MembraneGrantContextProvider extends GrantContextProvider {
 
     Cache<String,GrantContext> ctxs = CacheBuilder.newBuilder()
             .expireAfterWrite(10, TimeUnit.MINUTES)
+            .maximumSize(10000)
             .build();
 
     @Override
@@ -31,27 +25,27 @@ public class MembraneGrantContextDaoProvider extends GrantContextDaoProvider {
             Map<String,String> state = new HashMap<>();
 
             @Override
-            public String getValue(String key) throws Exception {
+            public String getValue(String key) {
                 return state.get(key);
             }
 
             @Override
-            public void putValue(String key, String value) throws Exception {
+            public void putValue(String key, String value) {
                 state.put(key,value);
             }
 
             @Override
-            public Set<String> allKeys() throws Exception {
+            public Set<String> allKeys() {
                 return state.keySet();
             }
 
             @Override
-            public void removeValue(String key) throws Exception {
+            public void removeValue(String key) {
                 state.remove(key);
             }
 
             @Override
-            public void clear() throws Exception {
+            public void clear() {
                 state.clear();
             }
         };
@@ -59,7 +53,11 @@ public class MembraneGrantContextDaoProvider extends GrantContextDaoProvider {
 
     @Override
     public void persist(GrantContext ctx) {
-        ctxs.put(ctx.getIdentifier(), ctx);
+        try {
+            ctxs.put(ctx.getIdentifier(), deepCopy(ctx));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
@@ -68,11 +66,25 @@ public class MembraneGrantContextDaoProvider extends GrantContextDaoProvider {
         Arrays.stream(identifiers).forEach(id -> ctxs.invalidate(id));
     }
 
+    /**
+     * for testing purposes this method makes sure to create a new instance all the time
+     * @param identifier can be null
+     * @return
+     */
     @Override
     public Optional<GrantContext> findById(String identifier) {
         if(identifier == null)
             return Optional.empty();
 
-        return Optional.ofNullable(ctxs.getIfPresent(identifier));
+        GrantContext ctx = ctxs.getIfPresent(identifier);
+        if(ctx != null) {
+            try {
+                return Optional.ofNullable(deepCopy(ctx));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return Optional.empty();
     }
 }

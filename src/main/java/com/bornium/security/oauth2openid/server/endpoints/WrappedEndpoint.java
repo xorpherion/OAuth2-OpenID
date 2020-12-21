@@ -29,7 +29,8 @@ public class WrappedEndpoint<T extends Endpoint> extends Endpoint{
 
     @Override
     public void useIfResponsible(Exchange exc) throws Exception {
-        toBeWrapped.useIfResponsible(exc);
+        if (isResponsible(exc))
+            invokeOn(exc);
     }
 
     @Override
@@ -103,13 +104,13 @@ public class WrappedEndpoint<T extends Endpoint> extends Endpoint{
     }
 
     @Override
-    protected boolean hasGivenConsent(Session session) throws Exception {
-        return toBeWrapped.hasGivenConsent(session);
+    protected boolean hasGivenConsent(Session session,GrantContext ctx) throws Exception {
+        return toBeWrapped.hasGivenConsent(session, ctx);
     }
 
     @Override
-    protected boolean isLoggedInAndHasGivenConsent(Session session) throws Exception {
-        return toBeWrapped.isLoggedInAndHasGivenConsent(session);
+    protected boolean isLoggedInAndHasGivenConsent(Session session, GrantContext ctx) throws Exception {
+        return toBeWrapped.isLoggedInAndHasGivenConsent(session,ctx);
     }
 
     @Override
@@ -123,8 +124,8 @@ public class WrappedEndpoint<T extends Endpoint> extends Endpoint{
     }
 
     @Override
-    protected HashMap<String, String> prepareJsStateParameter(GrantContext session) throws Exception {
-        return toBeWrapped.prepareJsStateParameter(session);
+    protected HashMap<String, String> prepareJsStateParameter(GrantContext ctx) throws Exception {
+        return toBeWrapped.prepareJsStateParameter(ctx);
     }
 
     @Override

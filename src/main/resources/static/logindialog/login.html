@@ -23,8 +23,8 @@
                 params = getSingleEncodedFragmentAsJson(window.location.hash.split('=')[1]);
                 if(params.error)
                     document.getElementById("error").appendChild(document.createTextNode(params.error));
-                if(params.state)
-                    document.getElementById("state").value = params.state;
+                if(params.login_state)
+                    document.getElementById("login_state").value = params.login_state;
                 if(params.grant_context_id)
                     document.getElementById("grant_context_id").value = params.grant_context_id;
 
@@ -52,7 +52,7 @@
             <li>
                 <input type="submit" value="Login"></li>
         </ul>
-        <input id="state" type="hidden" name="login_state">
+        <input id="login_state" type="hidden" name="login_state">
         <input id="grant_context_id" type="hidden" name="grant_context_id">
     </form>
 </div>

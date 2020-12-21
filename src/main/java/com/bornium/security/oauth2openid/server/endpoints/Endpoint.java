@@ -9,6 +9,7 @@ import com.bornium.security.oauth2openid.permissions.ClaimsParameter;
 import com.bornium.security.oauth2openid.providers.GrantContext;
 import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.server.AuthorizationServer;
+import com.bornium.security.oauth2openid.server.ConsentContext;
 import com.bornium.security.oauth2openid.server.TokenContext;
 import com.bornium.impl.BearerTokenProvider;
 import com.bornium.security.oauth2openid.token.Token;
@@ -36,7 +37,7 @@ public abstract class Endpoint {
 
     protected final AuthorizationServer serverServices;
     String[] paths;
-    BearerTokenProvider loginStateProvider;
+    protected BearerTokenProvider loginStateProvider;
 
     public Endpoint(AuthorizationServer serverServices, String... paths) {
         this.serverServices = serverServices;
@@ -133,13 +134,14 @@ public abstract class Endpoint {
         return Constants.VALUE_YES.equals(loggedIn);
     }
 
-    protected boolean hasGivenConsent(Session session) throws Exception {
-        String consentGiven = session.getValue(Constants.SESSION_CONSENT_GIVEN);
-        return Constants.VALUE_YES.equals(consentGiven);
+    protected boolean hasGivenConsent(Session session,GrantContext ctx) throws Exception {
+        Map<String, ConsentContext> allConsent = serverServices.getProvidedServices().getConsentProvider().getConsentFor(session.getValue(Constants.LOGIN_USERNAME));
+        ConsentContext forClient = allConsent.get(ctx.getValue(Constants.PARAMETER_CLIENT_ID));
+        return forClient.isConsented();
     }
 
-    protected boolean isLoggedInAndHasGivenConsent(Session session) throws Exception {
-        return isLoggedIn(session) && hasGivenConsent(session);
+    protected boolean isLoggedInAndHasGivenConsent(Session session, GrantContext ctx) throws Exception {
+        return isLoggedIn(session) && hasGivenConsent(session, ctx);
     }
 
     protected Response redirectToConsent(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {
@@ -150,11 +152,12 @@ public abstract class Endpoint {
         return redirectToUrl(serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_VERIFICATION + "?" + Constants.GRANT_CONTEXT_ID + "=" + params.get(Constants.GRANT_CONTEXT_ID) + "#params=" + prepareJSParams(params), null);
     }
 
-    protected HashMap<String, String> prepareJsStateParameter(GrantContext session) throws Exception {
+    protected HashMap<String, String> prepareJsStateParameter(GrantContext ctx) throws Exception {
         String stateToken = loginStateProvider.get(new TokenContext(null));
-        session.putValue(Constants.SESSION_LOGIN_STATE, stateToken);
+        ctx.putValue(Constants.SESSION_LOGIN_STATE, stateToken);
         HashMap<String, String> jsParams = new HashMap<>();
-        jsParams.put(Constants.PARAMETER_STATE, stateToken);
+        jsParams.put(Constants.PARAMETER_STATE, ctx.getValue(Constants.PARAMETER_STATE));
+        jsParams.put(Constants.SESSION_LOGIN_STATE, stateToken);
         jsParams.put(Constants.CONTEXT_PATH,this.serverServices.getProvidedServices().getContextPath());
         return jsParams;
     }

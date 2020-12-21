@@ -53,7 +53,7 @@ public class TokenEndpoint extends Endpoint {
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);
 
-        GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findByIdOrCreate(params.get(Constants.PARAMETER_CODE));
+        GrantContext ctx = serverServices.getProvidedServices().getGrantContextProvider().findByIdOrCreate(params.get(Constants.PARAMETER_CODE));
 
         if (clientId == null)
             clientId = params.get(Constants.PARAMETER_CLIENT_ID);
@@ -146,7 +146,7 @@ public class TokenEndpoint extends Endpoint {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
-            ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findById(token.getValue()).get();
+            ctx = serverServices.getProvidedServices().getGrantContextProvider().findById(token.getValue()).get();
             params.put(Constants.PARAMETER_SCOPE, ctx.getValue(Constants.PARAMETER_SCOPE));
         }
 

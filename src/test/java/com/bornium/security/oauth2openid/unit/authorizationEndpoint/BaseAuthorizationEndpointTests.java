@@ -263,7 +263,7 @@ public abstract class BaseAuthorizationEndpointTests {
                     try {
                         Exchange exc = goodPreLoginRequest();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
+                        return Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -288,7 +288,7 @@ public abstract class BaseAuthorizationEndpointTests {
                     try {
                         Exchange exc = goodLogin();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
+                        return Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }

@@ -39,7 +39,7 @@ public class AuthorizationEndpoint extends Endpoint {
         Map<String, String> params = getParams(exc);
 
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
-        GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findByIdOrCreate(params.get(Constants.GRANT_CONTEXT_ID));
+        GrantContext ctx = serverServices.getProvidedServices().getGrantContextProvider().findByIdOrCreate(params.get(Constants.GRANT_CONTEXT_ID));
 
         if(ctx.getIdentifier() == null)
             copyParametersIntoContext(ctx,params); // possibly a dangerous line if any parameter check is missing
@@ -91,7 +91,7 @@ public class AuthorizationEndpoint extends Endpoint {
                     if (prompt.equals(Constants.PARAMETER_VALUE_LOGIN))
                         session.clear();
                     if (prompt.equals(Constants.PARAMETER_VALUE_NONE))
-                        if (!isLoggedInAndHasGivenConsent(session)) {
+                        if (!isLoggedInAndHasGivenConsent(session,ctx)) {
                             log.debug("Session is not logged in or has not given consent.");
                             exc.setResponse(redirectToCallbackWithError(params.get(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_INTERACTION_REQUIRED, params.get(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(ctx)));
                             return;
@@ -124,15 +124,15 @@ public class AuthorizationEndpoint extends Endpoint {
             }
 
             copyParametersIntoContext(ctx, params);
-            if (!isLoggedInAndHasGivenConsent(session)) {
-                exc.setResponse(associatedContextWithClientStateAndInformLoginEndpoint(params, ctx));
+            if (!isLoggedInAndHasGivenConsent(session,ctx)) {
+                exc.setResponse(associateContextWithClientStateAndInformLoginEndpoint(params, ctx));
                 return;
             }
             answerWithToken(exc, ctx);
         } else {
             // this is ENDPOINT_AFTER_LOGIN
-            if (isLoggedInAndHasGivenConsent(session)) {
-                serverServices.getProvidedServices().getGrantContextDaoProvider().invalidationHint(ctx.getIdentifier());
+            if (isLoggedInAndHasGivenConsent(session,ctx)) {
+                serverServices.getProvidedServices().getGrantContextProvider().invalidationHint(ctx.getIdentifier());
                 answerWithToken(exc, ctx);
             } else {
                 log.debug("Session is not logged in or has not given consent.");
@@ -142,9 +142,9 @@ public class AuthorizationEndpoint extends Endpoint {
 
     }
 
-    private Response associatedContextWithClientStateAndInformLoginEndpoint(Map<String, String> params, GrantContext ctx) {
+    private Response associateContextWithClientStateAndInformLoginEndpoint(Map<String, String> params, GrantContext ctx) {
         ctx.setIdentifier(params.get(Constants.PARAMETER_STATE));
-        serverServices.getProvidedServices().getGrantContextDaoProvider().persist(ctx);
+        serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
         return serverServices.getLoginEndpoint().initiateLoginAndConsent(ctx.getIdentifier());
     }
 
@@ -189,7 +189,7 @@ public class AuthorizationEndpoint extends Endpoint {
         Map<String, String> callbackParams = new CombinedResponseGenerator(serverServices, ctx).invokeResponse(responseTypeToResponseGeneratorValue(responseType));
         if(!callbackParams.isEmpty()) {
             ctx.setIdentifier(findCtxIdentifierInTokenResponse(callbackParams));
-            serverServices.getProvidedServices().getGrantContextDaoProvider().persist(ctx);
+            serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
         }
         exc.setResponse(redirectToCallbackWithParams(ctx.getValue(Constants.PARAMETER_REDIRECT_URI), callbackParams, ctx.getValue(Constants.PARAMETER_STATE), useFragment));
     }

@@ -43,7 +43,7 @@ public class DeviceAuthorizationEndpoint extends Endpoint {
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);
 
-        GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findByIdOrCreate(""); //TODO
+        GrantContext ctx = serverServices.getProvidedServices().getGrantContextProvider().findByIdOrCreate(""); //TODO
 
         if (clientId == null)
             clientId = params.get(Constants.PARAMETER_CLIENT_ID);
@@ -75,11 +75,11 @@ public class DeviceAuthorizationEndpoint extends Endpoint {
         copyResponseIntoContext(ctx, responseBody);
 
         ctx.setIdentifier(responseBody.get(Constants.PARAMETER_DEVICE_CODE));
-        serverServices.getProvidedServices().getGrantContextDaoProvider().persist(ctx);
+        serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
 
-        GrantContext deepCopyForUserCode = serverServices.getProvidedServices().getGrantContextDaoProvider().deepCopy(ctx);
+        GrantContext deepCopyForUserCode = serverServices.getProvidedServices().getGrantContextProvider().deepCopy(ctx);
         deepCopyForUserCode.setIdentifier(responseBody.get(Constants.PARAMETER_USER_CODE));
-        serverServices.getProvidedServices().getGrantContextDaoProvider().persist(deepCopyForUserCode);
+        serverServices.getProvidedServices().getGrantContextProvider().persist(deepCopyForUserCode);
 
         exc.setResponse(okWithJSONBody(responseBody));
     }

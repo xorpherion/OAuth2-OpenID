@@ -2,6 +2,7 @@ package com.bornium.security.oauth2openid.server;
 
 import com.bornium.http.Exchange;
 import com.bornium.http.ResponseBuilder;
+import com.bornium.impl.VerificationEndpoint;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.permissions.Scope;
 import com.bornium.security.oauth2openid.server.endpoints.*;
@@ -50,8 +51,10 @@ public class AuthorizationServer {
         endpoints.add(new WellKnownEndpoint(this));
         endpoints.add(new VerificationEndpoint(this));
 
-        loginEndpoint = new WrappedLoginEndpoint(providedServices.loginEndpointFactory().createEndpoint(this), providedServices.getUserDataProvider(), providedServices.getGrantContextDaoProvider()).getLoginEndpoint();
-        endpoints.add(loginEndpoint);
+        WrappedLoginEndpoint loginEndpointToBeAdded = new WrappedLoginEndpoint(providedServices.getEndpointFactory().createLogin(this), providedServices.getUserDataProvider(), providedServices.getGrantContextProvider());
+        loginEndpoint = loginEndpointToBeAdded.getLoginEndpoint();
+
+        endpoints.add(loginEndpointToBeAdded);
     }
 
     public Exchange invokeOn(Exchange exc) throws Exception {

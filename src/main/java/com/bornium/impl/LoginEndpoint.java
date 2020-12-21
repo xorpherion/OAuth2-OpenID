@@ -8,6 +8,7 @@ import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.providers.GrantContext;
 import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.server.AuthorizationServer;
+import com.bornium.security.oauth2openid.server.ConsentContext;
 import com.bornium.security.oauth2openid.server.endpoints.login.LoginEndpointBase;
 import com.bornium.security.oauth2openid.server.endpoints.login.LoginResult;
 import com.google.common.base.Charsets;
@@ -16,8 +17,9 @@ import com.google.common.io.CharStreams;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by Xorpherion on 26.01.2017.
@@ -46,7 +48,7 @@ public class LoginEndpoint extends LoginEndpointBase {
 
     private void checkConsent(Exchange exc) throws Exception {
         Map<String, String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
-        GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findById(params.get(Constants.GRANT_CONTEXT_ID)).get();
+        GrantContext ctx = serverServices.getProvidedServices().getGrantContextProvider().findById(params.get(Constants.GRANT_CONTEXT_ID)).get();
         if (!params.containsKey(Constants.LOGIN_CONSENT) || params.get(Constants.LOGIN_CONSENT).equals(Constants.VALUE_NO)) {
             exc.setResponse(redirectToCallbackWithError(ctx.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED, ctx.getValue(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(ctx)));
             return;
@@ -57,10 +59,14 @@ public class LoginEndpoint extends LoginEndpointBase {
             exc.setResponse(redirectToLogin(possibleCSRFError(ctx)));
             return;
         }
-        ctx.putValue(Constants.SESSION_CONSENT_GIVEN, Constants.VALUE_YES);
-        serverServices.getProvidedServices().getGrantContextDaoProvider().persist(ctx);
-        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
-        session.putValue(Constants.SESSION_CONSENT_GIVEN, Constants.VALUE_YES);
+
+        serverServices.getProvidedServices().getConsentProvider()
+                .persist(new ConsentContext(ctx.getValue(Constants.LOGIN_USERNAME), ctx.getValue(Constants.PARAMETER_CLIENT_ID), Arrays.asList(ctx.getValue(Constants.PARAMETER_SCOPE).split(Pattern.quote(" "))).stream().collect(Collectors.toSet())));
+
+//        ctx.putValue(Constants.SESSION_CONSENT_GIVEN, Constants.VALUE_YES);
+//        serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
+//        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
+//        session.putValue(Constants.SESSION_CONSENT_GIVEN, Constants.VALUE_YES);
         exc.setResponse(redirectToAfterLoginEndpoint(ctx));
     }
 
@@ -72,7 +78,7 @@ public class LoginEndpoint extends LoginEndpointBase {
     private void checkLogin(Exchange exc) throws Exception {
         Map<String, String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
 
-        GrantContext ctx = serverServices.getProvidedServices().getGrantContextDaoProvider().findById(params.get(Constants.GRANT_CONTEXT_ID)).get();
+        GrantContext ctx = serverServices.getProvidedServices().getGrantContextProvider().findById(params.get(Constants.GRANT_CONTEXT_ID)).get();
 
         if (!params.containsKey(Constants.LOGIN_USERNAME) && !params.containsKey(Constants.LOGIN_PASSWORD)) {
             ctx.putValue(Constants.SESSION_REDIRECT_FROM_ERROR, Constants.VALUE_YES);
@@ -94,7 +100,7 @@ public class LoginEndpoint extends LoginEndpointBase {
         ctx.putValue(Constants.LOGIN_USERNAME, username);
         ctx.putValue(Constants.SESSION_LOGGED_IN, Constants.VALUE_YES);
         ctx.putValue(Constants.PARAMETER_AUTH_TIME, String.valueOf(Instant.now().getEpochSecond()));
-        serverServices.getProvidedServices().getGrantContextDaoProvider().persist(ctx);
+        serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
 
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         session.putValue(Constants.LOGIN_USERNAME, username);
@@ -129,17 +135,23 @@ public class LoginEndpoint extends LoginEndpointBase {
         return result;
     }
 
-    private Map<String, String> getDeviceVerificationPageParams(GrantContext session) throws Exception {
-        HashMap<String, String> result = new HashMap<>(prepareJsStateParameter(session));
-        result.put(Constants.PARAMETER_USER_CODE, session.getValue(Constants.PARAMETER_USER_CODE));
-        result.put(Constants.GRANT_CONTEXT_ID, session.getIdentifier());
+    private Map<String, String> getDeviceVerificationPageParams(GrantContext ctx) throws Exception {
+        HashMap<String, String> result = new HashMap<>(prepareJsStateParameter(ctx));
+        result.put(Constants.PARAMETER_USER_CODE, ctx.getValue(Constants.PARAMETER_USER_CODE));
+        result.put(Constants.GRANT_CONTEXT_ID, ctx.getIdentifier());
+
+        result.entrySet().stream().forEach(e -> ctx.putValue(e.getKey(),e.getValue()));
+        serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
         return result;
     }
 
-    private Map<String, String> getConsentPageParams(GrantContext session) throws Exception {
-        HashMap<String, String> result = new HashMap<>(prepareJsStateParameter(session));
-        result.put(Constants.PARAMETER_SCOPE, session.getValue(Constants.PARAMETER_SCOPE));
-        result.put(Constants.GRANT_CONTEXT_ID, session.getIdentifier());
+    private Map<String, String> getConsentPageParams(GrantContext ctx) throws Exception {
+        HashMap<String, String> result = new HashMap<>(prepareJsStateParameter(ctx));
+        result.put(Constants.PARAMETER_SCOPE, ctx.getValue(Constants.PARAMETER_SCOPE));
+        result.put(Constants.GRANT_CONTEXT_ID, ctx.getIdentifier());
+
+        result.entrySet().stream().forEach(e -> ctx.putValue(e.getKey(),e.getValue()));
+        serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
 
         return result;
     }
@@ -179,10 +191,18 @@ public class LoginEndpoint extends LoginEndpointBase {
     @Override
     public Response initiateLoginAndConsent(String ctxId) {
         try {
-            GrantContext session = serverServices.getProvidedServices().getGrantContextDaoProvider().findById(ctxId).get();
+            GrantContext ctx = serverServices.getProvidedServices().getGrantContextProvider().findById(ctxId).get();
 
-            HashMap<String, String> params = prepareJsStateParameter(session);
-            params.put(Constants.GRANT_CONTEXT_ID, session.getIdentifier());
+            HashMap<String, String> params = prepareJsStateParameter(ctx);
+            params.put(Constants.GRANT_CONTEXT_ID, ctx.getIdentifier());
+            params.entrySet().stream().forEach(e -> {
+                try {
+                    ctx.putValue(e.getKey(),e.getValue());
+                } catch (Exception exception) {
+                    throw new RuntimeException(exception);
+                }
+            });
+            serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
             return redirectToLogin(params);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -191,12 +211,21 @@ public class LoginEndpoint extends LoginEndpointBase {
 
     @Override
     public String getGrantContextId(Exchange exc) {
-        return null;
+        return getParams(exc).get(Constants.GRANT_CONTEXT_ID);
     }
 
     @Override
     public LoginResult getCurrentResultFor(String ctxId) {
-        return null;
+        if(ctxId == null)
+            throw new IllegalArgumentException("ctxId should not be null");
+
+        GrantContext ctx = serverServices.getProvidedServices().getGrantContextProvider().findById(ctxId).get();
+        return new LoginResult() {
+            @Override
+            public Optional<String> getAuthenticatedUser() {
+                return Optional.ofNullable(ctx.getValue(Constants.LOGIN_USERNAME));
+            }
+        };
     }
 
 }

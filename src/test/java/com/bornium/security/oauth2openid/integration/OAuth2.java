@@ -72,7 +72,7 @@ public class OAuth2 {
 
         Map<String, String> paramsAsMap = Common.convertLoginPageParamsToMap(responseProtectedResource.getDestinations().get(0));
 
-        Exchange requestLogin = new Request.Builder().post(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_LOGIN).body("username=" + ConstantsTest.USER_DEFAULT_NAME + "&password=" + ConstantsTest.USER_DEFAULT_PASSWORD + "&login_state=" + paramsAsMap.get("state") + "&" + Constants.GRANT_CONTEXT_ID + "=" + paramsAsMap.get(Constants.GRANT_CONTEXT_ID)).buildExchange();
+        Exchange requestLogin = new Request.Builder().post(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_LOGIN).body("username=" + ConstantsTest.USER_DEFAULT_NAME + "&password=" + ConstantsTest.USER_DEFAULT_PASSWORD + "&login_state=" + paramsAsMap.get("login_state") + "&" + Constants.GRANT_CONTEXT_ID + "=" + paramsAsMap.get(Constants.GRANT_CONTEXT_ID)).buildExchange();
         Exchange responseLogin = client.call(requestLogin);
 
         assertAll("Consent page",

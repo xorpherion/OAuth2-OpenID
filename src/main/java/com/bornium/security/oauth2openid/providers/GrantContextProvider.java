@@ -7,7 +7,7 @@ import java.util.Optional;
 /**
  * Created by Xorpherion on 25.01.2017.
  */
-public abstract class GrantContextDaoProvider {
+public abstract class GrantContextProvider {
 
     /**
      * Creates a fresh instance
@@ -57,6 +57,8 @@ public abstract class GrantContextDaoProvider {
                 throw new RuntimeException(e);
             }
         });
+
+        result.setIdentifier(toBeCopied.getIdentifier());
 
         return result;
     }

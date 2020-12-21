@@ -110,10 +110,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
                         Exchange exc = Common.createOpenIdAuthRequest(getResponseType(), getClientId(), getRedirectUri(), getScope(), getState(), Constants.PARAMETER_VALUE_QUERY, getNonce(), getPrompt(), getMaxAge(), getIdTokenHint(), getLoginHint(), getAuthenticationContextClass(), getClaims());
                         exc = server.invokeOn(exc);
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        exc = Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
+                        exc = Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                         exc = server.invokeOn(exc);
                         loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        exc = Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
+                        exc = Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                         exc = server.invokeOn(exc);
                         return Common.createPostLoginRequest(Common.extractSessionCookie(exc), exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                     } catch (Exception e) {
@@ -142,10 +142,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
                         Exchange exc = Common.createOpenIdAuthRequest(getResponseType(), getClientId(), getRedirectUri(), getScope(), getState(), Constants.PARAMETER_VALUE_FRAGMENT, getNonce(), getPrompt(), getMaxAge(), getIdTokenHint(), getLoginHint(), getAuthenticationContextClass(), getClaims());
                         exc = server.invokeOn(exc);
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        exc = Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
+                        exc = Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                         exc = server.invokeOn(exc);
                         loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        exc = Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
+                        exc = Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                         exc = server.invokeOn(exc);
                         return Common.createPostLoginRequest(Common.extractSessionCookie(exc), exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                     } catch (Exception e) {
@@ -174,10 +174,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
                         Exchange exc = Common.createOpenIdAuthRequest(Constants.PARAMETER_VALUE_NONE, getClientId(), getRedirectUri(), getScope(), getState(), getResponseMode(), getNonce(), getPrompt(), getMaxAge(), getIdTokenHint(), getLoginHint(), getAuthenticationContextClass(), getClaims());
                         exc = server.invokeOn(exc);
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        exc = Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
+                        exc = Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                         exc = server.invokeOn(exc);
                         loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        exc = Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
+                        exc = Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                         exc = server.invokeOn(exc);
                         return Common.createPostLoginRequest(Common.extractSessionCookie(exc), exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                     } catch (Exception e) {
@@ -285,10 +285,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
                         Exchange exc = Common.createOpenIdAuthRequest(getResponseType(), getClientId(), getRedirectUri(), getScope(), getState(), getResponseMode(), getNonce(), getPrompt(), String.valueOf(0), getIdTokenHint(), getLoginHint(), getAuthenticationContextClass(), getClaims());
                         exc = server.invokeOn(exc);
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        exc = Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
+                        exc = Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                         exc = server.invokeOn(exc);
                         loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        exc = Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
+                        exc = Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                         exc = server.invokeOn(exc);
                         exc = Common.createPostLoginRequest(Common.extractSessionCookie(exc), exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                         String cookie = Common.extractSessionCookie(exc);
@@ -320,10 +320,10 @@ public abstract class BaseOpenIdAuthorizationEndpointTests extends BaseAuthoriza
                         Exchange exc = Common.createOpenIdAuthRequest(getResponseType(), getClientId(), getRedirectUri(), getScope(), getState(), getResponseMode(), getNonce(), getPrompt(), String.valueOf(100), getIdTokenHint(), getLoginHint(), getAuthenticationContextClass(), getClaims());
                         exc = server.invokeOn(exc);
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        exc = Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
+                        exc = Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                         exc = server.invokeOn(exc);
                         loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        exc = Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
+                        exc = Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                         exc = server.invokeOn(exc);
                         exc = Common.createPostLoginRequest(Common.extractSessionCookie(exc), exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                         String cookie = Common.extractSessionCookie(exc);

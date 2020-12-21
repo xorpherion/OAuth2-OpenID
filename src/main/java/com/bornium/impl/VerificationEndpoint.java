@@ -1,4 +1,4 @@
-package com.bornium.security.oauth2openid.server.endpoints;
+package com.bornium.impl;
 
 import com.bornium.http.Exchange;
 import com.bornium.http.Method;
@@ -10,6 +10,7 @@ import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.providers.GrantContext;
 import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.server.AuthorizationServer;
+import com.bornium.security.oauth2openid.server.endpoints.Endpoint;
 import com.bornium.security.oauth2openid.token.CombinedTokenManager;
 import com.bornium.security.oauth2openid.token.Token;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -129,14 +130,14 @@ public class VerificationEndpoint extends Endpoint {
         deviceToken.incrementUsage();
 
         exc.setResponse(sendSuccesspage());
-        serverServices.getProvidedServices().getGrantContextDaoProvider().invalidationHint(ctx.getIdentifier());
+        serverServices.getProvidedServices().getGrantContextProvider().invalidationHint(ctx.getIdentifier());
 
         ctx.removeValue(Constants.PARAMETER_USER_CODE);
     }
 
     private GrantContext getContextFromUserCodeOrGrantContextIdOrDefault(Map<String, String> params, String userCode) {
-        return serverServices.getProvidedServices().getGrantContextDaoProvider().findById(userCode)
-                .orElseGet(() -> serverServices.getProvidedServices().getGrantContextDaoProvider().findByIdOrCreate(params.get(Constants.GRANT_CONTEXT_ID)));
+        return serverServices.getProvidedServices().getGrantContextProvider().findById(userCode)
+                .orElseGet(() -> serverServices.getProvidedServices().getGrantContextProvider().findByIdOrCreate(params.get(Constants.GRANT_CONTEXT_ID)));
     }
 
     private boolean requireLogin(Exchange exc, Session session, GrantContext ctx, String userCode) throws Exception {
@@ -147,7 +148,7 @@ public class VerificationEndpoint extends Endpoint {
 
         HashMap<String, String> jsParams = prepareJsStateParameter(ctx);
         jsParams.put(Constants.GRANT_CONTEXT_ID, ctx.getIdentifier());
-        serverServices.getProvidedServices().getGrantContextDaoProvider().persist(ctx);
+        serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
         exc.setResponse(redirectToLogin(jsParams));
         return true;
     }

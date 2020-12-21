@@ -16,7 +16,8 @@ import java.util.Set;
 public class MembraneServerFunctionality implements ProvidedServices {
 
     private final String issuer;
-    private final MembraneGrantContextDaoProvider grantContextDaoProvider;
+    private final MembraneGrantContextProvider grantContextDaoProvider;
+    private final MembraneConsentProvider consentProvider;
     MembraneSessionProvider sessionProvider;
     MembraneClientDataProvider clientDataProvider;
     MembraneUserDataProvider userDataProvider;
@@ -31,12 +32,18 @@ public class MembraneServerFunctionality implements ProvidedServices {
         tokenPersistenceProvider = new MembraneTokenPersistenceProvider();
         timingProvider = new DefaultTimingProvider();
         tokenProvider = new BearerTokenProvider();
-        grantContextDaoProvider = new MembraneGrantContextDaoProvider();
+        grantContextDaoProvider = new MembraneGrantContextProvider();
+        consentProvider = new MembraneConsentProvider();
         this.issuer = issuer;
     }
 
     @Override
-    public GrantContextDaoProvider getGrantContextDaoProvider() {
+    public ConsentProvider getConsentProvider() {
+        return consentProvider;
+    }
+
+    @Override
+    public GrantContextProvider getGrantContextProvider() {
         return grantContextDaoProvider;
     }
 
@@ -98,7 +105,7 @@ public class MembraneServerFunctionality implements ProvidedServices {
     }
 
     @Override
-    public EndpointFactory loginEndpointFactory() {
+    public EndpointFactory getEndpointFactory() {
         return serverServices -> new LoginEndpoint(serverServices);
     }
 }

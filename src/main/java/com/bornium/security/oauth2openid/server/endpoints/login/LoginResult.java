@@ -10,6 +10,4 @@ public interface LoginResult {
      * @return username if authenticated or empty if not
      */
     Optional<String> getAuthenticatedUser();
-    boolean hasConsented();
-    Set<String> acceptedScopes();
 }
