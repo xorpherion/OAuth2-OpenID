@@ -42,9 +42,6 @@ public class AuthorizationServer {
         this.supportedClaims = calcSupportedClaims(providedServices);
         this.supportedGrants = calcActiveGrants(providedServices);
 
-        for (String claim : providedServices.getSupportedClaims())
-            this.supportedClaims.addValidClaim(claim);
-
         endpoints = new ArrayList<>();
 
         endpoints.add(new AuthorizationEndpoint(this));

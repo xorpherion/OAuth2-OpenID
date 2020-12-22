@@ -94,13 +94,6 @@ public class MembraneServerFunctionality implements ProvidedServices {
     }
 
     @Override
-    public Set<String> getSupportedClaims() {
-        HashSet<String> result = new HashSet<>();
-        result.add(ConstantsTest.CUSTOM_CLAIM_NAME);
-        return result;
-    }
-
-    @Override
     public String getContextPath() {
         return "";
     }
