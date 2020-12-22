@@ -29,7 +29,7 @@ public class ConstantsTest {
     public static final String CLIENT_DEFAULT_ID2 = "cid_456";
     public static final String CLIENT_DEFAULT_SECRET2 = "secret";
     public static final String CLIENT_DEFAULT_SCOPE = "profile phone";
-    public static final String CLIENT_DEFAULT_SCOPE_OPENID = "openid profile phone";
+    public static final String CLIENT_DEFAULT_SCOPE_OPENID = "openid " + CLIENT_DEFAULT_SCOPE;
     public static final String CLIENT_DEFAULT_STATE = "totallyRandomStateValue";
     public static final String CLIENT_DEFAULT_NONCE = "totallyRandomNonceValue";
 

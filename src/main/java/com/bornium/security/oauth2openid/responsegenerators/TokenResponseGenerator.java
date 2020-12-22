@@ -4,7 +4,7 @@ import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.Util;
 import com.bornium.security.oauth2openid.permissions.ClaimsParameter;
 import com.bornium.security.oauth2openid.providers.GrantContext;
-import com.bornium.security.oauth2openid.providers.Session;
+import com.bornium.security.oauth2openid.providers.NonSpecConfiguration;
 import com.bornium.security.oauth2openid.providers.TimingProvider;
 import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.bornium.security.oauth2openid.server.TimingContext;
@@ -37,7 +37,7 @@ public class TokenResponseGenerator extends ResponseGenerator {
         String state = getCtx().getValue(Constants.PARAMETER_STATE);
         String redirectUri = getCtx().getValue(Constants.PARAMETER_REDIRECT_URI);
         String nonce = getCtx().getValue(Constants.PARAMETER_NONCE);
-        Set<String> responseTypes = new HashSet<String>(Arrays.asList(getCtx().getValue(Constants.PARAMETER_RESPONSE_TYPE).split(Pattern.quote(" "))));
+        Set<String> responseTypes = new HashSet<>(Arrays.asList(getCtx().getValue(Constants.PARAMETER_RESPONSE_TYPE).split(Pattern.quote(" "))));
 
         Token parentToken = getOrCreateParentToken(username, clientId, scope, claims, code, refreshTokenValue, redirectUri, nonce);
         if(username == null && parentToken.getUsername() != null)
@@ -49,7 +49,7 @@ public class TokenResponseGenerator extends ResponseGenerator {
 
         String accessTokenValue = createAccessTokenIfNeeded(grantType, responseTypes, parentToken, result);
 
-        createIdTokenIfNeeded(username, clientId, scope, claims, code, responseTypes, parentToken, result, accessTokenValue);
+        createIdTokenIfNeeded(username, clientId, scope, claims, code, responseTypes, parentToken, result, accessTokenValue, grantType);
 
         result.put(Constants.PARAMETER_STATE, state);
         parentToken.incrementUsage();
@@ -57,8 +57,8 @@ public class TokenResponseGenerator extends ResponseGenerator {
         return result;
     }
 
-    private void createIdTokenIfNeeded(String username, String clientId, String scope, String claims, String code, Set<String> responseTypes, Token parentToken, Map<String, String> result, String accessTokenValue) throws Exception {
-        if (responseTypes.contains(Constants.PARAMETER_VALUE_ID_TOKEN) && isOpenIdScope()) {
+    private void createIdTokenIfNeeded(String username, String clientId, String scope, String claims, String code, Set<String> responseTypes, Token parentToken, Map<String, String> result, String accessTokenValue, String grantType) throws Exception {
+        if (isOpenIdScope() && (isIdTokenGrant(responseTypes) || validNonSpecIdTokenRequest(grantType))) {
             String authTime = getCtx().getValue(Constants.PARAMETER_AUTH_TIME);
             String nonce = parentToken.getNonce();
             Set<String> idTokenClaimNames = new ClaimsParameter(claims).getAllIdTokenClaimNames();
@@ -78,6 +78,16 @@ public class TokenResponseGenerator extends ResponseGenerator {
         }
     }
 
+    private boolean validNonSpecIdTokenRequest(String grantType) {
+        NonSpecConfiguration nonSpec = getServerServices().getProvidedServices().getConfigProvider().getNonSpecConfiguration();
+        return  (nonSpec.isIssueIdTokenInClientCredentialsGrant() && grantType.contains(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS)) ||
+                (nonSpec.isIssueIdTokenInResourceOwnerPasswordCredentialsGrant() && grantType.contains(Constants.PARAMETER_VALUE_PASSWORD));
+    }
+
+    private boolean isIdTokenGrant(Set<String> responseTypes) {
+        return responseTypes.contains(Constants.PARAMETER_VALUE_ID_TOKEN);
+    }
+
     private String createAccessTokenIfNeeded(String grantType, Set<String> responseTypes, Token parentToken, Map<String, String> result) {
         String accessTokenValue = null;
         if (responseTypes.contains(Constants.PARAMETER_VALUE_TOKEN)) {
@@ -88,12 +98,24 @@ public class TokenResponseGenerator extends ResponseGenerator {
             result.put(Constants.PARAMETER_ACCESS_TOKEN, accessToken.getValue());
             result.put(Constants.PARAMETER_TOKEN_TYPE, Constants.PARAMETER_VALUE_BEARER);
             result.put(Constants.PARAMETER_EXPIRES_IN, String.valueOf(accessToken.getValidFor().getSeconds()));
-            if (grantType != null && !(grantType.equals(Constants.PARAMETER_VALUE_TOKEN) || grantType.equals(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS)))
+            if (grantType != null && ((isNotImplicitGrant(grantType) && isNotClientCredentialsGrant(grantType)) || isValidNonSpecRefreshTokenRequest(grantType)))
                 result.put(Constants.PARAMETER_REFRESH_TOKEN, refreshToken.getValue());
 
             accessTokenValue = accessToken.getValue();
         }
         return accessTokenValue;
+    }
+
+    private boolean isValidNonSpecRefreshTokenRequest(String grantType) {
+        return grantType.equals(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS) && getServerServices().getProvidedServices().getConfigProvider().getNonSpecConfiguration().isIssueRefreshTokenInClientCredentialsGrant();
+    }
+
+    private boolean isNotClientCredentialsGrant(String grantType) {
+        return !grantType.equals(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS);
+    }
+
+    private boolean isNotImplicitGrant(String grantType) {
+        return !grantType.equals(Constants.PARAMETER_VALUE_TOKEN);
     }
 
     private Token getOrCreateParentToken(String username, String clientId, String scope, String claims, String code, String refreshTokenValue, String redirectUri, String nonce) throws Exception {

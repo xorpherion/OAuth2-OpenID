@@ -9,7 +9,7 @@ import java.util.Set;
 public interface ConfigProvider {
 
     /**
-     * dynamic
+     * dynamically checked on every needed occasion
      * @param tokenContext
      * @return
      */
@@ -41,5 +41,7 @@ public interface ConfigProvider {
      * @return the final list of scopes that the server should support
      */
     Set<String> getSupportedClaims(Set<String> defaultProvided);
+
+    NonSpecConfiguration getNonSpecConfiguration();
 
 }

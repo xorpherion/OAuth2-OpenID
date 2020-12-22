@@ -3,6 +3,7 @@ package com.bornium.security.oauth2openid.provider;
 import com.bornium.security.oauth2openid.permissions.Scope;
 import com.bornium.security.oauth2openid.providers.ActiveGrantsConfiguration;
 import com.bornium.security.oauth2openid.providers.ConfigProvider;
+import com.bornium.security.oauth2openid.providers.NonSpecConfiguration;
 import com.bornium.security.oauth2openid.server.TokenContext;
 
 import java.util.List;
@@ -39,5 +40,10 @@ public class MembraneConfigProvider implements ConfigProvider {
     @Override
     public Set<String> getSupportedClaims(Set<String> defaultProvided) {
         return defaultProvided;
+    }
+
+    @Override
+    public NonSpecConfiguration getNonSpecConfiguration() {
+        return new NonSpecConfiguration();
     }
 }
