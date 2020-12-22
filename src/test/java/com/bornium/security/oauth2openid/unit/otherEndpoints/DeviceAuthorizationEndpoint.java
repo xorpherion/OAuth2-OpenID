@@ -238,7 +238,7 @@ public class DeviceAuthorizationEndpoint {
                     try {
                         Exchange exc = goodCompleteVerificationRequest();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return piggyBack(exc, Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID)));
+                        return piggyBack(exc, Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID)));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -263,7 +263,7 @@ public class DeviceAuthorizationEndpoint {
                     try {
                         Exchange exc = goodVerificationRequest();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return piggyBack(exc, Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID)));
+                        return piggyBack(exc, Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID)));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
