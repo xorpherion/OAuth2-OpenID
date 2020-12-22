@@ -8,6 +8,7 @@ import com.bornium.security.oauth2openid.providers.UserDataProvider;
 import com.bornium.security.oauth2openid.server.endpoints.login.LoginEndpointBase;
 import com.bornium.security.oauth2openid.server.endpoints.login.LoginResult;
 
+import java.time.Instant;
 import java.util.Optional;
 
 public class WrappedLoginEndpoint extends WrappedEndpoint<LoginEndpointBase>{
@@ -39,6 +40,7 @@ public class WrappedLoginEndpoint extends WrappedEndpoint<LoginEndpointBase>{
 
         ctx.putValue(Constants.SESSION_LOGGED_IN, Constants.VALUE_YES);
         ctx.putValue(Constants.LOGIN_USERNAME, res.getAuthenticatedUser().get());
+        ctx.putValue(Constants.PARAMETER_AUTH_TIME, String.valueOf(Instant.now().getEpochSecond()));
 
         toBeWrapped.serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
     }

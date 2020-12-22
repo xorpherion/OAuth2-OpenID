@@ -12,12 +12,15 @@ import com.bornium.security.oauth2openid.server.ConsentContext;
 import com.bornium.security.oauth2openid.server.endpoints.login.LoginEndpointBase;
 import com.bornium.security.oauth2openid.server.endpoints.login.LoginResult;
 import com.google.common.base.Charsets;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.common.io.CharStreams;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -25,6 +28,11 @@ import java.util.stream.Collectors;
  * Created by Xorpherion on 26.01.2017.
  */
 public class LoginEndpoint extends LoginEndpointBase {
+
+    Cache<String,String> ctxToAuthenticatedUser = CacheBuilder.newBuilder()
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .maximumSize(10000)
+            .build();
 
     public LoginEndpoint(AuthorizationServer serverServices) {
         super(serverServices, Constants.ENDPOINT_LOGIN, Constants.ENDPOINT_CONSENT);
@@ -63,10 +71,6 @@ public class LoginEndpoint extends LoginEndpointBase {
         serverServices.getProvidedServices().getConsentProvider()
                 .persist(new ConsentContext(ctx.getValue(Constants.LOGIN_USERNAME), ctx.getValue(Constants.PARAMETER_CLIENT_ID), Arrays.asList(ctx.getValue(Constants.PARAMETER_SCOPE).split(Pattern.quote(" "))).stream().collect(Collectors.toSet())));
 
-//        ctx.putValue(Constants.SESSION_CONSENT_GIVEN, Constants.VALUE_YES);
-//        serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
-//        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
-//        session.putValue(Constants.SESSION_CONSENT_GIVEN, Constants.VALUE_YES);
         exc.setResponse(redirectToAfterLoginEndpoint(ctx));
     }
 
@@ -97,15 +101,13 @@ public class LoginEndpoint extends LoginEndpointBase {
             exc.setResponse(redirectToLogin(possibleCSRFError(ctx)));
             return;
         }
-        ctx.putValue(Constants.LOGIN_USERNAME, username);
-        ctx.putValue(Constants.SESSION_LOGGED_IN, Constants.VALUE_YES);
-        ctx.putValue(Constants.PARAMETER_AUTH_TIME, String.valueOf(Instant.now().getEpochSecond()));
-        serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
 
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         session.putValue(Constants.LOGIN_USERNAME, username);
         session.putValue(Constants.SESSION_LOGGED_IN, Constants.VALUE_YES);
         session.putValue(Constants.PARAMETER_AUTH_TIME, String.valueOf(Instant.now().getEpochSecond()));
+
+        ctxToAuthenticatedUser.put(ctx.getIdentifier(), username);
 
         if (ctx.getValue(Constants.PARAMETER_USER_CODE) != null)
             exc.setResponse(redirectToDeviceVerification(getDeviceVerificationPageParams(ctx)));
@@ -219,11 +221,10 @@ public class LoginEndpoint extends LoginEndpointBase {
         if(ctxId == null)
             throw new IllegalArgumentException("ctxId should not be null");
 
-        GrantContext ctx = serverServices.getProvidedServices().getGrantContextProvider().findById(ctxId).get();
         return new LoginResult() {
             @Override
             public Optional<String> getAuthenticatedUser() {
-                return Optional.ofNullable(ctx.getValue(Constants.LOGIN_USERNAME));
+                return Optional.ofNullable(ctxToAuthenticatedUser.getIfPresent(ctxId));
             }
         };
     }
