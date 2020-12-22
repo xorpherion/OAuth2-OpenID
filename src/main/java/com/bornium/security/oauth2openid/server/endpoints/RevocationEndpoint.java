@@ -21,6 +21,11 @@ public class RevocationEndpoint extends Endpoint {
 
     @Override
     public void invokeOn(Exchange exc) throws Exception {
+        if(!serverServices.getProvidedServices().getConfigProvider().getActiveGrantsConfiguration().isRevocation()){
+            exc.setResponse(answerWithError(400, Constants.ERROR_REQUEST_NOT_SUPPORTED));
+            return;
+        }
+
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);
 

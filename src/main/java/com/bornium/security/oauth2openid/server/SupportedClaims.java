@@ -18,7 +18,7 @@ public class SupportedClaims {
     }
 
     public Set<String> getValidClaims(Set<String> claims) {
-        HashSet<String> result = new HashSet<>();
+        Set<String> result = new HashSet<>();
         for (String claim : claims)
             if (this.claims.contains(claim))
                 result.add(claim);

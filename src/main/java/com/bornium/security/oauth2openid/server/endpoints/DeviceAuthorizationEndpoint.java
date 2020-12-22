@@ -21,6 +21,11 @@ public class DeviceAuthorizationEndpoint extends Endpoint {
 
     @Override
     public void invokeOn(Exchange exc) throws Exception {
+        if(!serverServices.getProvidedServices().getConfigProvider().getActiveGrantsConfiguration().isDeviceAuthorization()){
+            exc.setResponse(answerWithError(400, Constants.ERROR_UNSUPPORTED_GRANT_TYPE));
+            return;
+        }
+
         if (exc.getRequest().getMethod() != Method.POST) {
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
             return;
@@ -39,7 +44,6 @@ public class DeviceAuthorizationEndpoint extends Endpoint {
                 clientId = null;
             }
         }
-        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);
 

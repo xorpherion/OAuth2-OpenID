@@ -5,6 +5,7 @@ import com.bornium.http.ResponseBuilder;
 import com.bornium.impl.VerificationEndpoint;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.permissions.Scope;
+import com.bornium.security.oauth2openid.providers.ActiveGrantsConfiguration;
 import com.bornium.security.oauth2openid.server.endpoints.*;
 import com.bornium.security.oauth2openid.server.endpoints.login.LoginEndpointBase;
 import com.bornium.security.oauth2openid.token.CombinedTokenManager;
@@ -13,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Created by Xorpherion on 25.01.2017.
@@ -26,6 +29,7 @@ public class AuthorizationServer {
     SupportedScopes supportedScopes;
     SupportedClaims supportedClaims;
     LoginEndpointBase loginEndpoint;
+    ActiveGrantsConfiguration supportedGrants;
 
     public AuthorizationServer(ProvidedServices providedServices) throws Exception {
         this(providedServices, new IdTokenProvider());
@@ -34,8 +38,9 @@ public class AuthorizationServer {
     public AuthorizationServer(ProvidedServices providedServices, IdTokenProvider idTokenProvider) throws Exception {
         this.providedServices = providedServices;
         this.tokenManager = new CombinedTokenManager(idTokenProvider, providedServices.getTokenProvider(), providedServices.getTokenPersistenceProvider(), providedServices.getTimingProvider());
-        this.supportedScopes = new SupportedScopes(defaultScopes());
-        this.supportedClaims = new SupportedClaims(supportedClaims());
+        this.supportedScopes = calcSupportedScopes(providedServices);
+        this.supportedClaims = calcSupportedClaims(providedServices);
+        this.supportedGrants = calcActiveGrants(providedServices);
 
         for (String claim : providedServices.getSupportedClaims())
             this.supportedClaims.addValidClaim(claim);
@@ -57,13 +62,30 @@ public class AuthorizationServer {
         endpoints.add(loginEndpointToBeAdded);
     }
 
+    private SupportedScopes calcSupportedScopes(ProvidedServices providedServices) {
+        return new SupportedScopes(providedServices.getConfigProvider().getSupportedScopes(Arrays.asList(defaultScopes())).stream().toArray(Scope[]::new));
+    }
+
+    private SupportedClaims calcSupportedClaims(ProvidedServices providedServices) {
+        return new SupportedClaims(providedServices.getConfigProvider().getSupportedClaims(Arrays.asList(supportedClaims()).stream().collect(Collectors.toSet())).stream().toArray(String[]::new));
+    }
+
+    private ActiveGrantsConfiguration calcActiveGrants(ProvidedServices providedServices) {
+        ActiveGrantsConfiguration result = providedServices.getConfigProvider().getActiveGrantsConfiguration();
+
+        if(getProvidedServices().getConfigProvider().disableNonRecommendedGrants())
+            result = supportedGrants.disableNonRecommendedGrants();
+
+        return result;
+    }
+
     public Exchange invokeOn(Exchange exc) throws Exception {
         //log.info("Authorization server connect");
         for (Endpoint endpoint : endpoints)
             if (exc.getResponse() == null)
                 endpoint.useIfResponsible(exc);
         if (exc.getResponse() == null)
-            exc.setResponse(new ResponseBuilder().statuscode(404).body("Not found - try /userinfo with access token in Authorization Header").build());
+            exc.setResponse(new ResponseBuilder().statuscode(404).body("Not found - try "+ getProvidedServices().getContextPath() + Constants.ENDPOINT_USERINFO +" with access token in Authorization Header").build());
         addMissingHeaders(exc);
         return exc;
     }

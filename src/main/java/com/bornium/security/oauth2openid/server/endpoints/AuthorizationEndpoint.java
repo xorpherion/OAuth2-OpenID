@@ -3,6 +3,7 @@ package com.bornium.security.oauth2openid.server.endpoints;
 import com.bornium.http.Exchange;
 import com.bornium.http.Response;
 import com.bornium.security.oauth2openid.Constants;
+import com.bornium.security.oauth2openid.providers.ActiveGrantsConfiguration;
 import com.bornium.security.oauth2openid.providers.GrantContext;
 import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.responsegenerators.CombinedResponseGenerator;
@@ -162,8 +163,13 @@ public class AuthorizationEndpoint extends Endpoint {
 
     private boolean responseTypeIsSupported(String responseType) {
         HashSet<String> supported = new HashSet<>();
-        supported.add(Constants.PARAMETER_VALUE_CODE);
-        supported.add(Constants.PARAMETER_VALUE_TOKEN);
+        ActiveGrantsConfiguration activeGrants = serverServices.getProvidedServices().getConfigProvider().getActiveGrantsConfiguration();
+
+        if(activeGrants.isAuthorizationCode())
+            supported.add(Constants.PARAMETER_VALUE_CODE);
+        if(activeGrants.isImplicit())
+            supported.add(Constants.PARAMETER_VALUE_TOKEN);
+
         supported.add(Constants.PARAMETER_VALUE_ID_TOKEN);
         supported.add(Constants.PARAMETER_VALUE_NONE);
 

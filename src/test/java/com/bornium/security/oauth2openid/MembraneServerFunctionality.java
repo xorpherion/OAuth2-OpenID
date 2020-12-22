@@ -18,6 +18,7 @@ public class MembraneServerFunctionality implements ProvidedServices {
     private final String issuer;
     private final MembraneGrantContextProvider grantContextDaoProvider;
     private final MembraneConsentProvider consentProvider;
+    private final MembraneConfigProvider membraneConfigProvider;
     MembraneSessionProvider sessionProvider;
     MembraneClientDataProvider clientDataProvider;
     MembraneUserDataProvider userDataProvider;
@@ -26,15 +27,20 @@ public class MembraneServerFunctionality implements ProvidedServices {
     TokenProvider tokenProvider;
 
     public MembraneServerFunctionality(String issuer) {
-        sessionProvider = new MembraneSessionProvider("SC_ID");
-        clientDataProvider = new MembraneClientDataProvider();
-        userDataProvider = new MembraneUserDataProvider();
-        tokenPersistenceProvider = new MembraneTokenPersistenceProvider();
-        timingProvider = new DefaultTimingProvider();
-        tokenProvider = new BearerTokenProvider();
-        grantContextDaoProvider = new MembraneGrantContextProvider();
-        consentProvider = new MembraneConsentProvider();
+        this(issuer,new MembraneGrantContextProvider(), new MembraneConsentProvider(),new MembraneConfigProvider(), new MembraneSessionProvider("SC_ID"), new MembraneClientDataProvider(), new MembraneUserDataProvider(), new MembraneTokenPersistenceProvider(), new DefaultTimingProvider(), new BearerTokenProvider());
+    }
+
+    public MembraneServerFunctionality(String issuer, MembraneGrantContextProvider grantContextDaoProvider, MembraneConsentProvider consentProvider, MembraneConfigProvider membraneConfigProvider, MembraneSessionProvider sessionProvider, MembraneClientDataProvider clientDataProvider, MembraneUserDataProvider userDataProvider, MembraneTokenPersistenceProvider tokenPersistenceProvider, TimingProvider timingProvider, TokenProvider tokenProvider) {
         this.issuer = issuer;
+        this.grantContextDaoProvider = grantContextDaoProvider;
+        this.consentProvider = consentProvider;
+        this.membraneConfigProvider = membraneConfigProvider;
+        this.sessionProvider = sessionProvider;
+        this.clientDataProvider = clientDataProvider;
+        this.userDataProvider = userDataProvider;
+        this.tokenPersistenceProvider = tokenPersistenceProvider;
+        this.timingProvider = timingProvider;
+        this.tokenProvider = tokenProvider;
     }
 
     @Override
@@ -79,7 +85,7 @@ public class MembraneServerFunctionality implements ProvidedServices {
 
     @Override
     public ConfigProvider getConfigProvider() {
-        return null;
+        return membraneConfigProvider;
     }
 
     @Override

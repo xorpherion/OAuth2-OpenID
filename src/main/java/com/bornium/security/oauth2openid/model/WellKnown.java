@@ -39,6 +39,9 @@ public class WellKnown {
     @JsonProperty("code_challenge_methods_supported")
     List<String> codeChallengeMethodsSupported;
 
+    public WellKnown() {
+    }
+
     public WellKnown(String issuer, String authorizationEndpoint, String deviceAuthorizationEndpoint, String tokenEndpoint,
                      String userinfoEndpoint, String revocationEndpoint, String jwksUri,
                      List<String> responseTypesSupported, List<String> grantTypesSupported, List<String> subjectTypesSupported, List<String> idTokenSigningAlgValuesSupported,

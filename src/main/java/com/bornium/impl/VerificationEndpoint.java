@@ -30,6 +30,11 @@ public class VerificationEndpoint extends Endpoint {
 
     @Override
     public void invokeOn(Exchange exc) throws Exception {
+        if(!serverServices.getProvidedServices().getConfigProvider().getActiveGrantsConfiguration().isDeviceAuthorization()){
+            exc.setResponse(answerWithError(400, Constants.ERROR_UNSUPPORTED_GRANT_TYPE));
+            return;
+        }
+
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         CombinedTokenManager tokenManager = serverServices.getTokenManager();
 

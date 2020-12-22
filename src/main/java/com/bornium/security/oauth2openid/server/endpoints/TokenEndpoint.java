@@ -319,12 +319,17 @@ public class TokenEndpoint extends Endpoint {
     }
 
     private boolean grantTypeIsSupported(String grantType) {
-        HashSet<String> supportedGrantTypes = new HashSet<String>();
-        supportedGrantTypes.add(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE);
-        supportedGrantTypes.add(Constants.PARAMETER_VALUE_PASSWORD);
-        supportedGrantTypes.add(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS);
-        supportedGrantTypes.add(Constants.PARAMETER_VALUE_REFRESH_TOKEN);
-        supportedGrantTypes.add(Constants.PARAMETER_VALUE_DEVICE_CODE);
+        HashSet<String> supportedGrantTypes = new HashSet<>();
+        if(configProvider.getActiveGrantsConfiguration().isAuthorizationCode())
+            supportedGrantTypes.add(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE);
+        if(configProvider.getActiveGrantsConfiguration().isResourceOwnerPasswordCredentials())
+            supportedGrantTypes.add(Constants.PARAMETER_VALUE_PASSWORD);
+        if(configProvider.getActiveGrantsConfiguration().isClientCredentials())
+            supportedGrantTypes.add(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS);
+        if(configProvider.getActiveGrantsConfiguration().isRefreshToken())
+            supportedGrantTypes.add(Constants.PARAMETER_VALUE_REFRESH_TOKEN);
+        if(configProvider.getActiveGrantsConfiguration().isDeviceAuthorization())
+            supportedGrantTypes.add(Constants.PARAMETER_VALUE_DEVICE_CODE);
         return supportedGrantTypes.contains(grantType);
     }
 }
