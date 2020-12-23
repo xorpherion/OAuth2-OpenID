@@ -2,6 +2,7 @@ package com.bornium.security.oauth2openid.server.endpoints;
 
 import com.bornium.http.Exchange;
 import com.bornium.http.Response;
+import com.bornium.http.ResponseBuilder;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.providers.ActiveGrantsConfiguration;
 import com.bornium.security.oauth2openid.providers.GrantContext;
@@ -126,7 +127,7 @@ public class AuthorizationEndpoint extends Endpoint {
 
             copyParametersIntoContext(ctx, params);
             if (!isLoggedInAndHasGivenConsent(session,ctx)) {
-                exc.setResponse(associateContextWithClientStateAndInformLoginEndpoint(params, ctx));
+                associateContextWithClientStateAndInformLoginEndpoint(params, ctx, exc);
                 return;
             }
             answerWithToken(exc, ctx);
@@ -143,10 +144,35 @@ public class AuthorizationEndpoint extends Endpoint {
 
     }
 
-    private Response associateContextWithClientStateAndInformLoginEndpoint(Map<String, String> params, GrantContext ctx) {
+    private void associateContextWithClientStateAndInformLoginEndpoint(Map<String, String> params, GrantContext ctx, Exchange exc) {
         ctx.setIdentifier(params.get(Constants.PARAMETER_STATE));
         serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
-        return serverServices.getLoginEndpoint().initiateLoginAndConsent(ctx.getIdentifier());
+        serverServices.getProvidedServices().getAuthenticationProvider().initiateAuthenticationAndConsent(ctx.getIdentifier(), false, exc, serverServices, loginResult -> {
+            GrantContext context = serverServices.getProvidedServices().getGrantContextProvider().findById(loginResult.getGrantContextId()).get();
+
+            context.putValue(Constants.SESSION_LOGGED_IN, Constants.VALUE_YES);
+            context.putValue(Constants.LOGIN_USERNAME, loginResult.getAuthenticatedUser().get());
+            context.putValue(Constants.PARAMETER_AUTH_TIME, String.valueOf(Instant.now().getEpochSecond()));
+
+            serverServices.getProvidedServices().getGrantContextProvider().persist(context);
+
+            if(!loginResult.getConsentContext().isConsented()){
+                try {
+                    loginResult.getCurrentRunningExchange().setResponse(redirectToCallbackWithError(context.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED, context.getValue(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(context)));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                return;
+            }
+
+            serverServices.getProvidedServices().getConsentProvider().persist(loginResult.getConsentContext());
+            loginResult.getCurrentRunningExchange().setResponse(redirectToAfterLoginEndpoint(context));
+        });
+    }
+
+    private Response redirectToAfterLoginEndpoint(GrantContext ctx) {
+        return new ResponseBuilder()
+                .redirectTempWithGet(this.serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_AFTER_LOGIN + "?" + Constants.GRANT_CONTEXT_ID + "=" + ctx.getIdentifier()).build();
     }
 
     private boolean isImplicitFlowAndHasNoNonceValue(Map<String, String> params) {

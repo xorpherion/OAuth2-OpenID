@@ -363,7 +363,7 @@ public abstract class BaseAuthorizationEndpointTests {
                     try {
                         Exchange exc = goodLogin();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return Common.createConsentRequest(Constants.VALUE_NO, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
+                        return Common.createConsentRequest(Constants.VALUE_NO, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }

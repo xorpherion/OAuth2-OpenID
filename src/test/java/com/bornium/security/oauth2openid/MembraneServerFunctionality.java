@@ -7,9 +7,6 @@ import com.bornium.security.oauth2openid.server.ProvidedServices;
 import com.bornium.impl.LoginEndpoint;
 import com.bornium.impl.BearerTokenProvider;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Created by Xorpherion on 25.01.2017.
  */
@@ -19,6 +16,7 @@ public class MembraneServerFunctionality implements ProvidedServices {
     private final MembraneGrantContextProvider grantContextDaoProvider;
     private final MembraneConsentProvider consentProvider;
     private final MembraneConfigProvider membraneConfigProvider;
+    private final MembraneAuthenticationProvider membraneAuthenticationProvider;
     MembraneSessionProvider sessionProvider;
     MembraneClientDataProvider clientDataProvider;
     MembraneUserDataProvider userDataProvider;
@@ -26,11 +24,12 @@ public class MembraneServerFunctionality implements ProvidedServices {
     TimingProvider timingProvider;
     TokenProvider tokenProvider;
 
+
     public MembraneServerFunctionality(String issuer) {
-        this(issuer,new MembraneGrantContextProvider(), new MembraneConsentProvider(),new MembraneConfigProvider(), new MembraneSessionProvider("SC_ID"), new MembraneClientDataProvider(), new MembraneUserDataProvider(), new MembraneTokenPersistenceProvider(), new DefaultTimingProvider(), new BearerTokenProvider());
+        this(issuer,new MembraneGrantContextProvider(), new MembraneConsentProvider(),new MembraneConfigProvider(), new MembraneSessionProvider("SC_ID"), new MembraneClientDataProvider(), new MembraneUserDataProvider(), new MembraneTokenPersistenceProvider(), new DefaultTimingProvider(), new BearerTokenProvider(), new MembraneAuthenticationProvider());
     }
 
-    public MembraneServerFunctionality(String issuer, MembraneGrantContextProvider grantContextDaoProvider, MembraneConsentProvider consentProvider, MembraneConfigProvider membraneConfigProvider, MembraneSessionProvider sessionProvider, MembraneClientDataProvider clientDataProvider, MembraneUserDataProvider userDataProvider, MembraneTokenPersistenceProvider tokenPersistenceProvider, TimingProvider timingProvider, TokenProvider tokenProvider) {
+    public MembraneServerFunctionality(String issuer, MembraneGrantContextProvider grantContextDaoProvider, MembraneConsentProvider consentProvider, MembraneConfigProvider membraneConfigProvider, MembraneSessionProvider sessionProvider, MembraneClientDataProvider clientDataProvider, MembraneUserDataProvider userDataProvider, MembraneTokenPersistenceProvider tokenPersistenceProvider, TimingProvider timingProvider, TokenProvider tokenProvider, MembraneAuthenticationProvider membraneAuthenticationProvider) {
         this.issuer = issuer;
         this.grantContextDaoProvider = grantContextDaoProvider;
         this.consentProvider = consentProvider;
@@ -41,6 +40,8 @@ public class MembraneServerFunctionality implements ProvidedServices {
         this.tokenPersistenceProvider = tokenPersistenceProvider;
         this.timingProvider = timingProvider;
         this.tokenProvider = tokenProvider;
+        this.membraneAuthenticationProvider = membraneAuthenticationProvider;
+
     }
 
     @Override
@@ -106,5 +107,10 @@ public class MembraneServerFunctionality implements ProvidedServices {
     @Override
     public EndpointFactory getEndpointFactory() {
         return serverServices -> new LoginEndpoint(serverServices);
+    }
+
+    @Override
+    public AuthenticationProvider getAuthenticationProvider() {
+        return membraneAuthenticationProvider;
     }
 }

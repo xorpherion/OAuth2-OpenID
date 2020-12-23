@@ -150,11 +150,25 @@ public class VerificationEndpoint extends Endpoint {
             return false;
 
         ctx.putValue(Constants.PARAMETER_USER_CODE, userCode == null ? "" : userCode);
-
         HashMap<String, String> jsParams = prepareJsStateParameter(ctx);
         jsParams.put(Constants.GRANT_CONTEXT_ID, ctx.getIdentifier());
         serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
-        exc.setResponse(redirectToLogin(jsParams));
+
+        serverServices.getProvidedServices().getAuthenticationProvider().initiateAuthenticationAndConsent(ctx.getIdentifier(),true, exc,serverServices, loginResult -> {
+            try {
+                GrantContext context = serverServices.getProvidedServices().getGrantContextProvider().findById(ctx.getIdentifier()).get();
+                HashMap<String, String> result = new HashMap<>(prepareJsStateParameter(context));
+                result.put(Constants.PARAMETER_USER_CODE, context.getValue(Constants.PARAMETER_USER_CODE));
+                result.put(Constants.GRANT_CONTEXT_ID, context.getIdentifier());
+
+                result.entrySet().stream().forEach(e -> context.putValue(e.getKey(),e.getValue()));
+                serverServices.getProvidedServices().getGrantContextProvider().persist(context);
+
+                loginResult.getCurrentRunningExchange().setResponse(redirectToUrl(serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_VERIFICATION + "?" + Constants.GRANT_CONTEXT_ID + "=" + result.get(Constants.GRANT_CONTEXT_ID) + "#params=" + prepareJSParams(result), null));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
         return true;
     }
 

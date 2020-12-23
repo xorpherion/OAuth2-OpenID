@@ -7,7 +7,6 @@ import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.permissions.Scope;
 import com.bornium.security.oauth2openid.providers.ActiveGrantsConfiguration;
 import com.bornium.security.oauth2openid.server.endpoints.*;
-import com.bornium.security.oauth2openid.server.endpoints.login.LoginEndpointBase;
 import com.bornium.security.oauth2openid.token.CombinedTokenManager;
 import com.bornium.security.oauth2openid.token.IdTokenProvider;
 import org.slf4j.Logger;
@@ -28,8 +27,8 @@ public class AuthorizationServer {
     CombinedTokenManager tokenManager;
     SupportedScopes supportedScopes;
     SupportedClaims supportedClaims;
-    LoginEndpointBase loginEndpoint;
     ActiveGrantsConfiguration supportedGrants;
+    private Endpoint loginEndpoint;
 
     public AuthorizationServer(ProvidedServices providedServices) throws Exception {
         this(providedServices, new IdTokenProvider());
@@ -53,10 +52,8 @@ public class AuthorizationServer {
         endpoints.add(new WellKnownEndpoint(this));
         endpoints.add(new VerificationEndpoint(this));
 
-        WrappedLoginEndpoint loginEndpointToBeAdded = new WrappedLoginEndpoint(providedServices.getEndpointFactory().createLogin(this), providedServices.getUserDataProvider(), providedServices.getGrantContextProvider());
-        loginEndpoint = loginEndpointToBeAdded.getLoginEndpoint();
-
-        endpoints.add(loginEndpointToBeAdded);
+        loginEndpoint = providedServices.getEndpointFactory().createLogin(this);
+        endpoints.add(loginEndpoint);
     }
 
     private SupportedScopes calcSupportedScopes(ProvidedServices providedServices) {
@@ -136,7 +133,7 @@ public class AuthorizationServer {
         return endpoints;
     }
 
-    public LoginEndpointBase getLoginEndpoint() {
+    public Endpoint getLoginEndpoint() {
         return loginEndpoint;
     }
 }

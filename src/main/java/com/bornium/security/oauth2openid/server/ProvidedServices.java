@@ -34,4 +34,6 @@ public interface ProvidedServices {
     String getSubClaimName();
 
     EndpointFactory getEndpointFactory();
+
+    AuthenticationProvider getAuthenticationProvider();
 }

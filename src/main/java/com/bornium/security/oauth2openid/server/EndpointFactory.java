@@ -1,9 +1,9 @@
 package com.bornium.security.oauth2openid.server;
 
-import com.bornium.security.oauth2openid.server.endpoints.login.LoginEndpointBase;
+import com.bornium.security.oauth2openid.server.endpoints.Endpoint;
 
 import java.util.List;
 
 public interface EndpointFactory {
-    LoginEndpointBase createLogin(AuthorizationServer serverServices);
+    Endpoint createLogin(AuthorizationServer serverServices);
 }

@@ -1,9 +1,7 @@
 package com.bornium.security.oauth2openid.unit.configuration;
 
-import com.bornium.http.Exchange;
 import com.bornium.http.Method;
 import com.bornium.http.RequestBuilder;
-import com.bornium.http.ResponseBuilder;
 import com.bornium.impl.BearerTokenProvider;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.ConstantsTest;
@@ -35,7 +33,7 @@ public class GrantDeactivation {
                 return new ActiveGrantsConfiguration(false,false,false,false,false,false,false);
             }
         };
-        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER, new MembraneGrantContextProvider(), new MembraneConsentProvider(), membraneConfigProvider, new MembraneSessionProvider("SC_ID"), new MembraneClientDataProvider(), new MembraneUserDataProvider(), new MembraneTokenPersistenceProvider(), new DefaultTimingProvider(), new BearerTokenProvider()), Common.getIdTokenProvider());
+        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER, new MembraneGrantContextProvider(), new MembraneConsentProvider(), membraneConfigProvider, new MembraneSessionProvider("SC_ID"), new MembraneClientDataProvider(), new MembraneUserDataProvider(), new MembraneTokenPersistenceProvider(), new DefaultTimingProvider(), new BearerTokenProvider(), new MembraneAuthenticationProvider()), Common.getIdTokenProvider());
     }
 
     @Test

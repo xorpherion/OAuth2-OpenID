@@ -6,17 +6,17 @@ public class ConsentContext {
     String username;
     String clientId;
     boolean consented;
-    Set<String> consentedScopes;
+    Set<String> consentedScopesIfConsentGiven;
 
-    public ConsentContext(String username, String clientId, Set<String> consentedScopes) {
-        this(username,clientId,true,consentedScopes);
+    public ConsentContext(String username, String clientId, Set<String> consentedScopesIfConsentGiven) {
+        this(username,clientId,true, consentedScopesIfConsentGiven);
     }
 
-    public ConsentContext(String username, String clientId, boolean consented, Set<String> consentedScopes) {
+    public ConsentContext(String username, String clientId, boolean consented, Set<String> consentedScopesIfConsentGiven) {
         this.username = username;
         this.clientId = clientId;
         this.consented = consented;
-        this.consentedScopes = consentedScopes;
+        this.consentedScopesIfConsentGiven = consentedScopesIfConsentGiven;
     }
 
     public String getUsername() {
@@ -31,7 +31,7 @@ public class ConsentContext {
         return consented;
     }
 
-    public Set<String> getConsentedScopes() {
-        return consentedScopes;
+    public Set<String> getConsentedScopesIfConsentGiven() {
+        return consentedScopesIfConsentGiven;
     }
 }

@@ -6,11 +6,11 @@ import com.bornium.http.ResponseBuilder;
 import com.bornium.http.util.BodyUtil;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.providers.GrantContext;
+import com.bornium.security.oauth2openid.providers.LoginResult;
 import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.bornium.security.oauth2openid.server.ConsentContext;
-import com.bornium.security.oauth2openid.server.endpoints.login.LoginEndpointBase;
-import com.bornium.security.oauth2openid.server.endpoints.login.LoginResult;
+import com.bornium.security.oauth2openid.server.endpoints.Endpoint;
 import com.google.common.base.Charsets;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -27,9 +27,9 @@ import java.util.stream.Collectors;
 /**
  * Created by Xorpherion on 26.01.2017.
  */
-public class LoginEndpoint extends LoginEndpointBase {
+public class LoginEndpoint extends Endpoint {
 
-    Cache<String,String> ctxToAuthenticatedUser = CacheBuilder.newBuilder()
+    Cache<String, LoginResultWithCallback> ctxToAuthenticatedUser = CacheBuilder.newBuilder()
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .maximumSize(10000)
             .build();
@@ -57,26 +57,37 @@ public class LoginEndpoint extends LoginEndpointBase {
     private void checkConsent(Exchange exc) throws Exception {
         Map<String, String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
         GrantContext ctx = serverServices.getProvidedServices().getGrantContextProvider().findById(params.get(Constants.GRANT_CONTEXT_ID)).get();
-        if (!params.containsKey(Constants.LOGIN_CONSENT) || params.get(Constants.LOGIN_CONSENT).equals(Constants.VALUE_NO)) {
-            exc.setResponse(redirectToCallbackWithError(ctx.getValue(Constants.PARAMETER_REDIRECT_URI), Constants.ERROR_ACCESS_DENIED, ctx.getValue(Constants.PARAMETER_STATE), setToResponseModeOrUseDefault(ctx)));
-            return;
-        }
+        LoginResultWithCallback lrwc = ctxToAuthenticatedUser.getIfPresent(ctx.getIdentifier());
 
         if (params.get(Constants.SESSION_LOGIN_STATE) == null || !params.get(Constants.SESSION_LOGIN_STATE).equals(ctx.getValue(Constants.SESSION_LOGIN_STATE))) {
-            ctx.putValue(Constants.SESSION_REDIRECT_FROM_ERROR, Constants.VALUE_YES);
             exc.setResponse(redirectToLogin(possibleCSRFError(ctx)));
             return;
         }
 
-        serverServices.getProvidedServices().getConsentProvider()
-                .persist(new ConsentContext(ctx.getValue(Constants.LOGIN_USERNAME), ctx.getValue(Constants.PARAMETER_CLIENT_ID), Arrays.asList(ctx.getValue(Constants.PARAMETER_SCOPE).split(Pattern.quote(" "))).stream().collect(Collectors.toSet())));
+        if (!params.containsKey(Constants.LOGIN_CONSENT) || params.get(Constants.LOGIN_CONSENT).equals(Constants.VALUE_NO)) {
+            LoginResult lr = lrwc.getAccumulator();
+            lr = new LoginResult(
+                    ctx.getIdentifier(),
+                    lr.getAuthenticatedUser(),
+                    new ConsentContext(lr.getAuthenticatedUser().get(),ctx.getValue(Constants.PARAMETER_CLIENT_ID),false, Arrays.asList(ctx.getValue(Constants.PARAMETER_SCOPE).split(Pattern.quote(" "))).stream().collect(Collectors.toSet())),
+                    exc
+            );
 
-        exc.setResponse(redirectToAfterLoginEndpoint(ctx));
-    }
+            lrwc.getCallback().accept(lr);
+            return;
+        }
 
-    private Response redirectToAfterLoginEndpoint(GrantContext ctx) {
-        return new ResponseBuilder()
-                .redirectTempWithGet(this.serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_AFTER_LOGIN + "?" + Constants.GRANT_CONTEXT_ID + "=" + ctx.getIdentifier()).build();
+        LoginResult lr = lrwc.getAccumulator();
+
+        lr = new LoginResult(
+                ctx.getIdentifier(),
+                lr.getAuthenticatedUser(),
+                new ConsentContext(lr.getAuthenticatedUser().get(),ctx.getValue(Constants.PARAMETER_CLIENT_ID),Arrays.asList(ctx.getValue(Constants.PARAMETER_SCOPE).split(Pattern.quote(" "))).stream().collect(Collectors.toSet())),
+                exc
+        );
+
+        lrwc.getCallback().accept(lr);
+        ctxToAuthenticatedUser.invalidate(ctx.getIdentifier());
     }
 
     private void checkLogin(Exchange exc) throws Exception {
@@ -107,11 +118,18 @@ public class LoginEndpoint extends LoginEndpointBase {
         session.putValue(Constants.SESSION_LOGGED_IN, Constants.VALUE_YES);
         session.putValue(Constants.PARAMETER_AUTH_TIME, String.valueOf(Instant.now().getEpochSecond()));
 
-        ctxToAuthenticatedUser.put(ctx.getIdentifier(), username);
+        LoginResultWithCallback lrwc = ctxToAuthenticatedUser.getIfPresent(ctx.getIdentifier());
+        ctxToAuthenticatedUser.put(ctx.getIdentifier(), new LoginResultWithCallback(ctx.getIdentifier(), lrwc.isSkipConsentCheck(),new LoginResult(ctx.getIdentifier(),Optional.of(username),null,exc),lrwc.getCallback()));
 
-        if (ctx.getValue(Constants.PARAMETER_USER_CODE) != null)
-            exc.setResponse(redirectToDeviceVerification(getDeviceVerificationPageParams(ctx)));
-        else
+        if(lrwc.isSkipConsentCheck()){
+            LoginResultWithCallback lrwc2 = ctxToAuthenticatedUser.getIfPresent(ctx.getIdentifier());
+            lrwc.getCallback().accept(lrwc2.getAccumulator());
+            return;
+        }
+
+//        if (ctx.getValue(Constants.PARAMETER_USER_CODE) != null)
+//            exc.setResponse(redirectToDeviceVerification(getDeviceVerificationPageParams(ctx)));
+//        else
             exc.setResponse(redirectToConsent(getConsentPageParams(ctx)));
     }
 
@@ -190,43 +208,47 @@ public class LoginEndpoint extends LoginEndpointBase {
         return CharStreams.toString(new InputStreamReader(this.getClass().getResourceAsStream("/static/logindialog/" + page), Charsets.UTF_8));
     }
 
-    @Override
-    public Response initiateLoginAndConsent(String ctxId) {
-        try {
-            GrantContext ctx = serverServices.getProvidedServices().getGrantContextProvider().findById(ctxId).get();
-
-            HashMap<String, String> params = prepareJsStateParameter(ctx);
-            params.put(Constants.GRANT_CONTEXT_ID, ctx.getIdentifier());
-            params.entrySet().stream().forEach(e -> {
-                try {
-                    ctx.putValue(e.getKey(),e.getValue());
-                } catch (Exception exception) {
-                    throw new RuntimeException(exception);
-                }
-            });
-            serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
-            return redirectToLogin(params);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public Cache<String, LoginResultWithCallback> getCtxToAuthenticatedUser() {
+        return ctxToAuthenticatedUser;
     }
 
-    @Override
-    public String getGrantContextId(Exchange exc) {
-        return getParams(exc).get(Constants.GRANT_CONTEXT_ID);
-    }
-
-    @Override
-    public LoginResult getCurrentResultFor(String ctxId) {
-        if(ctxId == null)
-            throw new IllegalArgumentException("ctxId should not be null");
-
-        return new LoginResult() {
-            @Override
-            public Optional<String> getAuthenticatedUser() {
-                return Optional.ofNullable(ctxToAuthenticatedUser.getIfPresent(ctxId));
-            }
-        };
-    }
+    //    @Override
+//    public Response initiateLoginAndConsent(String ctxId) {
+//        try {
+//            GrantContext ctx = serverServices.getProvidedServices().getGrantContextProvider().findById(ctxId).get();
+//
+//            HashMap<String, String> params = prepareJsStateParameter(ctx);
+//            params.put(Constants.GRANT_CONTEXT_ID, ctx.getIdentifier());
+//            params.entrySet().stream().forEach(e -> {
+//                try {
+//                    ctx.putValue(e.getKey(),e.getValue());
+//                } catch (Exception exception) {
+//                    throw new RuntimeException(exception);
+//                }
+//            });
+//            serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
+//            return redirectToLogin(params);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+//
+//    @Override
+//    public String getGrantContextId(Exchange exc) {
+//        return getParams(exc).get(Constants.GRANT_CONTEXT_ID);
+//    }
+//
+//    @Override
+//    public LoginResult getCurrentResultFor(String ctxId) {
+//        if(ctxId == null)
+//            throw new IllegalArgumentException("ctxId should not be null");
+//
+//        return new LoginResult() {
+//            @Override
+//            public Optional<String> getAuthenticatedUser() {
+//                return Optional.ofNullable(ctxToAuthenticatedUser.getIfPresent(ctxId));
+//            }
+//        };
+//    }
 
 }

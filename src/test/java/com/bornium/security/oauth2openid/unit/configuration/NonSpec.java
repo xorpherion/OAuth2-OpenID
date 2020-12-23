@@ -27,7 +27,7 @@ public class NonSpec {
                 return new NonSpecConfiguration(true,true,true);
             }
         };
-        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER, new MembraneGrantContextProvider(), new MembraneConsentProvider(), membraneConfigProvider, new MembraneSessionProvider("SC_ID"), new MembraneClientDataProvider(), new MembraneUserDataProvider(), new MembraneTokenPersistenceProvider(), new DefaultTimingProvider(), new BearerTokenProvider()), Common.getIdTokenProvider());
+        server = new AuthorizationServer(new MembraneServerFunctionality(ConstantsTest.URL_AUTHORIZATION_SERVER, new MembraneGrantContextProvider(), new MembraneConsentProvider(), membraneConfigProvider, new MembraneSessionProvider("SC_ID"), new MembraneClientDataProvider(), new MembraneUserDataProvider(), new MembraneTokenPersistenceProvider(), new DefaultTimingProvider(), new BearerTokenProvider(), new MembraneAuthenticationProvider()), Common.getIdTokenProvider());
     }
 
     @Test
