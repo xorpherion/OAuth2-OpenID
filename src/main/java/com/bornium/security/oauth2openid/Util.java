@@ -32,6 +32,6 @@ public class Util {
         byte[] result = new byte[hash.length / 2];
         for (int i = 0; i < hash.length / 2; i++)
             result[i] = hash[i];
-        return UriUtil.encode(Base64.getEncoder().encodeToString(result));
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(result);
     }
 }
