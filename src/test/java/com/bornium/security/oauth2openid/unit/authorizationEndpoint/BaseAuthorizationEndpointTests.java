@@ -6,12 +6,14 @@ import com.bornium.security.oauth2openid.ConstantsTest;
 import com.bornium.security.oauth2openid.MembraneServerFunctionality;
 import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.bornium.security.oauth2openid.unit.Common;
+import com.predic8.membrane.core.util.URLParamUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,8 +53,11 @@ public abstract class BaseAuthorizationEndpointTests {
         this.server = server;
         return this;
     }
-
     @Test
+    public void goodPreLoginRequestTest() throws Exception {
+        goodPreLoginRequest();
+    }
+
     public Exchange goodPreLoginRequest() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -72,12 +77,18 @@ public abstract class BaseAuthorizationEndpointTests {
     }
 
     @Test
+    public void goodPostLoginRequestTest() throws Exception {
+        goodPostLoginRequest();
+    }
+
     public Exchange goodPostLoginRequest() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodConsent();
-                        return Common.createPostLoginRequest(Common.extractSessionCookie(exc));
+//                        String query = exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION)).split(Pattern.quote("?"))[1];
+//                        Map<String, String> stringStringMap = URLParamUtil.parseQueryString(query);
+                        return Common.createPostLoginRequest(Common.extractSessionCookie(exc), exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -242,13 +253,17 @@ public abstract class BaseAuthorizationEndpointTests {
     }
 
     @Test
+    public void goodLoginTest() throws Exception {
+        goodLogin();
+    }
+
     public Exchange goodLogin() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodPreLoginRequest();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc));
+                        return Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -263,13 +278,17 @@ public abstract class BaseAuthorizationEndpointTests {
     }
 
     @Test
+    public void goodConsentTest() throws Exception {
+        goodConsent();
+    }
+
     public Exchange goodConsent() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodLogin();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc));
+                        return Common.createConsentRequest(Constants.VALUE_YES, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -284,13 +303,17 @@ public abstract class BaseAuthorizationEndpointTests {
     }
 
     @Test
+    public void loginWrongUsernameTest() throws Exception {
+        loginWrongUsername();
+    }
+
     public Exchange loginWrongUsername() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodPreLoginRequest();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME + "myusernameisreallycool", ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc));
+                        return Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME + "myusernameisreallycool", ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -305,13 +328,17 @@ public abstract class BaseAuthorizationEndpointTests {
     }
 
     @Test
+    public void loginWrongPasswordTest() throws Exception {
+        loginWrongPassword();
+    }
+
     public Exchange loginWrongPassword() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodPreLoginRequest();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD + "mypasswordiswrong", loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc));
+                        return Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD + "mypasswordiswrong", loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -326,13 +353,17 @@ public abstract class BaseAuthorizationEndpointTests {
     }
 
     @Test
+    public void consentNotGivenTest() throws Exception {
+        consentNotGiven();
+    }
+
     public Exchange consentNotGiven() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodLogin();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return Common.createConsentRequest(Constants.VALUE_NO, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc));
+                        return Common.createConsentRequest(Constants.VALUE_NO, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }

@@ -1,5 +1,6 @@
 package com.bornium.security.oauth2openid;
 
+import com.bornium.security.oauth2openid.unit.Common;
 import com.predic8.membrane.core.exchange.Exchange;
 import com.predic8.membrane.core.transport.http.HttpClient;
 import com.predic8.membrane.core.transport.ssl.SSLContext;
@@ -9,6 +10,7 @@ import java.net.URISyntaxException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Created by Xorpherion on 30.01.2017.
@@ -31,6 +33,12 @@ public class ExtendedHttpClient {
         exc.getRequest().getHeader().add("Cookie", foldCookies());
         exc.setProperty(Exchange.SSL_CONTEXT, ctx);
         Exchange res = client.call(exc);
+        String locationHeader = exc.getResponse().getHeader().getFirstValue(Constants.HEADER_LOCATION);
+        if(locationHeader != null && locationHeader.contains("params=")) {
+            Map<String, String> loginParams = Common.convertLoginPageParamsToMap(locationHeader);
+            if (!loginParams.isEmpty())
+                res.setProperty(Constants.GRANT_CONTEXT_ID, loginParams.get(Constants.GRANT_CONTEXT_ID));
+        }
         if (res.getResponse().getHeader().getFirstValue("Set-Cookie") != null)
             cookies.add(res.getResponse().getHeader().getFirstValue("Set-Cookie"));
         if (res.getResponse().isRedirect())

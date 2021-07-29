@@ -57,7 +57,7 @@ public class UtilMembrane {
         ServiceProxy sp = new ServiceProxy(new ServiceProxyKey(spPort), target.getHost(), target.getPort());
 
         if (ConstantsTest.PROTOCOL.equals("https")) {
-            SSLParser ssl = new SSLParser();
+            SSLParser ssl = target.getSslParser();
             ssl.setKeyStore(new KeyStore());
             ssl.getKeyStore().setLocation("classpath:/keystore.jks");
             ssl.getKeyStore().setKeyPassword("secret");
@@ -69,7 +69,7 @@ public class UtilMembrane {
             sp.setSslInboundParser(ssl);
         }
 
-        target.setSslParser(new SSLParser());
+        target.setSslParser(null);
 
         for (AbstractInterceptor interceptor : interceptors)
             sp.getInterceptors().add(interceptor);

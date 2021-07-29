@@ -9,6 +9,10 @@ import java.util.Set;
  */
 public interface ProvidedServices {
 
+    ConsentProvider getConsentProvider();
+
+    GrantContextProvider getGrantContextProvider();
+
     SessionProvider getSessionProvider();
 
     ClientDataProvider getClientDataProvider();
@@ -25,9 +29,11 @@ public interface ProvidedServices {
 
     String getIssuer();
 
-    Set<String> getSupportedClaims();
-
     String getContextPath();
 
     String getSubClaimName();
+
+    EndpointFactory getEndpointFactory();
+
+    AuthenticationProvider getAuthenticationProvider();
 }

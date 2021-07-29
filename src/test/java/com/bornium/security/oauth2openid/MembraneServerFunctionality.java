@@ -1,15 +1,11 @@
 package com.bornium.security.oauth2openid;
 
-import com.bornium.security.oauth2openid.provider.MembraneClientDataProvider;
-import com.bornium.security.oauth2openid.provider.MembraneSessionProvider;
-import com.bornium.security.oauth2openid.provider.MembraneTokenPersistenceProvider;
-import com.bornium.security.oauth2openid.provider.MembraneUserDataProvider;
+import com.bornium.security.oauth2openid.provider.*;
 import com.bornium.security.oauth2openid.providers.*;
+import com.bornium.security.oauth2openid.server.EndpointFactory;
 import com.bornium.security.oauth2openid.server.ProvidedServices;
-import com.bornium.security.oauth2openid.token.BearerTokenProvider;
-
-import java.util.HashSet;
-import java.util.Set;
+import com.bornium.impl.LoginEndpoint;
+import com.bornium.impl.BearerTokenProvider;
 
 /**
  * Created by Xorpherion on 25.01.2017.
@@ -17,6 +13,10 @@ import java.util.Set;
 public class MembraneServerFunctionality implements ProvidedServices {
 
     private final String issuer;
+    private final MembraneGrantContextProvider grantContextDaoProvider;
+    private final MembraneConsentProvider consentProvider;
+    private final MembraneConfigProvider membraneConfigProvider;
+    private final MembraneAuthenticationProvider membraneAuthenticationProvider;
     MembraneSessionProvider sessionProvider;
     MembraneClientDataProvider clientDataProvider;
     MembraneUserDataProvider userDataProvider;
@@ -24,14 +24,34 @@ public class MembraneServerFunctionality implements ProvidedServices {
     TimingProvider timingProvider;
     TokenProvider tokenProvider;
 
+
     public MembraneServerFunctionality(String issuer) {
-        sessionProvider = new MembraneSessionProvider("SC_ID");
-        clientDataProvider = new MembraneClientDataProvider();
-        userDataProvider = new MembraneUserDataProvider();
-        tokenPersistenceProvider = new MembraneTokenPersistenceProvider();
-        timingProvider = new DefaultTimingProvider();
-        tokenProvider = new BearerTokenProvider();
+        this(issuer,new MembraneGrantContextProvider(), new MembraneConsentProvider(),new MembraneConfigProvider(), new MembraneSessionProvider("SC_ID"), new MembraneClientDataProvider(), new MembraneUserDataProvider(), new MembraneTokenPersistenceProvider(), new DefaultTimingProvider(), new BearerTokenProvider(), new MembraneAuthenticationProvider());
+    }
+
+    public MembraneServerFunctionality(String issuer, MembraneGrantContextProvider grantContextDaoProvider, MembraneConsentProvider consentProvider, MembraneConfigProvider membraneConfigProvider, MembraneSessionProvider sessionProvider, MembraneClientDataProvider clientDataProvider, MembraneUserDataProvider userDataProvider, MembraneTokenPersistenceProvider tokenPersistenceProvider, TimingProvider timingProvider, TokenProvider tokenProvider, MembraneAuthenticationProvider membraneAuthenticationProvider) {
         this.issuer = issuer;
+        this.grantContextDaoProvider = grantContextDaoProvider;
+        this.consentProvider = consentProvider;
+        this.membraneConfigProvider = membraneConfigProvider;
+        this.sessionProvider = sessionProvider;
+        this.clientDataProvider = clientDataProvider;
+        this.userDataProvider = userDataProvider;
+        this.tokenPersistenceProvider = tokenPersistenceProvider;
+        this.timingProvider = timingProvider;
+        this.tokenProvider = tokenProvider;
+        this.membraneAuthenticationProvider = membraneAuthenticationProvider;
+
+    }
+
+    @Override
+    public ConsentProvider getConsentProvider() {
+        return consentProvider;
+    }
+
+    @Override
+    public GrantContextProvider getGrantContextProvider() {
+        return grantContextDaoProvider;
     }
 
     @Override
@@ -66,19 +86,12 @@ public class MembraneServerFunctionality implements ProvidedServices {
 
     @Override
     public ConfigProvider getConfigProvider() {
-        return null;
+        return membraneConfigProvider;
     }
 
     @Override
     public String getIssuer() {
         return issuer;
-    }
-
-    @Override
-    public Set<String> getSupportedClaims() {
-        HashSet<String> result = new HashSet<>();
-        result.add(ConstantsTest.CUSTOM_CLAIM_NAME);
-        return result;
     }
 
     @Override
@@ -89,5 +102,15 @@ public class MembraneServerFunctionality implements ProvidedServices {
     @Override
     public String getSubClaimName() {
         return "username";
+    }
+
+    @Override
+    public EndpointFactory getEndpointFactory() {
+        return serverServices -> new LoginEndpoint(serverServices);
+    }
+
+    @Override
+    public AuthenticationProvider getAuthenticationProvider() {
+        return membraneAuthenticationProvider;
     }
 }

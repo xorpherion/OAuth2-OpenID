@@ -2,8 +2,9 @@ package com.bornium.security.oauth2openid.responsegenerators;
 
 import com.bornium.http.Exchange;
 import com.bornium.security.oauth2openid.Constants;
+import com.bornium.security.oauth2openid.providers.GrantContext;
 import com.bornium.security.oauth2openid.providers.Session;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.bornium.security.oauth2openid.token.CombinedTokenManager;
 
 import java.util.HashMap;
@@ -16,13 +17,13 @@ import java.util.regex.Pattern;
 public abstract class ResponseGenerator {
 
     private final String[] responseTypes;
-    private final ServerServices serverServices;
-    private final Exchange exc;
+    private final AuthorizationServer serverServices;
+    private final GrantContext ctx;
 
-    public ResponseGenerator(ServerServices serverServices, Exchange exc, String... responseTypes) {
+    public ResponseGenerator(AuthorizationServer serverServices, GrantContext ctx, String... responseTypes) {
         this.responseTypes = responseTypes;
         this.serverServices = serverServices;
-        this.exc = exc;
+        this.ctx = ctx;
     }
 
     public boolean isMyResponseType(String askedResponseType) throws Exception {
@@ -52,19 +53,15 @@ public abstract class ResponseGenerator {
         return getServerServices().getTokenManager();
     }
 
-    protected Session getSession() {
-        return serverServices.getProvidedServices().getSessionProvider().getSession(exc);
+    protected GrantContext getCtx() {
+        return ctx;
     }
 
     public String[] getResponseType() {
         return responseTypes;
     }
 
-    public ServerServices getServerServices() {
+    public AuthorizationServer getServerServices() {
         return serverServices;
-    }
-
-    public Exchange getExc() {
-        return exc;
     }
 }

@@ -1,4 +1,4 @@
-package com.bornium.security.oauth2openid.token;
+package com.bornium.impl;
 
 import com.bornium.security.oauth2openid.providers.TokenProvider;
 import com.bornium.security.oauth2openid.server.TokenContext;

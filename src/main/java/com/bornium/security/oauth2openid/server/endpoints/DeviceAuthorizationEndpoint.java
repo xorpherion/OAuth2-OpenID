@@ -6,20 +6,26 @@ import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.User;
 import com.bornium.security.oauth2openid.Util;
+import com.bornium.security.oauth2openid.providers.GrantContext;
 import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.responsegenerators.DeviceAuthorizationResponseGenerator;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
 
 import java.util.Map;
 
 public class DeviceAuthorizationEndpoint extends Endpoint {
 
-    public DeviceAuthorizationEndpoint(ServerServices serverServices) {
+    public DeviceAuthorizationEndpoint(AuthorizationServer serverServices) {
         super(serverServices, Constants.ENDPOINT_DEVICE_AUTHORIZATION);
     }
 
     @Override
     public void invokeOn(Exchange exc) throws Exception {
+        if(!serverServices.getProvidedServices().getConfigProvider().getActiveGrantsConfiguration().isDeviceAuthorization()){
+            exc.setResponse(answerWithError(400, Constants.ERROR_UNSUPPORTED_GRANT_TYPE));
+            return;
+        }
+
         if (exc.getRequest().getMethod() != Method.POST) {
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
             return;
@@ -38,10 +44,10 @@ public class DeviceAuthorizationEndpoint extends Endpoint {
                 clientId = null;
             }
         }
-        Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);
 
+        GrantContext ctx = serverServices.getProvidedServices().getGrantContextProvider().findByIdOrCreate(""); //TODO
 
         if (clientId == null)
             clientId = params.get(Constants.PARAMETER_CLIENT_ID);
@@ -60,25 +66,35 @@ public class DeviceAuthorizationEndpoint extends Endpoint {
             exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
             return;
         }
-        session.putValue(Constants.PARAMETER_CLIENT_ID, clientId);
+        ctx.putValue(Constants.PARAMETER_CLIENT_ID, clientId);
 
         if (!serverServices.getSupportedScopes().scopesSupported(params.get(Constants.PARAMETER_SCOPE))) {
             log.debug("Scope ('" + params.get(Constants.PARAMETER_SCOPE) + "') not supported.");
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_SCOPE));
             return;
         }
-        session.putValue(Constants.PARAMETER_SCOPE, params.get(Constants.PARAMETER_SCOPE));
+        ctx.putValue(Constants.PARAMETER_SCOPE, params.get(Constants.PARAMETER_SCOPE));
 
-        Map<String, String> responseBody = new DeviceAuthorizationResponseGenerator(serverServices, exc).invokeResponse();
+        Map<String, String> responseBody = new DeviceAuthorizationResponseGenerator(serverServices, ctx).invokeResponse();
+        copyResponseIntoContext(ctx, responseBody);
+
+        ctx.setIdentifier(responseBody.get(Constants.PARAMETER_DEVICE_CODE));
+        serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
+
+        GrantContext deepCopyForUserCode = serverServices.getProvidedServices().getGrantContextProvider().deepCopy(ctx);
+        deepCopyForUserCode.setIdentifier(responseBody.get(Constants.PARAMETER_USER_CODE));
+        serverServices.getProvidedServices().getGrantContextProvider().persist(deepCopyForUserCode);
+
         exc.setResponse(okWithJSONBody(responseBody));
     }
 
-    @Override
-    public String getScope(Exchange exc) throws Exception {
-        Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
-        params = Parameters.stripEmptyParams(params);
-        if (!params.isEmpty() && params.get(Constants.PARAMETER_SCOPE) != null)
-            return params.get(Constants.PARAMETER_SCOPE);
-        return serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_SCOPE);
+    private void copyResponseIntoContext(GrantContext ctx, Map<String, String> responseBody) {
+        responseBody.entrySet().stream().forEach(e -> {
+            try {
+                ctx.putValue(e.getKey(),String.valueOf(e.getValue()));
+            } catch (Exception exception) {
+                throw new RuntimeException(exception);
+            }
+        });
     }
 }

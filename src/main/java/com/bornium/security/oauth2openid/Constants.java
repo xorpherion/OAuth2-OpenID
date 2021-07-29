@@ -104,7 +104,6 @@ public class Constants {
 
     //Session names
     public static final String SESSION_LOGGED_IN = "logged_in";
-    public static final String SESSION_CONSENT_GIVEN = "consent_given";
     public static final String SESSION_LOGIN_STATE = "login_state";
     public static final String SESSION_REDIRECT_FROM_ERROR = "redirect_from_error";
     public static final String SESSION_AUTHORIZATION_CODE = "authorization_code";
@@ -179,4 +178,5 @@ public class Constants {
 
 
     public static final String CONTEXT_PATH = "context-path";
+    public static final String GRANT_CONTEXT_ID = "grant_context_id";
 }

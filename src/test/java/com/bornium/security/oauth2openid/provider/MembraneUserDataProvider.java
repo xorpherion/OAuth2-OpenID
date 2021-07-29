@@ -1,9 +1,13 @@
 package com.bornium.security.oauth2openid.provider;
 
+import com.bornium.http.Exchange;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.ConstantsTest;
 import com.bornium.security.oauth2openid.UserMembrane;
 import com.bornium.security.oauth2openid.UtilMembrane;
+import com.bornium.security.oauth2openid.providers.GrantContext;
+import com.bornium.security.oauth2openid.providers.Session;
+import com.bornium.security.oauth2openid.providers.SessionProvider;
 import com.bornium.security.oauth2openid.providers.UserDataProvider;
 
 import java.util.HashMap;
@@ -28,7 +32,6 @@ public class MembraneUserDataProvider implements UserDataProvider {
             return false;
         UserMembrane user = users.get(username);
         return password.equals(user.getPassword());
-
     }
 
     @Override
@@ -45,11 +48,5 @@ public class MembraneUserDataProvider implements UserDataProvider {
         if (!users.containsKey(username))
             return "N/A";
         return users.get(username).getClaims().get(Constants.CLAIM_SUB);
-    }
-
-    @Override
-    public void badLogin(String username) {
-        if (users.containsKey(username))
-            System.out.println("Bad login for " + username + ". Sending email to user.");
     }
 }

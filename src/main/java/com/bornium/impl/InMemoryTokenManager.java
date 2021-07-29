@@ -1,4 +1,7 @@
-package com.bornium.security.oauth2openid.token;
+package com.bornium.impl;
+
+import com.bornium.security.oauth2openid.token.Token;
+import com.bornium.security.oauth2openid.token.TokenManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;

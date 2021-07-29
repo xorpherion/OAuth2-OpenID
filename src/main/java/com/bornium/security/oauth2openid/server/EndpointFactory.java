@@ -5,5 +5,5 @@ import com.bornium.security.oauth2openid.server.endpoints.Endpoint;
 import java.util.List;
 
 public interface EndpointFactory {
-    List<Endpoint> createEndpoints(ServerServices serverServices);
+    Endpoint createLogin(AuthorizationServer serverServices);
 }

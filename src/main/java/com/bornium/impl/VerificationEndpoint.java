@@ -1,4 +1,4 @@
-package com.bornium.security.oauth2openid.server.endpoints;
+package com.bornium.impl;
 
 import com.bornium.http.Exchange;
 import com.bornium.http.Method;
@@ -7,8 +7,10 @@ import com.bornium.http.ResponseBuilder;
 import com.bornium.http.util.BodyUtil;
 import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
+import com.bornium.security.oauth2openid.providers.GrantContext;
 import com.bornium.security.oauth2openid.providers.Session;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
+import com.bornium.security.oauth2openid.server.endpoints.Endpoint;
 import com.bornium.security.oauth2openid.token.CombinedTokenManager;
 import com.bornium.security.oauth2openid.token.Token;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -22,12 +24,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class VerificationEndpoint extends Endpoint {
-    public VerificationEndpoint(ServerServices serverServices) {
+    public VerificationEndpoint(AuthorizationServer serverServices) {
         super(serverServices, Constants.ENDPOINT_VERIFICATION);
     }
 
     @Override
     public void invokeOn(Exchange exc) throws Exception {
+        if(!serverServices.getProvidedServices().getConfigProvider().getActiveGrantsConfiguration().isDeviceAuthorization()){
+            exc.setResponse(answerWithError(400, Constants.ERROR_UNSUPPORTED_GRANT_TYPE));
+            return;
+        }
+
         Session session = serverServices.getProvidedServices().getSessionProvider().getSession(exc);
         CombinedTokenManager tokenManager = serverServices.getTokenManager();
 
@@ -35,14 +42,20 @@ public class VerificationEndpoint extends Endpoint {
             Map<String, String> params = getParams(exc);
 
             String userCode = params.get(Constants.PARAMETER_USER_CODE);
+            GrantContext ctx = getContextFromUserCodeOrGrantContextIdOrDefault(params, userCode);
 
-            if (requireLogin(exc, session, userCode))
+            if(ctx.getIdentifier() == null)
+                ctx.setIdentifier(loginStateProvider.get(null));
+
+
+
+            if (requireLogin(exc,session, ctx, userCode))
                 return;
 
             if (userCode == null) {
-                userCode = session.getValue(Constants.PARAMETER_USER_CODE);
+                userCode = ctx.getValue(Constants.PARAMETER_USER_CODE);
                 if (userCode != null)
-                    session.removeValue(Constants.PARAMETER_USER_CODE);
+                    ctx.removeValue(Constants.PARAMETER_USER_CODE);
             }
 
             if (userCode != null) {
@@ -60,10 +73,12 @@ public class VerificationEndpoint extends Endpoint {
         Map<String, String> params = BodyUtil.bodyToParams(exc.getRequest().getBody());
 
         String userCode = params.get("user_code");
+        GrantContext ctx = getContextFromUserCodeOrGrantContextIdOrDefault(params, userCode);
+
         if (userCode != null)
             userCode = UriUtil.decode(userCode);
 
-        if (requireLogin(exc, session, userCode))
+        if (requireLogin(exc, session,ctx, userCode))
             return;
 
         Token userToken = tokenManager.getUserCodes().getToken(userCode);
@@ -92,7 +107,7 @@ public class VerificationEndpoint extends Endpoint {
             if (consent != null)
                 userToken.revokeCascade();
 
-            HashMap<String, String> jsParams = prepareJsStateParameter(session);
+            HashMap<String, String> jsParams = prepareJsStateParameter(ctx);
             if (userCode != null)
                 jsParams.put(Constants.PARAMETER_USER_CODE, userCode);
             exc.setResponse(redirectToSelf(jsParams));
@@ -110,7 +125,7 @@ public class VerificationEndpoint extends Endpoint {
         Token deviceToken = tokenManager.getDeviceCodes().getToken("pre:" + userToken.getUsername());
         String deviceCode = deviceToken.getValue().replaceFirst("^pre:", "");
         
-        String username = session.getValue(Constants.LOGIN_USERNAME);
+        String username = ctx.getValue(Constants.LOGIN_USERNAME);
         String clientId = deviceToken.getClientId();
 
         tokenManager.addTokenToManager(tokenManager.getDeviceCodes(),
@@ -120,18 +135,40 @@ public class VerificationEndpoint extends Endpoint {
         deviceToken.incrementUsage();
 
         exc.setResponse(sendSuccesspage());
+        serverServices.getProvidedServices().getGrantContextProvider().invalidationHint(ctx.getIdentifier());
 
-        session.removeValue(Constants.PARAMETER_USER_CODE);
+        ctx.removeValue(Constants.PARAMETER_USER_CODE);
     }
 
-    private boolean requireLogin(Exchange exc, Session session, String userCode) throws Exception {
-        if (isLoggedIn(exc))
+    private GrantContext getContextFromUserCodeOrGrantContextIdOrDefault(Map<String, String> params, String userCode) {
+        return serverServices.getProvidedServices().getGrantContextProvider().findById(userCode)
+                .orElseGet(() -> serverServices.getProvidedServices().getGrantContextProvider().findByIdOrCreate(params.get(Constants.GRANT_CONTEXT_ID)));
+    }
+
+    private boolean requireLogin(Exchange exc, Session session, GrantContext ctx, String userCode) throws Exception {
+        if (isLoggedIn(session))
             return false;
 
-        session.putValue(Constants.PARAMETER_USER_CODE, userCode == null ? "" : userCode);
+        ctx.putValue(Constants.PARAMETER_USER_CODE, userCode == null ? "" : userCode);
+        HashMap<String, String> jsParams = prepareJsStateParameter(ctx);
+        jsParams.put(Constants.GRANT_CONTEXT_ID, ctx.getIdentifier());
+        serverServices.getProvidedServices().getGrantContextProvider().persist(ctx);
 
-        HashMap<String, String> jsParams = prepareJsStateParameter(session);
-        exc.setResponse(redirectToLogin(jsParams));
+        serverServices.getProvidedServices().getAuthenticationProvider().initiateAuthenticationAndConsent(ctx.getIdentifier(),true, exc,serverServices, loginResult -> {
+            try {
+                GrantContext context = serverServices.getProvidedServices().getGrantContextProvider().findById(ctx.getIdentifier()).get();
+                HashMap<String, String> result = new HashMap<>(prepareJsStateParameter(context));
+                result.put(Constants.PARAMETER_USER_CODE, context.getValue(Constants.PARAMETER_USER_CODE));
+                result.put(Constants.GRANT_CONTEXT_ID, context.getIdentifier());
+
+                result.entrySet().stream().forEach(e -> context.putValue(e.getKey(),e.getValue()));
+                serverServices.getProvidedServices().getGrantContextProvider().persist(context);
+
+                loginResult.getCurrentRunningExchange().setResponse(redirectToUrl(serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_VERIFICATION + "?" + Constants.GRANT_CONTEXT_ID + "=" + result.get(Constants.GRANT_CONTEXT_ID) + "#params=" + prepareJSParams(result), null));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
         return true;
     }
 
@@ -170,10 +207,5 @@ public class VerificationEndpoint extends Endpoint {
 
     protected Response redirectToSelf(Map<String, String> params) throws UnsupportedEncodingException, JsonProcessingException {
         return redirectToUrl(serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_VERIFICATION + "#params=" + prepareJSParams(params), null);
-    }
-
-    @Override
-    public String getScope(Exchange exc) throws Exception {
-        return null;
     }
 }

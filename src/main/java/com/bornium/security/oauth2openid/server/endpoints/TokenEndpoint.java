@@ -6,13 +6,12 @@ import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.User;
 import com.bornium.security.oauth2openid.Util;
 import com.bornium.security.oauth2openid.providers.ConfigProvider;
+import com.bornium.security.oauth2openid.providers.GrantContext;
 import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.responsegenerators.CombinedResponseGenerator;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.bornium.security.oauth2openid.server.TokenContext;
 import com.bornium.security.oauth2openid.token.Token;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -27,7 +26,7 @@ import java.util.stream.Stream;
 public class TokenEndpoint extends Endpoint {
     private final ConfigProvider configProvider;
 
-    public TokenEndpoint(ServerServices serverServices) {
+    public TokenEndpoint(AuthorizationServer serverServices) {
         super(serverServices, Constants.ENDPOINT_TOKEN);
 
         configProvider = serverServices.getProvidedServices().getConfigProvider();
@@ -54,6 +53,7 @@ public class TokenEndpoint extends Endpoint {
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);
 
+        GrantContext ctx = serverServices.getProvidedServices().getGrantContextProvider().findByIdOrCreate(params.get(Constants.PARAMETER_CODE));
 
         if (clientId == null)
             clientId = params.get(Constants.PARAMETER_CLIENT_ID);
@@ -67,7 +67,7 @@ public class TokenEndpoint extends Endpoint {
             exc.setResponse(answerWithError(401, Constants.ERROR_ACCESS_DENIED));
             return;
         }
-        session.putValue(Constants.PARAMETER_CLIENT_ID, clientId);
+        ctx.putValue(Constants.PARAMETER_CLIENT_ID, clientId);
 
         if (params.get(Constants.PARAMETER_GRANT_TYPE) == null) {
             log.debug("Parameter 'grant_type' missing.");
@@ -81,7 +81,7 @@ public class TokenEndpoint extends Endpoint {
             exc.setResponse(answerWithError(400, Constants.ERROR_UNSUPPORTED_GRANT_TYPE));
             return;
         }
-        session.putValue(Constants.PARAMETER_GRANT_TYPE, grantType);
+        ctx.putValue(Constants.PARAMETER_GRANT_TYPE, grantType);
 
         if(grantType.equals(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE)) {
             String code = params.get("code");
@@ -146,10 +146,8 @@ public class TokenEndpoint extends Endpoint {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
-
-            session.putValue(Constants.LOGIN_USERNAME, token.getUsername());
-
-            params.put(Constants.PARAMETER_SCOPE, token.getScope());
+            ctx = serverServices.getProvidedServices().getGrantContextProvider().findById(token.getValue()).get();
+            params.put(Constants.PARAMETER_SCOPE, ctx.getValue(Constants.PARAMETER_SCOPE));
         }
 
         String scopes = params.get(Constants.PARAMETER_SCOPE);
@@ -168,7 +166,7 @@ public class TokenEndpoint extends Endpoint {
             exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_SCOPE));
             return;
         }
-        session.putValue(Constants.PARAMETER_SCOPE, scopes);
+        ctx.putValue(Constants.PARAMETER_SCOPE, scopes);
 
         if (grantType.equals(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE)) {
             Token token = serverServices.getTokenManager().getAuthorizationCodes().getToken(params.get(Constants.PARAMETER_CODE));
@@ -211,7 +209,7 @@ public class TokenEndpoint extends Endpoint {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_REQUEST));
                 return;
             }
-            session.putValue(Constants.SESSION_AUTHORIZATION_CODE, code);
+            ctx.putValue(Constants.SESSION_AUTHORIZATION_CODE, code);
 
 
         }
@@ -277,31 +275,34 @@ public class TokenEndpoint extends Endpoint {
                 exc.setResponse(answerWithError(400, Constants.ERROR_INVALID_GRANT));
                 return;
             }
-            session.putValue(Constants.PARAMETER_REFRESH_TOKEN, refreshToken);
+            ctx.putValue(Constants.PARAMETER_REFRESH_TOKEN, refreshToken);
         }
 
 
         // request is now valid
 
-        Map<String, String> finalParams = params;
+        copyParamsIntoContext(params, ctx);
+
+        //log.info("Valid Token Request");
+        ctx.putValue(Constants.SESSION_ENDPOINT, Constants.ENDPOINT_TOKEN);
+
+        String response = Constants.TOKEN_TYPE_TOKEN;
+        if (hasOpenIdScope(ctx))
+            response += " " + Constants.TOKEN_TYPE_ID_TOKEN;
+        ctx.putValue(Constants.PARAMETER_RESPONSE_TYPE, response);
+
+        Map<String, String> responseBody = new CombinedResponseGenerator(serverServices, ctx).invokeResponse(response);
+        exc.setResponse(okWithJSONBody(responseBody));
+    }
+
+    private void copyParamsIntoContext(Map<String, String> params, GrantContext ctx) {
         params.keySet().stream().forEach(key -> {
             try {
-                session.putValue(key, finalParams.get(key));
+                ctx.putValue(key, params.get(key));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
-
-        //log.info("Valid Token Request");
-        session.putValue(Constants.SESSION_ENDPOINT, Constants.ENDPOINT_TOKEN);
-
-        String response = Constants.TOKEN_TYPE_TOKEN;
-        if (hasOpenIdScope(exc) && session.getValue(Constants.PARAMETER_SCOPE).contains(Constants.SCOPE_OPENID))
-            response += " " + Constants.TOKEN_TYPE_ID_TOKEN;
-        session.putValue(Constants.PARAMETER_RESPONSE_TYPE, response);
-
-        Map<String, String> responseBody = new CombinedResponseGenerator(serverServices, exc).invokeResponse(response);
-        exc.setResponse(okWithJSONBody(responseBody));
     }
 
     private boolean scopeIsSuperior(String oldScope, String newScope) {
@@ -318,17 +319,17 @@ public class TokenEndpoint extends Endpoint {
     }
 
     private boolean grantTypeIsSupported(String grantType) {
-        HashSet<String> supportedGrantTypes = new HashSet<String>();
-        supportedGrantTypes.add(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE);
-        supportedGrantTypes.add(Constants.PARAMETER_VALUE_PASSWORD);
-        supportedGrantTypes.add(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS);
-        supportedGrantTypes.add(Constants.PARAMETER_VALUE_REFRESH_TOKEN);
-        supportedGrantTypes.add(Constants.PARAMETER_VALUE_DEVICE_CODE);
+        HashSet<String> supportedGrantTypes = new HashSet<>();
+        if(configProvider.getActiveGrantsConfiguration().isAuthorizationCode())
+            supportedGrantTypes.add(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE);
+        if(configProvider.getActiveGrantsConfiguration().isResourceOwnerPasswordCredentials())
+            supportedGrantTypes.add(Constants.PARAMETER_VALUE_PASSWORD);
+        if(configProvider.getActiveGrantsConfiguration().isClientCredentials())
+            supportedGrantTypes.add(Constants.PARAMETER_VALUE_CLIENT_CREDENTIALS);
+        if(configProvider.getActiveGrantsConfiguration().isRefreshToken())
+            supportedGrantTypes.add(Constants.PARAMETER_VALUE_REFRESH_TOKEN);
+        if(configProvider.getActiveGrantsConfiguration().isDeviceAuthorization())
+            supportedGrantTypes.add(Constants.PARAMETER_VALUE_DEVICE_CODE);
         return supportedGrantTypes.contains(grantType);
-    }
-
-    @Override
-    public String getScope(Exchange exc) throws Exception {
-        return serverServices.getProvidedServices().getSessionProvider().getSession(exc).getValue(Constants.PARAMETER_SCOPE);
     }
 }

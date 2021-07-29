@@ -129,7 +129,7 @@ public class Common {
         return builder.buildExchange();
     }
 
-    public static Exchange createDeviceVerificationRequest(String uri, String cookie, String userCode, String consent, String scope) throws URISyntaxException, UnsupportedEncodingException {
+    public static Exchange createDeviceVerificationRequest(String uri, String cookie, String userCode, String consent, String scope, String grantContext) throws URISyntaxException, UnsupportedEncodingException {
         boolean isPost = userCode != null || consent != null || scope != null;
         RequestBuilder builder = new RequestBuilder().uri(uri).method(isPost ? Method.POST : Method.GET);
         if (cookie != null)
@@ -142,6 +142,8 @@ public class Common {
                 body.put("consent", consent);
             if (scope != null)
                 body.put("scope", scope);
+//            if(grantContext != null)
+//                body.put(Constants.GRANT_CONTEXT_ID, grantContext);
             builder = builder.body(UriUtil.parametersToQuery(body));
         }
         return builder.buildExchange();
@@ -171,21 +173,23 @@ public class Common {
         return new ObjectMapper().readValue(params, Map.class);
     }
 
-    public static Exchange createLoginRequest(String username, String password, String state, String cookie) throws URISyntaxException {
+    public static Exchange createLoginRequest(String username, String password, String state, String cookie, String grantContextId) throws URISyntaxException {
         Map<String, String> params = Parameters.createParams(
                 Constants.LOGIN_USERNAME, username,
                 Constants.LOGIN_PASSWORD, password,
-                Constants.SESSION_LOGIN_STATE, state
+                Constants.SESSION_LOGIN_STATE, state,
+                Constants.GRANT_CONTEXT_ID, grantContextId
         );
         params = Parameters.stripEmptyParams(params);
 
         return new RequestBuilder().uri(ConstantsTest.SERVER_LOGIN_ENDPOINT).body(UriUtil.parametersToQuery(params)).method(Method.POST).header(Constants.HEADER_COOKIE, cookie).buildExchange();
     }
 
-    public static Exchange createConsentRequest(String consent, String state, String cookie) throws URISyntaxException {
+    public static Exchange createConsentRequest(String consent, String state, String cookie, String grantContextId) throws URISyntaxException {
         Map<String, String> params = Parameters.createParams(
                 Constants.LOGIN_CONSENT, consent,
-                Constants.SESSION_LOGIN_STATE, state
+                Constants.SESSION_LOGIN_STATE, state,
+                Constants.GRANT_CONTEXT_ID, grantContextId
         );
         params = Parameters.stripEmptyParams(params);
 
@@ -202,8 +206,8 @@ public class Common {
         return exc.getRequest().getHeader().getValue(Constants.HEADER_COOKIE);
     }
 
-    public static Exchange createPostLoginRequest(String cookie) throws URISyntaxException {
-        return new RequestBuilder().uri(ConstantsTest.SERVER_AFTER_LOGIN_ENDPOINT).method(Method.POST).header(Constants.HEADER_COOKIE, cookie).buildExchange();
+    public static Exchange createPostLoginRequest(String cookie, String location) throws URISyntaxException {
+        return new RequestBuilder().uri(ConstantsTest.URL_AUTHORIZATION_SERVER + location).method(Method.POST).header(Constants.HEADER_COOKIE, cookie).buildExchange();
     }
 
     public static Exchange preStepAndTokenRequest(Supplier<Exchange> preStep, String grantType, String redirectUri, String scope, String clientId, String clientSecret, String username, String password, String deviceCode) throws Exception {

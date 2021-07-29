@@ -6,7 +6,7 @@ import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.User;
 import com.bornium.security.oauth2openid.Util;
-import com.bornium.security.oauth2openid.server.ServerServices;
+import com.bornium.security.oauth2openid.server.AuthorizationServer;
 import com.bornium.security.oauth2openid.token.Token;
 
 import java.util.Map;
@@ -15,12 +15,17 @@ import java.util.Map;
  * Created by Xorpherion on 07.02.2017.
  */
 public class RevocationEndpoint extends Endpoint {
-    public RevocationEndpoint(ServerServices serverServices) {
+    public RevocationEndpoint(AuthorizationServer serverServices) {
         super(serverServices, Constants.ENDPOINT_REVOCATION);
     }
 
     @Override
     public void invokeOn(Exchange exc) throws Exception {
+        if(!serverServices.getProvidedServices().getConfigProvider().getActiveGrantsConfiguration().isRevocation()){
+            exc.setResponse(answerWithError(400, Constants.ERROR_REQUEST_NOT_SUPPORTED));
+            return;
+        }
+
         Map<String, String> params = UriUtil.queryToParameters(exc.getRequest().getBody());
         params = Parameters.stripEmptyParams(params);
 
@@ -73,10 +78,5 @@ public class RevocationEndpoint extends Endpoint {
         token.revokeCascade();
 
         exc.setResponse(new ResponseBuilder().statuscode(200).build());
-    }
-
-    @Override
-    public String getScope(Exchange exc) throws Exception {
-        return null;
     }
 }

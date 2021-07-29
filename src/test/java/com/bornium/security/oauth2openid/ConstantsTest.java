@@ -4,7 +4,7 @@ package com.bornium.security.oauth2openid;
  * Created by Xorpherion on 25.01.2017.
  */
 public class ConstantsTest {
-    public static final String PROTOCOL = "https";
+    public static final String PROTOCOL = "http";
     public static final String HOST_LOCALHOST = PROTOCOL + "://localhost";
 
     public static final String HOST_AUTHORIZATION_SERVER = HOST_LOCALHOST;
@@ -29,7 +29,7 @@ public class ConstantsTest {
     public static final String CLIENT_DEFAULT_ID2 = "cid_456";
     public static final String CLIENT_DEFAULT_SECRET2 = "secret";
     public static final String CLIENT_DEFAULT_SCOPE = "profile phone";
-    public static final String CLIENT_DEFAULT_SCOPE_OPENID = "openid profile phone";
+    public static final String CLIENT_DEFAULT_SCOPE_OPENID = "openid " + CLIENT_DEFAULT_SCOPE;
     public static final String CLIENT_DEFAULT_STATE = "totallyRandomStateValue";
     public static final String CLIENT_DEFAULT_NONCE = "totallyRandomNonceValue";
 

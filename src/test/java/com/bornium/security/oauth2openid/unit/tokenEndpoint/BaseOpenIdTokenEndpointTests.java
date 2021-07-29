@@ -84,6 +84,10 @@ public abstract class BaseOpenIdTokenEndpointTests<T extends BaseOpenIdAuthoriza
     }
 
     @Test
+    public void goodRequestTest() throws Exception {
+        goodRequest();
+    }
+
     public Exchange goodRequest() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {

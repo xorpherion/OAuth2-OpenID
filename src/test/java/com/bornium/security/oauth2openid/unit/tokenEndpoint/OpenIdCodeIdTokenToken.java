@@ -28,11 +28,11 @@ public class OpenIdCodeIdTokenToken extends BaseOpenIdTokenEndpointTests<com.bor
             @Override
             public void accept(Exchange exc) {
                 try {
-                    String jwk = server.getServerServices().getTokenManager().getJwk();
+                    String jwk = server.getTokenManager().getJwk();
                     IdTokenVerifier verifier = new IdTokenVerifier(jwk);
                     String idToken = Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ID_TOKEN);
                     String accessToken = Common.getBodyParamsFromResponse(exc).get(Constants.PARAMETER_ACCESS_TOKEN);
-                    Map<String, String> claims = verifier.verifyAndGetClaims(idToken, server.getServerServices().getProvidedServices().getIssuer(), getClientId());
+                    Map<String, String> claims = verifier.verifyAndGetClaims(idToken, server.getProvidedServices().getIssuer(), getClientId());
 
                     assertEquals(ConstantsTest.CLIENT_DEFAULT_NONCE, claims.get(Constants.PARAMETER_NONCE));
                     assertEquals(Util.halfHashFromValue(Constants.ALG_SHA_256, accessToken), claims.get(Constants.CLAIM_AT_HASH));

@@ -41,6 +41,8 @@
                 }
                 if(params.user_code)
                     document.getElementById("user_code").value = params.user_code;
+                if(params.grant_context_id)
+                    document.getElementById("grant_context_id").value = params.grant_context_id;
             }
         });
 
@@ -62,6 +64,7 @@
         <input id="user_code" type="text" name="user_code">
         <input id="scope" type="hidden" name="scope">
         <input id="consent" type="hidden" name="consent">
+        <input id="grant_context_id" type="hidden" name="grant_context_id">
     </form>
 </div>
 </body>

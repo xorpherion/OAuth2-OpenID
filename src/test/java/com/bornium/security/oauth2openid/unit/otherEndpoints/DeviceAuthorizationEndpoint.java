@@ -39,6 +39,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceAuthRequestTest() throws Exception {
+        goodDeviceAuthRequest();
+    }
+
     public Exchange goodDeviceAuthRequest() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -174,13 +178,17 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodCompleteVerificationRequestTest() throws Exception {
+        goodCompleteVerificationRequest();
+    }
+
     public Exchange goodCompleteVerificationRequest() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodDeviceAuthRequest();
                         Map<String, String> deviceAuthResonseParams = Common.getBodyParamsFromResponse(exc);
-                        return piggyBack(exc, Common.createDeviceVerificationRequest(deviceAuthResonseParams.get(Constants.PARAMETER_VERIFICATION_URI_COMPLETE), null, null, null, null));
+                        return piggyBack(exc, Common.createDeviceVerificationRequest(deviceAuthResonseParams.get(Constants.PARAMETER_VERIFICATION_URI_COMPLETE), null, null, null, null, deviceAuthResonseParams.get(Constants.PARAMETER_DEVICE_CODE)));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -195,13 +203,17 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodVerificationRequestTest() throws Exception {
+        goodVerificationRequest();
+    }
+
     public Exchange goodVerificationRequest() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodDeviceAuthRequest();
                         Map<String, String> deviceAuthResonseParams = Common.getBodyParamsFromResponse(exc);
-                        return piggyBack(exc, Common.createDeviceVerificationRequest(deviceAuthResonseParams.get(Constants.PARAMETER_VERIFICATION_URI), null, null, null, null));
+                        return piggyBack(exc, Common.createDeviceVerificationRequest(deviceAuthResonseParams.get(Constants.PARAMETER_VERIFICATION_URI), null, null, null, null,deviceAuthResonseParams.get(Constants.PARAMETER_DEVICE_CODE)));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -216,13 +228,17 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodLoginAfterCompleteVerificationTest() throws Exception {
+        goodLoginAfterCompleteVerification();
+    }
+
     public Exchange goodLoginAfterCompleteVerification() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodCompleteVerificationRequest();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return piggyBack(exc, Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc)));
+                        return piggyBack(exc, Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID)));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -237,13 +253,17 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodLoginAfterVerificationTest() throws Exception {
+        goodLoginAfterVerification();
+    }
+
     public Exchange goodLoginAfterVerification() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodVerificationRequest();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return piggyBack(exc, Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc)));
+                        return piggyBack(exc, Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.SESSION_LOGIN_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID)));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -258,13 +278,18 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceCompleteVerificationOpenFormTest() throws Exception {
+        goodDeviceCompleteVerificationOpenForm();
+    }
+
     public Exchange goodDeviceCompleteVerificationOpenForm() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodLoginAfterCompleteVerification();
+                        Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                         String newLocation = exc.getResponse().getHeader().getValue(Header.LOCATION);
-                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), null, null, null));
+                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), null, null, null,loginParams.get(Constants.PARAMETER_DEVICE_CODE)));
 
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
@@ -282,6 +307,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceCompleteVerificationAckUserCodeTest() throws Exception {
+        goodDeviceCompleteVerificationAckUserCode();
+    }
+
     public Exchange goodDeviceCompleteVerificationAckUserCode() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -289,7 +318,7 @@ public class DeviceAuthorizationEndpoint {
                         Exchange exc = goodDeviceCompleteVerificationOpenForm();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                         String newLocation = exc.getResponse().getHeader().getValue(Header.LOCATION);
-                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), loginParams.get("user_code"), "yes", loginParams.get("scope")));
+                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), loginParams.get("user_code"), "yes", loginParams.get("scope"),loginParams.get(Constants.PARAMETER_DEVICE_CODE)));
 
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
@@ -307,6 +336,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceVerificationWithGoodUserCodeTest() throws Exception {
+        goodDeviceVerificationWithGoodUserCode();
+    }
+
     public Exchange goodDeviceVerificationWithGoodUserCode() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -315,7 +348,7 @@ public class DeviceAuthorizationEndpoint {
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                         String userCode = Common.getBodyParamsFromResponse(((Exchange)exc.getProperties().get(DEVICE_REQUEST))).get(Constants.PARAMETER_USER_CODE);
                         String newLocation = exc.getResponse().getHeader().getValue(Header.LOCATION);
-                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), userCode, "yes", loginParams.get("scope")));
+                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), userCode, "yes", loginParams.get("scope"),loginParams.get(Constants.PARAMETER_DEVICE_CODE)));
 
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
@@ -333,6 +366,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceVerificationWithBadUserCodeTest() throws Exception {
+        goodDeviceVerificationWithBadUserCode();
+    }
+
     public Exchange goodDeviceVerificationWithBadUserCode() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -340,7 +377,7 @@ public class DeviceAuthorizationEndpoint {
                         Exchange exc = goodDeviceVerificationOpenForm();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                         String newLocation = exc.getResponse().getHeader().getValue(Header.LOCATION);
-                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), "bad", "yes", loginParams.get("scope")));
+                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), "bad", "yes", loginParams.get("scope"),loginParams.get(Constants.PARAMETER_DEVICE_CODE)));
 
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
@@ -358,6 +395,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceCompleteVerificationWithGoodUserCodeAckScopeTest() throws Exception {
+        goodDeviceCompleteVerificationWithGoodUserCodeAckScope();
+    }
+
     public Exchange goodDeviceCompleteVerificationWithGoodUserCodeAckScope() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -365,7 +406,7 @@ public class DeviceAuthorizationEndpoint {
                         Exchange exc = goodDeviceVerificationWithGoodUserCode();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                         String newLocation = exc.getResponse().getHeader().getValue(Header.LOCATION);
-                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), loginParams.get("user_code"), "yes", loginParams.get("scope")));
+                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), loginParams.get("user_code"), "yes", loginParams.get("scope"),loginParams.get(Constants.PARAMETER_DEVICE_CODE)));
 
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
@@ -381,6 +422,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void reuseUserCodeTest() throws Exception {
+        reuseUserCode();
+    }
+
     public Exchange reuseUserCode() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -389,7 +434,7 @@ public class DeviceAuthorizationEndpoint {
                         String userCode = Common.getBodyParamsFromResponse(
                                 ((Exchange) exc.getProperties().get(DEVICE_REQUEST))).get(Constants.PARAMETER_USER_CODE);
 
-                        return piggyBack(exc, Common.createDeviceVerificationRequest(ConstantsTest.SERVER_VERIFICATION_ENDPOINT, Common.extractSessionCookie(exc), userCode, "yes", null));
+                        return piggyBack(exc, Common.createDeviceVerificationRequest(ConstantsTest.SERVER_VERIFICATION_ENDPOINT, Common.extractSessionCookie(exc), userCode, "yes", null,null));
 
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
@@ -406,6 +451,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceCompleteVerificationWithGoodUserCodeRejectedScopeTest() throws Exception {
+        goodDeviceCompleteVerificationWithGoodUserCodeRejectedScope();
+    }
+
     public Exchange goodDeviceCompleteVerificationWithGoodUserCodeRejectedScope() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -413,7 +462,7 @@ public class DeviceAuthorizationEndpoint {
                         Exchange exc = goodDeviceCompleteVerificationAckUserCode();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                         String newLocation = exc.getResponse().getHeader().getValue(Header.LOCATION);
-                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), loginParams.get("user_code"), "no", loginParams.get("scope")));
+                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), loginParams.get("user_code"), "no", loginParams.get("scope"),loginParams.get(Constants.PARAMETER_DEVICE_CODE)));
 
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
@@ -431,6 +480,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceCompleteVerificationAckUserCodeAndScopeTest() throws Exception {
+        goodDeviceCompleteVerificationAckUserCodeAndScope();
+    }
+
     public Exchange goodDeviceCompleteVerificationAckUserCodeAndScope() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -438,7 +491,7 @@ public class DeviceAuthorizationEndpoint {
                         Exchange exc = goodDeviceCompleteVerificationAckUserCode();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                         String newLocation = exc.getResponse().getHeader().getValue(Header.LOCATION);
-                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), loginParams.get("user_code"), "yes", loginParams.get("scope")));
+                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), loginParams.get("user_code"), "yes", loginParams.get("scope"),loginParams.get(Constants.PARAMETER_DEVICE_CODE)));
 
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
@@ -454,6 +507,10 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void reuseUserCodeAfterRejectionTest() throws Exception {
+        reuseUserCodeAfterRejection();
+    }
+
     public Exchange reuseUserCodeAfterRejection() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
@@ -461,7 +518,7 @@ public class DeviceAuthorizationEndpoint {
                         Exchange exc = goodDeviceCompleteVerificationWithGoodUserCodeRejectedScope();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                         String newLocation = exc.getResponse().getHeader().getValue(Header.LOCATION);
-                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), loginParams.get("user_code"), "yes", loginParams.get("scope")));
+                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), loginParams.get("user_code"), "yes", loginParams.get("scope"),loginParams.get(Constants.PARAMETER_DEVICE_CODE)));
 
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
@@ -478,13 +535,18 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void goodDeviceVerificationOpenFormTest() throws Exception {
+        goodDeviceVerificationOpenForm();
+    }
+
     public Exchange goodDeviceVerificationOpenForm() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodLoginAfterVerification();
+                        Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
                         String newLocation = exc.getResponse().getHeader().getValue(Header.LOCATION);
-                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), null, null, null));
+                        return piggyBack(exc, Common.createDeviceVerificationRequest(new URL(exc.getRequest().getUri().toURL(), newLocation).toString(), Common.extractSessionCookie(exc), null, null, null,loginParams.get(Constants.PARAMETER_DEVICE_CODE)));
 
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
@@ -502,13 +564,17 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void loginWrongUsernameTest() throws Exception {
+        loginWrongUsername();
+    }
+
     public Exchange loginWrongUsername() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodCompleteVerificationRequest();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME + "myusernameisreallycool", ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc));
+                        return Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME + "myusernameisreallycool", ConstantsTest.USER_DEFAULT_PASSWORD, loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }
@@ -523,13 +589,17 @@ public class DeviceAuthorizationEndpoint {
     }
 
     @Test
+    public void loginWrongPasswordTest() throws Exception {
+        loginWrongPassword();
+    }
+
     public Exchange loginWrongPassword() throws Exception {
         return Common.testExchangeOn(server,
                 () -> {
                     try {
                         Exchange exc = goodCompleteVerificationRequest();
                         Map<String, String> loginParams = Common.convertLoginPageParamsToMap(exc.getResponse().getHeader().getValue(Constants.HEADER_LOCATION));
-                        return Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD + "mypasswordiswrong", loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc));
+                        return Common.createLoginRequest(ConstantsTest.USER_DEFAULT_NAME, ConstantsTest.USER_DEFAULT_PASSWORD + "mypasswordiswrong", loginParams.get(Constants.PARAMETER_STATE), Common.extractSessionCookie(exc), loginParams.get(Constants.GRANT_CONTEXT_ID));
                     } catch (Exception e) {
                         return Common.defaultExceptionHandling(e);
                     }

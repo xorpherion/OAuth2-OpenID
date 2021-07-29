@@ -42,7 +42,7 @@ public class OAuth2 {
     @Test
     void testStartAuthServerAndClient() throws Exception {
         Router authorizationServer = UtilMembrane.startMembraneWithProxies(UtilMembrane.createAuthorizationServerProxy());
-        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target(ConstantsTest.HOST_AUTHORIZATION_SERVER.replace("http://", ""), ConstantsTest.PORT_AUTHORIZATION_SERVER)));
+        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target(ConstantsTest.HOST_AUTHORIZATION_SERVER.replace(ConstantsTest.PROTOCOL+"://", ""), ConstantsTest.PORT_AUTHORIZATION_SERVER)));
         boolean running = true;
         while (running)
             Thread.sleep(1000);
@@ -53,7 +53,7 @@ public class OAuth2 {
     @Test
     void testSuccessfulAuthorizationFlow() throws Exception {
         Router authorizationServer = UtilMembrane.startMembraneWithProxies(UtilMembrane.createAuthorizationServerProxy());
-        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target(ConstantsTest.HOST_AUTHORIZATION_SERVER.replace("https://", ""), ConstantsTest.PORT_AUTHORIZATION_SERVER)));
+        Router webApplicationClient = UtilMembrane.startMembraneWithProxies(UtilMembrane.createWebApplicationClientProxy(new AbstractServiceProxy.Target(ConstantsTest.HOST_AUTHORIZATION_SERVER.replace(ConstantsTest.PROTOCOL+"://", ""), ConstantsTest.PORT_AUTHORIZATION_SERVER)));
 
         ExtendedHttpClient client = new ExtendedHttpClient();
 
@@ -72,7 +72,7 @@ public class OAuth2 {
 
         Map<String, String> paramsAsMap = Common.convertLoginPageParamsToMap(responseProtectedResource.getDestinations().get(0));
 
-        Exchange requestLogin = new Request.Builder().post(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_LOGIN).body("username=" + ConstantsTest.USER_DEFAULT_NAME + "&password=" + ConstantsTest.USER_DEFAULT_PASSWORD + "&login_state=" + paramsAsMap.get("state")).buildExchange();
+        Exchange requestLogin = new Request.Builder().post(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_LOGIN).body("username=" + ConstantsTest.USER_DEFAULT_NAME + "&password=" + ConstantsTest.USER_DEFAULT_PASSWORD + "&login_state=" + paramsAsMap.get("login_state") + "&" + Constants.GRANT_CONTEXT_ID + "=" + paramsAsMap.get(Constants.GRANT_CONTEXT_ID)).buildExchange();
         Exchange responseLogin = client.call(requestLogin);
 
         assertAll("Consent page",
@@ -81,7 +81,7 @@ public class OAuth2 {
 
         paramsAsMap = Common.convertLoginPageParamsToMap(responseLogin.getDestinations().get(0));
 
-        Exchange requestConsent = new Request.Builder().post(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_CONSENT).body("consent=yes&login_state=" + paramsAsMap.get("state")).buildExchange();
+        Exchange requestConsent = new Request.Builder().post(ConstantsTest.URL_AUTHORIZATION_SERVER + Constants.ENDPOINT_CONSENT).body("consent=yes&login_state=" + paramsAsMap.get("state") + "&" + Constants.GRANT_CONTEXT_ID + "=" + paramsAsMap.get(Constants.GRANT_CONTEXT_ID)).buildExchange();
         Exchange responseConsent = client.call(requestConsent);
 
         assertAll("Protected resource",

@@ -4,6 +4,8 @@ import com.bornium.security.oauth2openid.permissions.Scope;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -11,7 +13,7 @@ import java.util.regex.Pattern;
  */
 public class SupportedScopes {
 
-    HashMap<String, Scope> supportedScopes;
+    Map<String, Scope> supportedScopes;
 
     public SupportedScopes(Scope... supportedScopes) {
         this.supportedScopes = new HashMap<>();
@@ -30,7 +32,7 @@ public class SupportedScopes {
         return true;
     }
 
-    public HashSet<String> getClaimsForScope(String scope) {
+    public Set<String> getClaimsForScope(String scope) {
         HashSet<String> result = new HashSet<>();
 
         for (String s : scope.split(Pattern.quote(" ")))
@@ -39,7 +41,7 @@ public class SupportedScopes {
         return result;
     }
 
-    public HashMap<String, Scope> getSupportedScopes() {
+    public Map<String, Scope> getSupportedScopes() {
         return supportedScopes;
     }
 }
