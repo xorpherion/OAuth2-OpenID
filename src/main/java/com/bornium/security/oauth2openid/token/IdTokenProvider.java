@@ -2,6 +2,7 @@ package com.bornium.security.oauth2openid.token;
 
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.server.endpoints.Parameters;
+import com.google.common.collect.ImmutableList;
 import org.jose4j.jwk.RsaJsonWebKey;
 import org.jose4j.jwk.RsaJwkGenerator;
 import org.jose4j.jws.AlgorithmIdentifiers;
@@ -11,6 +12,7 @@ import org.jose4j.jwt.NumericDate;
 import org.jose4j.lang.JoseException;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -83,11 +85,20 @@ public class IdTokenProvider {
         return toString(signJwt(createJwtClaims(validFor,claims)));
     }
 
+    protected List<String> getAudienceForClient(String clientId) {
+        if (clientId == null)
+            return null;
+        else
+            return ImmutableList.of(clientId);
+    }
+
     private JwtClaims createClaims(String issuer, String subject, String clientidOfRecipient, Duration validFor, String authTime, String nonce, Map<String, Object> claims) {
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setIssuer(issuer);
         jwtClaims.setSubject(subject);
-        jwtClaims.setAudience(clientidOfRecipient);
+        List<String> audiences = getAudienceForClient(clientidOfRecipient);
+        if (audiences != null)
+            jwtClaims.setAudience(audiences);
         jwtClaims.setIssuedAtToNow();
         NumericDate expiration = NumericDate.now();
         expiration.addSeconds(validFor.getSeconds());
