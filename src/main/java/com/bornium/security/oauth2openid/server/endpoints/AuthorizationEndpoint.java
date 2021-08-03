@@ -3,6 +3,7 @@ package com.bornium.security.oauth2openid.server.endpoints;
 import com.bornium.http.Exchange;
 import com.bornium.http.Response;
 import com.bornium.http.ResponseBuilder;
+import com.bornium.http.util.UriUtil;
 import com.bornium.security.oauth2openid.Constants;
 import com.bornium.security.oauth2openid.providers.ActiveGrantsConfiguration;
 import com.bornium.security.oauth2openid.providers.GrantContext;
@@ -10,6 +11,7 @@ import com.bornium.security.oauth2openid.providers.Session;
 import com.bornium.security.oauth2openid.responsegenerators.CombinedResponseGenerator;
 import com.bornium.security.oauth2openid.server.AuthorizationServer;
 
+import java.io.UnsupportedEncodingException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
@@ -171,8 +173,12 @@ public class AuthorizationEndpoint extends Endpoint {
     }
 
     private Response redirectToAfterLoginEndpoint(GrantContext ctx) {
-        return new ResponseBuilder()
-                .redirectTempWithGet(this.serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_AFTER_LOGIN + "?" + Constants.GRANT_CONTEXT_ID + "=" + ctx.getIdentifier()).build();
+        try {
+            return new ResponseBuilder()
+                    .redirectTempWithGet(this.serverServices.getProvidedServices().getContextPath() + Constants.ENDPOINT_AFTER_LOGIN + "?" + Constants.GRANT_CONTEXT_ID + "=" + UriUtil.encode(ctx.getIdentifier())).build();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private boolean isImplicitFlowAndHasNoNonceValue(Map<String, String> params) {

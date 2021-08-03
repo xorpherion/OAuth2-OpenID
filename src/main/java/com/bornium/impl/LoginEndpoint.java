@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
  */
 public class LoginEndpoint extends Endpoint {
 
+    // TODO - synchronize
     Cache<String, LoginResultWithCallback> ctxToAuthenticatedUser = CacheBuilder.newBuilder()
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .maximumSize(10000)

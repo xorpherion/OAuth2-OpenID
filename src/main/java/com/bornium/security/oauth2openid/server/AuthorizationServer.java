@@ -28,7 +28,7 @@ public class AuthorizationServer {
     SupportedScopes supportedScopes;
     SupportedClaims supportedClaims;
     ActiveGrantsConfiguration supportedGrants;
-    private Endpoint loginEndpoint;
+    private Object loginEndpoint;
 
     public AuthorizationServer(ProvidedServices providedServices) throws Exception {
         this(providedServices, new IdTokenProvider());
@@ -53,7 +53,8 @@ public class AuthorizationServer {
         endpoints.add(new VerificationEndpoint(this));
 
         loginEndpoint = providedServices.getEndpointFactory().createLogin(this);
-        endpoints.add(loginEndpoint);
+        if(loginEndpoint instanceof Endpoint)
+            endpoints.add((Endpoint) loginEndpoint);
     }
 
     private SupportedScopes calcSupportedScopes(ProvidedServices providedServices) {
@@ -133,7 +134,7 @@ public class AuthorizationServer {
         return endpoints;
     }
 
-    public Endpoint getLoginEndpoint() {
+    public Object getLoginEndpoint() {
         return loginEndpoint;
     }
 }

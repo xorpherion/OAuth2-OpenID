@@ -51,10 +51,8 @@ public class UriUtil {
 
         String[] paramsRaw = query.split(Pattern.quote("&"));
         for (String paramRaw : paramsRaw) {
-            String[] paramSplit = paramRaw.split(Pattern.quote("="));
+            String[] paramSplit = paramRaw.split(Pattern.quote("="),2);
             try {
-                if (paramSplit.length != 2)
-                    continue;
                 result.put(decode(paramSplit[0]), decode(paramSplit[1]));
             } catch (UnsupportedEncodingException e) {
                 // should never throw because it is the default encoding of the JVM
