@@ -35,8 +35,8 @@ public class MembraneGrantContextProvider extends GrantContextProvider {
             }
 
             @Override
-            public Set<String> allKeys() {
-                return state.keySet();
+            public Map<String,String> all() {
+                return new HashMap<>(state);
             }
 
             @Override

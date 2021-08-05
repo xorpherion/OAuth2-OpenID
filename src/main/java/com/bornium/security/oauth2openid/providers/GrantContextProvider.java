@@ -11,12 +11,14 @@ public abstract class GrantContextProvider {
 
     /**
      * Creates a fresh instance
+     * GrantContexts are supposed to be per thread in memory stores
      * @return
      */
     public abstract GrantContext create();
 
     /**
-     * store a context for later retrieval by ctx.getIdentifier().
+     * stores a context for later retrieval by ctx.getIdentifier().
+     * GrantContexts are supposed to be per thread in memory stores. This methods persists them for later retrieval.
      * GrantContexts are short lived objects that depend mostly on how fast the user can login (or authorize a device).
      * GrantContexts should not be stored indefinitely but should be either limited in count or have a TTL or both.
      * A good TTL time could be ~ 10 minutes. This should give a user enough time to complete any interaction
@@ -50,16 +52,13 @@ public abstract class GrantContextProvider {
     public GrantContext deepCopy(GrantContext toBeCopied) throws Exception{
         GrantContext result = create();
 
-        toBeCopied.allKeys().stream().forEach(k -> {
+        toBeCopied.all().keySet().stream().forEach(k -> {
             try {
                 result.putValue(k, toBeCopied.getValue(k));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });
-
-        result.setIdentifier(toBeCopied.getIdentifier());
-
         return result;
     }
 }
