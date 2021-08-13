@@ -137,7 +137,7 @@ public abstract class Endpoint {
     protected boolean hasGivenConsent(Session session,GrantContext ctx) throws Exception {
         Map<String, ConsentContext> allConsent = serverServices.getProvidedServices().getConsentProvider().getConsentFor(session.getValue(Constants.LOGIN_USERNAME));
         ConsentContext forClient = allConsent.get(ctx.getValue(Constants.PARAMETER_CLIENT_ID));
-        return forClient.isConsented();
+        return forClient != null && forClient.isConsented();
     }
 
     protected boolean isLoggedInAndHasGivenConsent(Session session, GrantContext ctx) throws Exception {
