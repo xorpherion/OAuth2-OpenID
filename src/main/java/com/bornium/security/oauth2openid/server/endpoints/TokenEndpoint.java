@@ -148,6 +148,7 @@ public class TokenEndpoint extends Endpoint {
             }
             ctx = serverServices.getProvidedServices().getGrantContextProvider().findById(token.getValue()).get();
             params.put(Constants.PARAMETER_SCOPE, ctx.getValue(Constants.PARAMETER_SCOPE));
+            copyDeviceCodeIntoContext(token,ctx);
         }
 
         String scopes = params.get(Constants.PARAMETER_SCOPE);
@@ -210,7 +211,7 @@ public class TokenEndpoint extends Endpoint {
                 return;
             }
             ctx.putValue(Constants.SESSION_AUTHORIZATION_CODE, code);
-
+            copyAuthorizationCodeIntoContext(authorizationCodeToken,ctx);
 
         }
 
@@ -276,6 +277,7 @@ public class TokenEndpoint extends Endpoint {
                 return;
             }
             ctx.putValue(Constants.PARAMETER_REFRESH_TOKEN, refreshToken);
+            copyRefreshTokenIntoContext(refreshTokenToken,ctx);
         }
 
 
@@ -293,6 +295,29 @@ public class TokenEndpoint extends Endpoint {
 
         Map<String, String> responseBody = new CombinedResponseGenerator(serverServices, ctx).invokeResponse(response);
         exc.setResponse(okWithJSONBody(responseBody));
+    }
+
+    private void copyDeviceCodeIntoContext(Token deviceCode, GrantContext ctx) {
+        copyBaseIntoContext(deviceCode,ctx);
+        ctx.putValue(Constants.PARAMETER_VALUE_DEVICE_CODE, deviceCode.getValue());
+    }
+
+    private void copyAuthorizationCodeIntoContext(Token authorizationCodeToken, GrantContext ctx) {
+        copyBaseIntoContext(authorizationCodeToken,ctx);
+        ctx.putValue(Constants.PARAMETER_VALUE_AUTHORIZATION_CODE, authorizationCodeToken.getValue());
+    }
+
+    private void copyRefreshTokenIntoContext(Token refreshToken, GrantContext ctx) {
+        copyBaseIntoContext(refreshToken,ctx);
+        ctx.putValue(Constants.PARAMETER_REFRESH_TOKEN, refreshToken.getValue());
+    }
+
+    private void copyBaseIntoContext(Token token, GrantContext ctx){
+        ctx.putValue(Constants.PARAMETER_USERNAME,token.getUsername());
+        ctx.putValue(Constants.PARAMETER_CLIENT_ID,token.getClientId());
+        ctx.putValue(Constants.PARAMETER_CLAIMS,token.getClaims());
+        ctx.putValue(Constants.PARAMETER_SCOPE,token.getScope());
+        ctx.putValue(Constants.PARAMETER_REDIRECT_URI,token.getRedirectUri());
     }
 
     private void copyParamsIntoContext(Map<String, String> params, GrantContext ctx) {
