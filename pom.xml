@@ -61,7 +61,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gpg.keyname>083E7A237B190D36</gpg.keyname>
 
-        <jackson.core.version>2.11.3</jackson.core.version>
+        <jackson.core.version>2.13.4.1</jackson.core.version>
         <slf4j.version>1.7.30</slf4j.version>
         <guava.version>29.0-jre</guava.version>
         <jose4j.version>0.7.2</jose4j.version>
